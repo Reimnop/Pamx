@@ -1,6 +1,6 @@
 ﻿using Pamx.Ls;
 
-var lsTheme = new LsTheme();
+var lsBeatmap = new LsBeatmap();
 
 using var standardOutput = Console.OpenStandardOutput();
-LsSerialization.WriteTheme(lsTheme, standardOutput);
+LsSerialization.WriteBeatmap(lsBeatmap, standardOutput);

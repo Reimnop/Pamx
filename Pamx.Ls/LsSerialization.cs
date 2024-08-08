@@ -12,6 +12,14 @@ namespace Pamx.Ls;
 
 public static class LsSerialization
 {
+    public static long WriteBeatmap(IBeatmap beatmap, Stream stream)
+    {
+        using var writer = CreateWriter(stream);
+        SerializeBeatmap(beatmap, writer);
+        writer.Flush();
+        return writer.BytesCommitted;
+    }
+    
     public static long WritePrefab(IPrefab prefab, Stream stream)
     {
         using var writer = CreateWriter(stream);
@@ -37,7 +45,7 @@ public static class LsSerialization
             // Write editor data
             writer.WriteStartObject("ed");
             {
-                writer.WriteString("timeline_pos", beatmap.EditorSettings.TimelinePosition.ToString(CultureInfo.InvariantCulture));
+                writer.WriteString("timeline_pos", "0");
                 writer.WriteStartArray("markers");
                 {
                     foreach (var marker in beatmap.Markers)
@@ -62,7 +70,7 @@ public static class LsSerialization
             {
                 foreach (var prefabObject in beatmap.PrefabObjects)
                     SerializePrefabObject(prefabObject, writer);
-                writer.WriteEndObject();
+                writer.WriteEndArray();
             }
         
             // Write level metadata
@@ -166,15 +174,80 @@ public static class LsSerialization
                         writer.WriteEndObject();
                     }
                 }
-                writer.WriteEndObject();
+                writer.WriteEndArray();
             }
             
-            // TODO: Implement event kfs
+            // Write events
+            writer.WritePropertyName("events");
+            SerializeEvents(beatmap.Events, writer);
             
             writer.WriteEndObject();
         }
     }
-    
+
+    private static void SerializeEvents(IBeatmapEvents beatmapEvents, Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        {
+            WriteEventKeyframes("pos", beatmapEvents.Movement, writer, (writer, v) =>
+            {
+                writer.WriteString("x", v.X.ToString(CultureInfo.InvariantCulture));
+                writer.WriteString("y", v.Y.ToString(CultureInfo.InvariantCulture));
+            });
+            WriteEventKeyframes("zoom", beatmapEvents.Zoom, writer, (writer, v) => writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture)));
+            WriteEventKeyframes("rot", beatmapEvents.Rotation, writer, (writer, v) => writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture)));
+            WriteEventKeyframes("shake", beatmapEvents.Shake, writer, (writer, v) =>
+            {
+                writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture));
+                writer.WriteString("y", "0"); // Don't know why this is here, but it's always 0
+            });
+            WriteEventKeyframes("theme", beatmapEvents.Theme, writer, (writer, v) =>
+            {
+                if (v is not IIdentifiable<int> identifiable)
+                    throw new NotImplementedException();
+                writer.WriteString("x", identifiable.Id.ToString());
+            });
+            WriteEventKeyframes("chroma", beatmapEvents.Chroma, writer, (writer, v) => writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture)));
+            WriteEventKeyframes("bloom", beatmapEvents.Bloom, writer, (writer, v) => writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture)));
+            WriteEventKeyframes("vignette", beatmapEvents.Vignette, writer, (writer, v) =>
+            {
+                writer.WriteString("x", v.Intensity.ToString(CultureInfo.InvariantCulture));
+                writer.WriteString("y", v.Smoothness.ToString(CultureInfo.InvariantCulture));
+                writer.WriteString("z", v.Rounded ? "1" : "0");
+                writer.WriteString("x2", v.Roundness.ToString(CultureInfo.InvariantCulture));
+                writer.WriteString("y2", v.Center.X.ToString(CultureInfo.InvariantCulture));
+                writer.WriteString("z2", v.Center.Y.ToString(CultureInfo.InvariantCulture));
+            });
+            WriteEventKeyframes("lens", beatmapEvents.LensDistortion, writer, (writer, v) => writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture)));
+            WriteEventKeyframes("grain", beatmapEvents.Grain, writer, (writer, v) =>
+            {
+                writer.WriteString("x", v.Intensity.ToString(CultureInfo.InvariantCulture));
+                writer.WriteString("y", v.Colored ? "1" : "0");
+                writer.WriteString("z", v.Size.ToString(CultureInfo.InvariantCulture));
+            });
+            writer.WriteEndObject();
+        }
+    }
+
+    private static void WriteEventKeyframes<T>(string name, IEnumerable<FixedKeyframe<T>> eventKeyframes, Utf8JsonWriter writer, Action<Utf8JsonWriter, T> writeKeyframeDataCallback)
+    {
+        writer.WriteStartArray(name);
+        {
+            foreach (var keyframe in eventKeyframes)
+            {
+                writer.WriteStartObject();
+                {
+                    writer.WriteString("t", keyframe.Time.ToString(CultureInfo.InvariantCulture));
+                    writeKeyframeDataCallback(writer, keyframe.Value);
+                    if (keyframe.Ease != Ease.Linear)
+                        writer.WriteString("ct", keyframe.Ease.ToString());
+                    writer.WriteEndObject();
+                }
+            }
+            writer.WriteEndArray();
+        }
+    }
+
     public static void SerializePrefabObject(IPrefabObject prefabObject, Utf8JsonWriter writer)
     {
         writer.WriteStartObject();

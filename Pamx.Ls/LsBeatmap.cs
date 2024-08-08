@@ -1,3 +1,4 @@
+using System.Numerics;
 using Pamx.Common;
 using Pamx.Common.Data;
 
@@ -15,4 +16,5 @@ public class LsBeatmap : IBeatmap
     public IList<ITheme> Themes { get; } = [];
     public IList<IPrefabObject> PrefabObjects { get; } = [];
     public IList<IObject> Objects { get; } = [];
+    public IBeatmapEvents Events { get; set; } = new LsBeatmapEvents();
 }

@@ -14,7 +14,5 @@ public interface IBeatmap
     IList<ITheme> Themes { get; }
     IList<IPrefabObject> PrefabObjects { get; }
     IList<IObject> Objects { get; }
-    
-    
-    // TODO: Add event keyframes
+    IBeatmapEvents Events { get; set; }
 }
