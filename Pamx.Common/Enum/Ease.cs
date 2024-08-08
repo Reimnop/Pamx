@@ -1,6 +1,6 @@
 namespace Pamx.Common.Enum;
 
-public enum Easing
+public enum Ease
 {
     Linear,
     Instant,

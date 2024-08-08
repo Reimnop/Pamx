@@ -409,8 +409,8 @@ public static class LsSerialization
             writer.WriteString("t", keyframe.Time.ToString(CultureInfo.InvariantCulture));
             writer.WriteString("x", keyframe.Value.X.ToString(CultureInfo.InvariantCulture));
             writer.WriteString("y", keyframe.Value.Y.ToString(CultureInfo.InvariantCulture));
-            if (keyframe.Easing != Easing.Linear)
-                writer.WriteString("ct", keyframe.Easing.ToString());
+            if (keyframe.Ease != Ease.Linear)
+                writer.WriteString("ct", keyframe.Ease.ToString());
             if (keyframe.RandomMode != RandomMode.None)
             {
                 writer.WriteString("r", keyframe.RandomMode switch
@@ -434,8 +434,8 @@ public static class LsSerialization
         {
             writer.WriteString("t", keyframe.Time.ToString(CultureInfo.InvariantCulture));
             writer.WriteString("x", keyframe.Value.ToString(CultureInfo.InvariantCulture));
-            if (keyframe.Easing != Easing.Linear)
-                writer.WriteString("ct", keyframe.Easing.ToString());
+            if (keyframe.Ease != Ease.Linear)
+                writer.WriteString("ct", keyframe.Ease.ToString());
             if (keyframe.RandomMode != RandomMode.None)
             {
                 writer.WriteString("r", keyframe.RandomMode switch
@@ -458,8 +458,8 @@ public static class LsSerialization
         {
             writer.WriteString("t", keyframe.Time.ToString(CultureInfo.InvariantCulture));
             writer.WriteString("x", keyframe.Value.ToString());
-            if (keyframe.Easing != Easing.Linear)
-                writer.WriteString("ct", keyframe.Easing.ToString());
+            if (keyframe.Ease != Ease.Linear)
+                writer.WriteString("ct", keyframe.Ease.ToString());
             writer.WriteEndObject();
         }
     }
