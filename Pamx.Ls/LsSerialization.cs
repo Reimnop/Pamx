@@ -530,7 +530,7 @@ public static class LsSerialization
         writer.WriteStartObject();
         {
             writer.WriteString("t", keyframe.Time.ToString(CultureInfo.InvariantCulture));
-            writer.WriteString("x", keyframe.Value.ToString());
+            writer.WriteString("x", keyframe.Value.Index.ToString());
             if (keyframe.Ease != Ease.Linear)
                 writer.WriteString("ct", keyframe.Ease.ToString());
             writer.WriteEndObject();
