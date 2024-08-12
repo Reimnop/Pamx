@@ -1,9 +1,9 @@
 using Pamx.Common;
 using Pamx.Common.Data;
 
-namespace Pamx.Ls;
+namespace Pamx.Vg;
 
-public class LsBeatmap : IBeatmap
+public class VgBeatmap : IBeatmap
 {
     public EditorSettings EditorSettings { get; set; }
     public IList<Trigger> Triggers { get; } = [];
@@ -15,5 +15,5 @@ public class LsBeatmap : IBeatmap
     public IList<ITheme> Themes { get; } = [];
     public IList<IPrefabObject> PrefabObjects { get; } = [];
     public IList<IObject> Objects { get; } = [];
-    public IBeatmapEvents Events { get; set; } = new LsBeatmapEvents();
+    public IBeatmapEvents Events { get; set; } = new VgBeatmapEvents();
 }
