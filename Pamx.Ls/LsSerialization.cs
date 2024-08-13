@@ -542,7 +542,7 @@ public static class LsSerialization
         return new Utf8JsonWriter(stream, new JsonWriterOptions
         {
             Indented = false,
-            Encoder = JavaScriptEncoder.Create(new TextEncoderSettings(UnicodeRanges.All))
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         });
     }
     

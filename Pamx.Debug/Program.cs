@@ -64,6 +64,6 @@ var vgObject = new VgObject
 using var stream = Console.OpenStandardOutput();
 using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions
 {
-    Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
 });
 VgSerialization.SerializeObject(vgObject, writer);
