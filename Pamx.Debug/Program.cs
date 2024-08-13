@@ -1,112 +1,69 @@
 ﻿using System.Numerics;
-using Pamx.Common;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Unicode;
 using Pamx.Common.Data;
 using Pamx.Common.Enum;
-using Pamx.Ls;
+using Pamx.Vg;
 
-var lsBeatmap = new LsBeatmap();
-lsBeatmap.Checkpoints.Add(new Checkpoint
+var vgObject = new VgObject
 {
     Name = "Lorem ipsum dolor sit amet",
-    Position = new Vector2(0.0f, 0.0f),
-    Time = 0.0f
-});
-lsBeatmap.Objects.Add(new LsObject
-{
-    Name = "consectetur adipiscing elit",
-    StartTime = 0.0f,
+    StartTime = 8.0f,
     AutoKillType = AutoKillType.FixedTime,
     AutoKillOffset = 5.0f,
-    Shape = ObjectShape.Square,
-    ShapeOption = (int) ObjectSquareShape.Solid,
     PositionEvents =
     {
         new Keyframe<Vector2>
         {
             Time = 0.0f,
-            Value = new Vector2(0.0f, 0.0f)
-        }
+            Value = new Vector2(0.0f, 0.0f),
+        },
     },
     ScaleEvents =
     {
         new Keyframe<Vector2>
         {
             Time = 0.0f,
-            Value = new Vector2(1.0f, 1.0f)
-        }
+            Value = new Vector2(1.0f, 1.0f),
+        },
     },
     RotationEvents =
     {
         new Keyframe<float>
         {
             Time = 0.0f,
-            Value = 0.0f
-        }
+            Value = 0.0f,
+        },
+        new Keyframe<float>
+        {
+            Time = 5.0f,
+            Value = 50.0f,
+            RandomMode = RandomMode.Range,
+            RandomValue = 80.0f,
+            RandomInterval = 6.0f
+        },
     },
     ColorEvents =
     {
         new FixedKeyframe<ThemeColor>
         {
             Time = 0.0f,
-            Value = new ThemeColor
-            {
-                Index = 0,
-                Opacity = 1.0f
-            }
-        }
+            Value = new ThemeColor(),
+        },
     },
-});
-var events = lsBeatmap.Events;
-events.Movement.Add(new FixedKeyframe<Vector2>
-{
-    Time = 0.0f,
-    Value = new Vector2(0.0f, 0.0f)
-});
-events.Zoom.Add(new FixedKeyframe<float>
-{
-    Time = 0.0f,
-    Value = 0.0f
-});
-events.Rotation.Add(new FixedKeyframe<float>
-{
-    Time = 0.0f,
-    Value = 0.0f
-});
-events.Shake.Add(new FixedKeyframe<float>
-{
-    Time = 0.0f,
-    Value = 0.0f
-});
-events.Theme.Add(new FixedKeyframe<IReference<ITheme>>
-{
-    Time = 0.0f,
-    Value = new LsReferenceTheme(7)
-});
-events.Chroma.Add(new FixedKeyframe<float>
-{
-    Time = 0.0f,
-    Value = 0.0f
-});
-events.Bloom.Add(new FixedKeyframe<float>
-{
-    Time = 0.0f,
-    Value = 0.0f
-});
-events.Vignette.Add(new FixedKeyframe<VignetteData>
-{
-    Time = 0.0f,
-    Value = new VignetteData()
-});
-events.LensDistortion.Add(new FixedKeyframe<float>
-{
-    Time = 0.0f,
-    Value = 0.0f
-});
-events.Grain.Add(new FixedKeyframe<GrainData>
-{
-    Time = 0.0f,
-    Value = new GrainData()
-});
+    EditorSettings = new ObjectEditorSettings
+    {
+        Bin = 5,
+        Layer = 2,
+        BackgroundColor = ObjectTimelineColor.Yellow,
+        TextColor = ObjectTimelineColor.Red
+    }
+};
 
-using var standardOutput = Console.OpenStandardOutput();
-LsSerialization.WriteBeatmap(lsBeatmap, standardOutput);
+using var stream = Console.OpenStandardOutput();
+using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions
+{
+    Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+});
+VgSerialization.SerializeObject(vgObject, writer);

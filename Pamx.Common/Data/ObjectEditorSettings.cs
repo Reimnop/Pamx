@@ -8,5 +8,6 @@ public struct ObjectEditorSettings()
     public bool Collapsed { get; set; } = false;
     public int Bin { get; set; } = 0;
     public int Layer { get; set; } = 0;
-    public ObjectTimelineColor TimelineColor { get; set; }
+    public ObjectTimelineColor TextColor { get; set; }
+    public ObjectTimelineColor BackgroundColor { get; set; }
 }

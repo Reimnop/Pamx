@@ -5,6 +5,6 @@ public enum RenderType
     Normal,
     LeftToRightGradient,
     RightToLeftGradient,
-    InwardGradient,
-    OutwardGradient,
+    InwardsGradient,
+    OutwardsGradient,
 }
