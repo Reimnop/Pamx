@@ -594,6 +594,10 @@ public static class VgSerialization
                                             writer.WriteBoolean("ar", true);
                                             writer.WriteNumber("r", animation.Rotation.Value);
                                         }
+                                        if (animation.LoopLength != 1.0f)
+                                            writer.WriteNumber("l", animation.LoopLength);
+                                        if (animation.LoopDelay != 0.0f)
+                                            writer.WriteNumber("ld", animation.LoopDelay);
                                         writer.WriteEndObject();
                                     }
                                     writer.WriteStartObject("s");
