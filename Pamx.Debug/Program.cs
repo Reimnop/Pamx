@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Pamx.Common;
@@ -8,82 +7,16 @@ using Pamx.Common.Enum;
 using Pamx.Common.Implementation;
 using Pamx.Vg;
 
-var vgObject = new VgObject
-{
-    Name = "Lorem ipsum dolor sit amet",
-    StartTime = 8.0f,
-    AutoKillType = AutoKillType.FixedTime,
-    AutoKillOffset = 5.0f,
-    PositionEvents =
-    {
-        new Keyframe<Vector2>
-        {
-            Time = 0.0f,
-            Value = new Vector2(0.0f, 0.0f),
-        },
-    },
-    ScaleEvents =
-    {
-        new Keyframe<Vector2>
-        {
-            Time = 0.0f,
-            Value = new Vector2(1.0f, 1.0f),
-        },
-        new Keyframe<Vector2>
-        {
-            Time = 0.0f,
-            Value = new Vector2(5.0f, 5.0f),
-        },
-    },
-    RotationEvents =
-    {
-        new Keyframe<float>
-        {
-            Time = 0.0f,
-            Value = 0.0f,
-        },
-        new Keyframe<float>
-        {
-            Time = 5.0f,
-            Value = 50.0f,
-            RandomMode = RandomMode.Range,
-            RandomValue = 80.0f,
-            RandomInterval = 6.0f
-        },
-    },
-    ColorEvents =
-    {
-        new FixedKeyframe<ThemeColor>
-        {
-            Time = 0.0f,
-            Value = new ThemeColor(),
-        },
-    },
-    EditorSettings = new ObjectEditorSettings
-    {
-        Bin = 5,
-        Layer = 2,
-        BackgroundColor = ObjectTimelineColor.Yellow,
-        TextColor = ObjectTimelineColor.Red
-    }
-};
-
-var vgCheckpoint = new VgCheckpoint
-{
-    Name = "Lorem ipsum dolor sit amet",
-    Time = 0.0f,
-    Position = new Vector2(0.0f, 0.0f),
-};
-
 var vgBeatmap = new VgBeatmap
 {
     Checkpoints =
     {
-        vgCheckpoint
-    },
-    Objects =
-    {
-        vgObject
+        new VgCheckpoint
+        {
+            Name = "Lorem ipsum dolor sit amet",
+            Time = 0.0f,
+            Position = new Vector2(0.0f, 0.0f),
+        },
     },
     PrefabSpawns =
     {
@@ -112,7 +45,7 @@ var vgBeatmap = new VgBeatmap
             new FixedKeyframe<Vector2>
             {
                 Time = 0.0f,
-                Value = Vector2.One * 10.0f,
+                Value = Vector2.Zero,
             }
         },
         Zoom =
@@ -120,7 +53,7 @@ var vgBeatmap = new VgBeatmap
             new FixedKeyframe<float>
             {
                 Time = 0.0f,
-                Value = 25.0f,
+                Value = 20.0f,
             }
         },
         Rotation =
@@ -128,7 +61,7 @@ var vgBeatmap = new VgBeatmap
             new FixedKeyframe<float>
             {
                 Time = 0.0f,
-                Value = 10.0f,
+                Value = 0.0f,
             }
         },
         Shake =
@@ -136,7 +69,7 @@ var vgBeatmap = new VgBeatmap
             new FixedKeyframe<float>
             {
                 Time = 0.0f,
-                Value = 5.0f,
+                Value = 0.0f,
             }
         },
         Theme =
@@ -152,7 +85,7 @@ var vgBeatmap = new VgBeatmap
             new FixedKeyframe<float>
             {
                 Time = 0.0f,
-                Value = 2.0f,
+                Value = 0.0f,
             }
         },
         Bloom =
@@ -160,12 +93,7 @@ var vgBeatmap = new VgBeatmap
             new FixedKeyframe<BloomData>
             {
                 Time = 0.0f,
-                Value = new BloomData
-                {
-                    Intensity = 20.0f,
-                    Diffusion = 0.4f,
-                    Color = 1,
-                },
+                Value = new BloomData(),
             }
         },
         Vignette =
@@ -181,10 +109,7 @@ var vgBeatmap = new VgBeatmap
             new FixedKeyframe<LensDistortionData>
             {
                 Time = 0.0f,
-                Value = new LensDistortionData
-                {
-                    Intensity = 1.0f,
-                }
+                Value = new LensDistortionData(),
             },
         },
         Grain =
@@ -192,11 +117,7 @@ var vgBeatmap = new VgBeatmap
             new FixedKeyframe<GrainData>
             {
                 Time = 0.0f,
-                Value = new GrainData
-                {
-                    Intensity = 0.5f,
-                    Size = 1.0f,
-                },
+                Value = new GrainData(),
             },
         },
         Gradient =
@@ -204,13 +125,7 @@ var vgBeatmap = new VgBeatmap
             new FixedKeyframe<GradientData>
             {
                 Time = 0.0f,
-                Value = new GradientData
-                {
-                    Intensity = 2.0f,
-                    Rotation = 25.0f,
-                    ColorA = 0,
-                    ColorB = 1,
-                },
+                Value = new GradientData(),
             },
         },
         Glitch =
@@ -218,12 +133,7 @@ var vgBeatmap = new VgBeatmap
             new FixedKeyframe<GlitchData>
             {
                 Time = 0.0f,
-                Value = new GlitchData
-                {
-                    Intensity = 0.5f,
-                    Speed = 0.5f,
-                    Width = 0.5f,
-                }
+                Value = new GlitchData(),
             }
         },
         Hue =
@@ -245,7 +155,30 @@ var vgBeatmap = new VgBeatmap
     }
 };
 
-using var stream = Console.OpenStandardOutput();
+// Generate a grid of parallax objects
+var layer = vgBeatmap.Parallax.Layers[0];
+for (var x = -5; x <= 5; x++)
+{
+    for (var y = -5; y <= 5; y++)
+    {
+        layer.Objects.Add(new ParallaxObject
+        {
+            Position = new Vector2(x, y) * 3.0f,
+            Scale = new Vector2(3.0f, 3.0f),
+            Animation = new ParallaxObjectAnimation
+            {
+                Scale = new Vector2(0.5f, 0.5f),
+                LoopLength = 1.0f,
+                LoopDelay = (x + y + 10) * 0.3f,
+            },
+            Shape = ObjectShape.Square,
+            ShapeOption = (int) ObjectSquareShape.Solid,
+            Color = 5,
+        });
+    }
+}
+
+using var stream = File.Open("level.vgd", FileMode.Create);
 using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions
 {
     Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
