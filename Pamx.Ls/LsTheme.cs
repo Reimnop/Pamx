@@ -1,11 +1,12 @@
 using System.Drawing;
 using Pamx.Common;
+using Pamx.Common.Implementation;
 
 namespace Pamx.Ls;
 
 public class LsTheme : ITheme, IIdentifiable<int>
 {
-    public int Id { get; } = LsRandomUtil.GenerateThemeId();
+    public int Id { get; } = RandomUtil.GenerateLegacyThemeId();
     public string Name { get; set; } = string.Empty;
     public IList<Color> Player { get; } = [];
     public IList<Color> Object { get; } = [];

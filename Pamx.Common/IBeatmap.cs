@@ -7,8 +7,9 @@ public interface IBeatmap
     EditorSettings EditorSettings { get; set; }
     IList<Trigger> Triggers { get; }
     IList<EditorPrefabSpawn> PrefabSpawns { get; }
-    IList<Checkpoint> Checkpoints { get; }
-    IList<Marker> Markers { get; }
+    IList<ICheckpoint> Checkpoints { get; }
+    IList<IMarker> Markers { get; }
+    IParallax Parallax { get; }
     IList<BackgroundObject> BackgroundObjects { get; }
     IList<IPrefab> Prefabs { get; }
     IList<ITheme> Themes { get; }

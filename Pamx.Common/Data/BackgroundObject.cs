@@ -10,7 +10,7 @@ public struct BackgroundObject()
     public Vector2 Position { get; set; }
     public Vector2 Scale { get; set; }
     public float Rotation { get; set; }
-    public int ColorIndex { get; set; }
+    public int Color { get; set; }
     public int Depth { get; set; }
     public bool Fade { get; set; }
     public BackgroundObjectReactiveType ReactiveType { get; set; }

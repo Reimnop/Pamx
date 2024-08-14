@@ -55,7 +55,7 @@ public static class LsSerialization
                             writer.WriteString("active", "True");
                             writer.WriteString("name", marker.Name);
                             writer.WriteString("desc", marker.Description);
-                            writer.WriteString("col", marker.ColorIndex.ToString());
+                            writer.WriteString("col", marker.Color.ToString());
                             writer.WriteString("t", marker.Time.ToString(CultureInfo.InvariantCulture));
                             writer.WriteEndObject();
                         }
@@ -153,7 +153,7 @@ public static class LsSerialization
                             writer.WriteEndObject();
                         }
                         writer.WriteString("rot", backgroundObject.Rotation.ToString(CultureInfo.InvariantCulture));
-                        writer.WriteString("color", backgroundObject.ColorIndex.ToString());
+                        writer.WriteString("color", backgroundObject.Color.ToString());
                         writer.WriteString("layer", backgroundObject.Depth.ToString(CultureInfo.InvariantCulture));
                         writer.WriteString("fade", backgroundObject.Fade ? "True" : "False");
                         if (backgroundObject.ReactiveType != BackgroundObjectReactiveType.None)
@@ -264,28 +264,7 @@ public static class LsSerialization
             writer.WriteString("st", prefabObject.Time.ToString(CultureInfo.InvariantCulture));
             writer.WritePropertyName("ed");
             SerializeObjectEditorSettings(prefabObject.EditorSettings, writer);
-            writer.WriteStartObject("e");
-            {
-                writer.WriteStartArray("pos");
-                {
-                    foreach (var keyframe in prefabObject.PositionEvents)
-                        SerializeVector2Keyframe(keyframe, writer);
-                    writer.WriteEndArray();
-                }
-                writer.WriteStartArray("sca");
-                {
-                    foreach (var keyframe in prefabObject.ScaleEvents)
-                        SerializeVector2Keyframe(keyframe, writer);
-                    writer.WriteEndArray();
-                }
-                writer.WriteStartArray("rot");
-                {
-                    foreach (var keyframe in prefabObject.RotationEvents)
-                        SerializeFloatKeyframe(keyframe, writer);
-                    writer.WriteEndArray();
-                }
-                writer.WriteEndObject();
-            }
+            
             writer.WriteEndObject();
         }
     }

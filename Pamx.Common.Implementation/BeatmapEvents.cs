@@ -1,10 +1,9 @@
-using System.Numerics;
-using Pamx.Common;
+﻿using System.Numerics;
 using Pamx.Common.Data;
 
-namespace Pamx.Ls;
+namespace Pamx.Common.Implementation;
 
-public class LsBeatmapEvents : IBeatmapEvents
+public class BeatmapEvents : IBeatmapEvents
 {
     public IList<FixedKeyframe<Vector2>> Movement { get; } = [];
     public IList<FixedKeyframe<float>> Zoom { get; } = [];

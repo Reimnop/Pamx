@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pamx.Debug", "Pamx.Debug\Pa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pamx.Vg", "Pamx.Vg\Pamx.Vg.csproj", "{554391A4-1892-4484-B509-8DCE1DDEA915}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pamx.Common.Implementation", "Pamx.Common.Implementation\Pamx.Common.Implementation.csproj", "{71DC3F5A-0A49-4224-9CDC-2338C2B90358}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{554391A4-1892-4484-B509-8DCE1DDEA915}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{554391A4-1892-4484-B509-8DCE1DDEA915}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{554391A4-1892-4484-B509-8DCE1DDEA915}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71DC3F5A-0A49-4224-9CDC-2338C2B90358}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71DC3F5A-0A49-4224-9CDC-2338C2B90358}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71DC3F5A-0A49-4224-9CDC-2338C2B90358}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71DC3F5A-0A49-4224-9CDC-2338C2B90358}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

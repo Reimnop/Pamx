@@ -1,8 +1,8 @@
 using System.Text;
 
-namespace Pamx.Ls;
+namespace Pamx.Common.Implementation;
 
-public static class LsRandomUtil
+public static class RandomUtil
 {
     private static Random Random => Random.Shared;
     
@@ -18,6 +18,6 @@ public static class LsRandomUtil
         return builder.ToString();
     }
 
-    public static int GenerateThemeId()
+    public static int GenerateLegacyThemeId()
         => Random.Next(100000, 1000000);
 }

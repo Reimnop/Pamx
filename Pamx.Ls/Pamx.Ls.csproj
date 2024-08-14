@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="../Pamx.Common/Pamx.Common.csproj" />
+      <ProjectReference Include="..\Pamx.Common.Implementation\Pamx.Common.Implementation.csproj" />
     </ItemGroup>
 
 </Project>

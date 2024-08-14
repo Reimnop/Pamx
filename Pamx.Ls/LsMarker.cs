@@ -1,9 +1,11 @@
-namespace Pamx.Common.Data;
+using Pamx.Common;
 
-public struct Marker()
+namespace Pamx.Ls;
+
+public class LsMarker : IMarker
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public int ColorIndex { get; set; } = 0;
+    public int Color { get; set; } = 0;
     public float Time { get; set; } = 0.0f;
 }

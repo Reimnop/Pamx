@@ -2,12 +2,13 @@
 using Pamx.Common;
 using Pamx.Common.Data;
 using Pamx.Common.Enum;
+using Pamx.Common.Implementation;
 
 namespace Pamx.Vg;
 
 public class VgObject : IObject, IIdentifiable<string>
 {
-    public string Id { get; } = VgRandomUtil.GenerateId();
+    public string Id { get; } = RandomUtil.GenerateId();
     public string Name { get; set; } = string.Empty;
     public float StartTime { get; set; }
     public AutoKillType AutoKillType { get; set; }

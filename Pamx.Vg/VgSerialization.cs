@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Numerics;
 using System.Text.Json;
 using Pamx.Common;
@@ -8,33 +9,266 @@ namespace Pamx.Vg;
 
 public static class VgSerialization
 {
-    public static void SerializePrefab(IPrefab prefab, Utf8JsonWriter writer)
+    public static void SerializeBeatmap(IBeatmap beatmap, Utf8JsonWriter writer)
     {
         writer.WriteStartObject();
         {
-            if (prefab is IIdentifiable<string> identifiable)
-                writer.WriteString("id", identifiable.Id);
-            
-            if (!string.IsNullOrEmpty(prefab.Name))
-                writer.WriteString("n", prefab.Name);
-            
-            if (!string.IsNullOrEmpty(prefab.Description))
-                writer.WriteString("description", prefab.Description);
-            
-            if (!string.IsNullOrEmpty(prefab.Preview))
-                writer.WriteString("preview", prefab.Preview);
-            
-            if (prefab.Offset != 0.0f)
-                writer.WriteNumber("o", prefab.Offset);
-            
-            writer.WriteStartArray("objs");
+            writer.WriteEditorSettings("editor", beatmap.EditorSettings);
+            writer.WriteStartArray("triggers");
             {
-                foreach (var @object in prefab.BeatmapObjects)
-                    SerializeObject(@object, writer);
+                foreach (var trigger in beatmap.Triggers)
+                {
+                    writer.WriteStartObject();
+                    {
+                        writer.WriteNumber("event_trigger", trigger.Type switch
+                        {
+                            TriggerType.Time => 0,
+                            TriggerType.PlayerHit => 1,
+                            TriggerType.PlayerDeath => 2,
+                            TriggerType.PlayerStart => 3,
+                            _ => throw new ArgumentOutOfRangeException()
+                        });
+
+                        var eventTriggerTime = new Vector2(trigger.From, trigger.To); // It's saved as a vector2 internally
+                        writer.WriteVector2("event_trigger_time", eventTriggerTime);
+                        
+                        writer.WriteNumber("event_retrigger", trigger.Retrigger);
+                        writer.WriteNumber("event_type", trigger.EventType switch
+                        {
+                            EventType.VnInk => 0,
+                            EventType.VnTimeline => 1,
+                            EventType.PlayerBubble => 2,
+                            EventType.PlayerLocation => 3,
+                            EventType.PlayerDash => 4,
+                            EventType.PlayerXMovement => 5,
+                            EventType.PlayerYMovement => 6,
+                            EventType.PlayerDashDirection => 9,
+                            EventType.BgSpin => 7,
+                            EventType.BgMove => 8,
+                            _ => throw new ArgumentOutOfRangeException()
+                        });
+                        
+                        writer.WriteStartArray("event_data");
+                        {
+                            foreach (var data in trigger.Data)
+                                writer.WriteStringValue(data);
+                            writer.WriteEndArray();
+                        }
+                        
+                        writer.WriteEndObject();
+                    }
+                }
+                writer.WriteEndArray();
+            }
+            writer.WriteStartArray("editor_prefab_spawn");
+            {
+                foreach (var prefabSpawn in beatmap.PrefabSpawns)
+                {
+                    writer.WriteStartObject();
+                    {
+                        writer.WriteBoolean("expanded", prefabSpawn.Expanded);
+                        writer.WriteBoolean("active", prefabSpawn.Active);
+                        writer.WriteId("prefab", prefabSpawn.Prefab);
+                        writer.WriteStartArray("keycodes");
+                        {
+                            foreach (var keycode in prefabSpawn.Keycodes)
+                                writer.WriteStringValue(keycode);
+                            writer.WriteEndArray();
+                        }
+                        writer.WriteEndObject();
+                    }
+                }
+                writer.WriteEndArray();
+            }
+            writer.WriteParallax("parallax_settings", beatmap.Parallax);
+            writer.WriteStartArray("checkpoints");
+            {
+                foreach (var checkpoint in beatmap.Checkpoints)
+                {
+                    writer.WriteStartObject();
+                    {
+                        writer.WriteId("ID", checkpoint, true);
+                        if (!string.IsNullOrEmpty(checkpoint.Name))
+                            writer.WriteString("n", checkpoint.Name);
+                        if (checkpoint.Time != 0.0f)
+                            writer.WriteNumber("t", checkpoint.Time);
+                        if (checkpoint.Position != default)
+                            writer.WriteVector2("p", checkpoint.Position);
+                        writer.WriteEndObject();
+                    }
+                }
+                writer.WriteEndArray();
+            }
+            writer.WriteStartArray("marker");
+            {
+                foreach (var marker in beatmap.Markers)
+                {
+                    writer.WriteStartObject();
+                    {
+                        writer.WriteId("ID", marker, true);
+                        if (!string.IsNullOrEmpty(marker.Name))
+                            writer.WriteString("n", marker.Name);
+                        if (!string.IsNullOrEmpty(marker.Description))
+                            writer.WriteString("d", marker.Description);
+                        if (marker.Color != 0)
+                            writer.WriteNumber("c", marker.Color);
+                        if (marker.Time != 0.0f)
+                            writer.WriteNumber("t", marker.Time);
+                        writer.WriteEndObject();
+                    }
+                }
+                writer.WriteEndArray();
+            }
+            writer.WriteStartArray("objects");
+            {
+                foreach (var beatmapObject in beatmap.Objects)
+                    SerializeObject(beatmapObject, writer);
+                writer.WriteEndArray();
+            }
+            writer.WriteStartArray("prefab_objects");
+            {
+                foreach (var prefabObject in beatmap.PrefabObjects)
+                    SerializePrefabObject(prefabObject, writer);
+                writer.WriteEndArray();
+            }
+            writer.WriteStartArray("prefabs");
+            {
+                foreach (var prefab in beatmap.Prefabs)
+                    SerializePrefab(prefab, writer, true);
+                writer.WriteEndArray();
+            }
+            writer.WriteStartArray("themes");
+            {
+                foreach (var theme in beatmap.Themes)
+                    SerializeTheme(theme, writer, true);
+                writer.WriteEndArray();
+            }
+            writer.WriteEndObject();
+        }
+    }
+    
+    public static void SerializePrefabObject(IPrefabObject prefabObject, Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        {
+            writer.WriteId("id", prefabObject, true);
+            writer.WriteId("pid", prefabObject.Prefab, true);
+            writer.WriteObjectEditorSettings("ed", prefabObject.EditorSettings);
+            writer.WriteNumber("t", prefabObject.Time);
+            
+            writer.WriteStartArray("e");
+            {
+                // Write position
+                writer.WriteStartObject();
+                {
+                    writer.WriteStartArray("ev");
+                    {
+                        writer.WriteNumberValue(prefabObject.Position.X);
+                        writer.WriteNumberValue(prefabObject.Position.Y);
+                        writer.WriteEndArray();
+                    }
+                    writer.WriteEndObject();
+                }
+                
+                // Write scale
+                writer.WriteStartObject();
+                {
+                    writer.WriteStartArray("ev");
+                    {
+                        writer.WriteNumberValue(prefabObject.Scale.X);
+                        writer.WriteNumberValue(prefabObject.Scale.Y);
+                        writer.WriteEndArray();
+                    }
+                    writer.WriteEndObject();
+                }
+                
+                // Write rotation
+                writer.WriteStartObject();
+                {
+                    writer.WriteStartArray("ev");
+                    {
+                        writer.WriteNumberValue(prefabObject.Rotation);
+                        writer.WriteEndArray();
+                    }
+                    writer.WriteEndObject();
+                }
                 
                 writer.WriteEndArray();
             }
             
+            writer.WriteEndObject();
+        }
+    }
+    
+    public static void SerializeTheme(ITheme theme, Utf8JsonWriter writer, bool requiresId = false)
+    {
+        writer.WriteStartObject();
+        {
+            writer.WriteId("id", theme, requiresId);
+            writer.WriteString("name", theme.Name);
+            
+            writer.WriteStartArray("pla");
+            {
+                foreach (var color in theme.Player)
+                    writer.WriteStringValue(color.ToHex());
+                writer.WriteEndArray();
+            }
+            
+            writer.WriteStartArray("obj");
+            {
+                foreach (var color in theme.Object)
+                    writer.WriteStringValue(color.ToHex());
+                writer.WriteEndArray();
+            }
+            
+            writer.WriteStartArray("fx");
+            {
+                foreach (var color in theme.Effect)
+                    writer.WriteStringValue(color.ToHex());
+                writer.WriteEndArray();
+            }
+            
+            writer.WriteStartArray("bg");
+            {
+                foreach (var color in theme.ParallaxObject)
+                    writer.WriteStringValue(color.ToHex());
+                writer.WriteEndArray();
+            }
+            
+            writer.WriteString("base_bg", theme.Background.ToHex());
+            writer.WriteString("gui", theme.Gui.ToHex());
+            writer.WriteString("gui_accent", theme.GuiAccent.ToHex());
+            
+            writer.WriteEndObject();
+        }
+    }
+
+    public static void SerializePrefab(IPrefab prefab, Utf8JsonWriter writer, bool requiresId = false)
+    {
+        writer.WriteStartObject();
+        {
+            writer.WriteId("id", prefab, requiresId);
+
+            if (!string.IsNullOrEmpty(prefab.Name))
+                writer.WriteString("n", prefab.Name);
+
+            if (!string.IsNullOrEmpty(prefab.Description))
+                writer.WriteString("description", prefab.Description);
+
+            if (!string.IsNullOrEmpty(prefab.Preview))
+                writer.WriteString("preview", prefab.Preview);
+
+            if (prefab.Offset != 0.0f)
+                writer.WriteNumber("o", prefab.Offset);
+
+            writer.WriteStartArray("objs");
+            {
+                foreach (var @object in prefab.BeatmapObjects)
+                    SerializeObject(@object, writer);
+
+                writer.WriteEndArray();
+            }
+
             writer.WriteNumber("type", prefab.Type switch
             {
                 PrefabType.Character => 0,
@@ -51,21 +285,18 @@ public static class VgSerialization
                 PrefabType.Misc3 => 11,
                 _ => throw new ArgumentOutOfRangeException()
             });
-            
+
             writer.WriteEndObject();
         }
     }
-    
+
     public static void SerializeObject(IObject @object, Utf8JsonWriter writer)
     {
         writer.WriteStartObject();
         {
-            if (@object is IIdentifiable<string> identifiable)
-                writer.WriteString("id", identifiable.Id);
-            
-            if (@object.Parent is IIdentifiable<string> parentIdentifiable)
-                writer.WriteString("p_id", parentIdentifiable.Id);
-            
+            writer.WriteId("id", @object, true);
+            writer.WriteId("p_id", @object.Parent);
+
             writer.WriteAutoKillType("ak_t", @object.AutoKillType);
             writer.WriteNumber("ak_o", @object.AutoKillOffset);
             writer.WriteNumber("ot", @object.Type switch
@@ -98,16 +329,16 @@ public static class VgSerialization
             writer.WriteNumber("so", @object.ShapeOption);
             writer.WriteNumber("gt", @object.RenderType switch
             {
-               RenderType.Normal => 0,
-               RenderType.RightToLeftGradient => 1,
-               RenderType.LeftToRightGradient => 2,
-               RenderType.InwardsGradient => 3,
-               RenderType.OutwardsGradient => 4,
-               _ => throw new ArgumentOutOfRangeException()
+                RenderType.Normal => 0,
+                RenderType.RightToLeftGradient => 1,
+                RenderType.LeftToRightGradient => 2,
+                RenderType.InwardsGradient => 3,
+                RenderType.OutwardsGradient => 4,
+                _ => throw new ArgumentOutOfRangeException()
             });
             if (@object.ParentType != (ParentType.Position | ParentType.Rotation))
-                writer.WriteString("p_t", 
-                    (@object.ParentType.HasFlag(ParentType.Position) ? "1" : "0") + 
+                writer.WriteString("p_t",
+                    (@object.ParentType.HasFlag(ParentType.Position) ? "1" : "0") +
                     (@object.ParentType.HasFlag(ParentType.Scale) ? "1" : "0") +
                     (@object.ParentType.HasFlag(ParentType.Rotation) ? "1" : "0"));
             writer.WriteStartArray("p_o");
@@ -121,76 +352,124 @@ public static class VgSerialization
                 writer.WriteNumber("d", @object.RenderDepth);
             writer.WriteNumber("st", @object.StartTime);
             writer.WriteObjectEditorSettings("ed", @object.EditorSettings);
-            
+
             writer.WriteStartArray("e");
             {
                 // Write position keyframes
-                writer.WriteStartObject();
+                writer.WriteKeyframeArray(@object.PositionEvents, (w, v) =>
                 {
-                    writer.WriteStartArray("k");
-                    {
-                        foreach (var keyframe in @object.PositionEvents)
-                            writer.WriteKeyframe(keyframe, (w, v) =>
-                            {
-                                w.WriteNumberValue(v.X);
-                                w.WriteNumberValue(v.Y);
-                            });
-                        writer.WriteEndArray();
-                    }
-                    writer.WriteEndObject();
-                }
-                
+                    w.WriteNumberValue(v.X);
+                    w.WriteNumberValue(v.Y);
+                });
+
                 // Write scale keyframes
-                writer.WriteStartObject();
+                writer.WriteKeyframeArray(@object.ScaleEvents, (w, v) =>
                 {
-                    writer.WriteStartArray("k");
-                    {
-                        foreach (var keyframe in @object.ScaleEvents)
-                            writer.WriteKeyframe(keyframe, (w, v) =>
-                            {
-                                w.WriteNumberValue(v.X);
-                                w.WriteNumberValue(v.Y);
-                            });
-                        writer.WriteEndArray();
-                    }
-                    writer.WriteEndObject();
-                }
-                
+                    w.WriteNumberValue(v.X);
+                    w.WriteNumberValue(v.Y);
+                });
+
                 // Write rotation keyframes
-                writer.WriteStartObject();
-                {
-                    writer.WriteStartArray("k");
+                writer.WriteKeyframeArray(
+                    @object.RotationEvents, 
+                    (w, v) => w.WriteNumberValue(v),
+                    (w, v) =>
                     {
-                        foreach (var keyframe in @object.RotationEvents)
-                            writer.WriteKeyframe(
-                                keyframe, 
-                                (w, v) => w.WriteNumberValue(v), 
-                                (w, v) =>
-                                {
-                                    w.WriteNumberValue(v);
-                                    w.WriteNumberValue(0.0f); // ?????
-                                });
-                        writer.WriteEndArray();
-                    }
-                    writer.WriteEndObject();
-                }
-                
+                        w.WriteNumberValue(v);
+                        w.WriteNumberValue(0.0f); // ?????
+                    });
+
                 // Write color keyframes
-                writer.WriteStartObject();
+                writer.WriteFixedKeyframeArray(@object.ColorEvents, (w, v) =>
                 {
-                    writer.WriteStartArray("k");
+                    w.WriteNumberValue(v.Index);
+                    w.WriteNumberValue(v.Opacity * 100.0f); // It's stored as a percentage
+                    w.WriteNumberValue(v.EndIndex);
+                });
+                writer.WriteEndArray();
+            }
+
+            writer.WriteEndObject();
+        }
+    }
+
+    private static void WriteParallax(this Utf8JsonWriter writer, string name, IParallax parallax)
+    {
+        writer.WriteStartObject(name);
+        {
+            if (parallax.DepthOfField.HasValue)
+            {
+                writer.WriteBoolean("dof_active", true);
+                writer.WriteNumber("dof_value", parallax.DepthOfField.Value);
+            }
+            
+            writer.WriteStartArray("l");
+            {
+                foreach (var layer in parallax.Layers)
+                {
+                    writer.WriteStartObject();
                     {
-                        foreach (var keyframe in @object.ColorEvents)
-                            writer.WriteFixedKeyframe(keyframe, (w, v) =>
+                        writer.WriteNumber("d", layer.Depth);
+                        writer.WriteNumber("c", layer.Color);
+                        writer.WriteStartArray("o");
+                        {
+                            foreach (var parallaxObject in layer.Objects)
                             {
-                                // It's stored as float in the format, so we have to convert it to float
-                                w.WriteNumberValue((float) v.Index);  
-                                w.WriteNumberValue(v.Opacity * 100.0f); // It's stored as a percentage
-                                w.WriteNumberValue((float) v.EndIndex);
-                            });
-                        writer.WriteEndArray();
+                                writer.WriteStartObject();
+                                {
+                                    writer.WriteId("id", parallaxObject, true);
+                                    writer.WriteStartObject("t");
+                                    {
+                                        writer.WriteVector2("p", parallaxObject.Position);
+                                        writer.WriteVector2("s", parallaxObject.Scale);
+                                        writer.WriteNumber("r", parallaxObject.Rotation);
+                                        writer.WriteEndObject();
+                                    }
+                                    writer.WriteStartObject("an");
+                                    {
+                                        var animation = parallaxObject.Animation;
+                                        if (animation.Position.HasValue)
+                                        {
+                                            writer.WriteBoolean("ap", true);
+                                            writer.WriteVector2("p", animation.Position.Value);
+                                        }
+                                        if (animation.Scale.HasValue)
+                                        {
+                                            writer.WriteBoolean("as", true);
+                                            writer.WriteVector2("s", animation.Scale.Value);
+                                        }
+                                        if (animation.Rotation.HasValue)
+                                        {
+                                            writer.WriteBoolean("ar", true);
+                                            writer.WriteNumber("r", animation.Rotation.Value);
+                                        }
+                                        writer.WriteEndObject();
+                                    }
+                                    writer.WriteStartObject("s");
+                                    {
+                                        writer.WriteNumber("s", parallaxObject.Shape switch
+                                        {
+                                            ObjectShape.Square => 0,
+                                            ObjectShape.Circle => 1,
+                                            ObjectShape.Triangle => 2,
+                                            ObjectShape.Arrow => 3,
+                                            ObjectShape.Text => 4,
+                                            ObjectShape.Hexagon => 5,
+                                            _ => throw new ArgumentOutOfRangeException()
+                                        });
+                                        writer.WriteNumber("so", parallaxObject.ShapeOption);
+                                        if (!string.IsNullOrEmpty(parallaxObject.Text))
+                                            writer.WriteString("t", parallaxObject.Text);
+                                        writer.WriteEndObject();
+                                    }
+                                    writer.WriteNumber("c", parallaxObject.Color);
+                                    writer.WriteEndObject();
+                                }
+                            }
+                            writer.WriteEndArray();
+                        }
+                        writer.WriteEndObject();
                     }
-                    writer.WriteEndObject();
                 }
                 writer.WriteEndArray();
             }
@@ -198,14 +477,117 @@ public static class VgSerialization
             writer.WriteEndObject();
         }
     }
+
+    private static void WriteEditorSettings(this Utf8JsonWriter writer, string name, EditorSettings value)
+    {
+        writer.WriteStartObject(name);
+        {
+            // Write bpm settings
+            writer.WriteStartObject("bpm");
+            {
+                var bpm = value.Bpm;
+                writer.WriteStartObject("snap");
+                {
+                    var snap = bpm.Snap;
+                    writer.WriteBoolean("objects", snap.HasFlag(BpmSnap.Objects));
+                    writer.WriteBoolean("checkpoints", snap.HasFlag(BpmSnap.Checkpoints));
+                    writer.WriteEndObject();
+                }
+                writer.WriteNumber("bpm_value", bpm.Value);
+                writer.WriteNumber("bpm_offset", bpm.Offset);
+                writer.WriteNumber("BPMValue", bpm.Value); // TODO: WTF is this?????
+                writer.WriteEndObject();
+            }
+            
+            // Write grid settings
+            writer.WriteStartObject("grid");
+            {
+                var grid = value.Grid;
+                writer.WriteVector2("scale", grid.Scale);
+                writer.WriteNumber("thickness", grid.Thickness);
+                writer.WriteNumber("opacity", grid.Opacity);
+                writer.WriteNumber("color", grid.Color);
+                writer.WriteEndObject();
+            }
+            
+            // Write general settings
+            writer.WriteStartObject("general");
+            {
+                var general = value.General;
+                writer.WriteNumber("collapse_length", general.CollapseLength);
+                writer.WriteNumber("complexity", general.Complexity);
+                writer.WriteNumber("theme", general.Theme);
+                writer.WriteBoolean("text_select_objects", general.SelectTextObjects);
+                writer.WriteBoolean("text_select_backgrounds", general.SelectParallaxTextObjects);
+                writer.WriteEndObject();
+            }
+            
+            // Write preview settings
+            writer.WriteStartObject("preview");
+            {
+                var preview = value.Preview;
+                writer.WriteNumber("cam_zoom_offset", preview.CameraZoomOffset);
+                writer.WriteNumber("cam_zoom_offset_color", preview.CameraZoomOffsetColor);
+                writer.WriteEndObject();
+            }
+            
+            // Write auto save settings
+            writer.WriteStartObject("autosave");
+            {
+                var autoSave = value.AutoSave;
+                writer.WriteNumber("as_max", autoSave.Max);
+                writer.WriteNumber("as_interval", autoSave.Interval);
+                writer.WriteEndObject();
+            }
+            writer.WriteEndObject();
+        }
+    }
     
-    private static void WriteFixedKeyframe<T>(this Utf8JsonWriter writer, FixedKeyframe<T> keyframe, Action<Utf8JsonWriter, T> writeValueCallback)
+    private static void WriteFixedKeyframeArray<T>(
+        this Utf8JsonWriter writer,
+        IEnumerable<FixedKeyframe<T>> keyframes,
+        Action<Utf8JsonWriter, T> writeValueCallback)
+    {
+        writer.WriteStartObject();
+        {
+            writer.WriteStartArray("k");
+            {
+                foreach (var keyframe in keyframes)
+                    writer.WriteFixedKeyframe(keyframe, writeValueCallback);
+                writer.WriteEndArray();
+            }
+            writer.WriteEndObject();
+        }
+    }
+
+    private static void WriteKeyframeArray<T>(
+        this Utf8JsonWriter writer,
+        IEnumerable<Keyframe<T>> keyframes,
+        Action<Utf8JsonWriter, T> writeValueCallback,
+        Action<Utf8JsonWriter, T>? writeRandomValueCallback = null)
+    {
+        writer.WriteStartObject();
+        {
+            writer.WriteStartArray("k");
+            {
+                foreach (var keyframe in keyframes)
+                    writer.WriteKeyframe(keyframe, writeValueCallback, writeRandomValueCallback);
+                writer.WriteEndArray();
+            }
+            writer.WriteEndObject();
+        }
+    }
+
+    private static void WriteFixedKeyframe<T>(
+        this Utf8JsonWriter writer, 
+        FixedKeyframe<T> keyframe,
+        Action<Utf8JsonWriter, T> writeValueCallback)
     {
         writer.WriteStartObject();
         {
             if (keyframe.Time != 0.0f)
                 writer.WriteNumber("t", keyframe.Time);
-            
+
             writer.WriteStartArray("ev");
             {
                 writeValueCallback(writer, keyframe.Value);
@@ -216,16 +598,16 @@ public static class VgSerialization
     }
 
     private static void WriteKeyframe<T>(
-        this Utf8JsonWriter writer, 
-        Keyframe<T> keyframe, 
-        Action<Utf8JsonWriter, T> writeValueCallback, 
+        this Utf8JsonWriter writer,
+        Keyframe<T> keyframe,
+        Action<Utf8JsonWriter, T> writeValueCallback,
         Action<Utf8JsonWriter, T>? writeRandomValueCallback = null)
     {
         writer.WriteStartObject();
         {
             if (keyframe.Time != 0.0f)
                 writer.WriteNumber("t", keyframe.Time);
-            
+
             writer.WriteStartArray("ev");
             {
                 writeValueCallback(writer, keyframe.Value);
@@ -250,6 +632,7 @@ public static class VgSerialization
                     writer.WriteEndArray();
                 }
             }
+
             writer.WriteEndObject();
         }
     }
@@ -297,7 +680,7 @@ public static class VgSerialization
             writer.WriteEndObject();
         }
     }
-    
+
     private static void WriteAutoKillType(this Utf8JsonWriter writer, string name, AutoKillType value)
     {
         writer.WriteNumber(name, value switch
@@ -310,4 +693,16 @@ public static class VgSerialization
             _ => throw new ArgumentOutOfRangeException(nameof(value))
         });
     }
+
+    private static void WriteId(this Utf8JsonWriter writer, string name, object? value, bool require = false)
+    {
+        if (value is not IIdentifiable<string> && require)
+            throw new ArgumentException($"{value?.GetType()} is not identifiable, but an id is required");
+
+        if (value is IIdentifiable<string> identifiable)
+            writer.WriteString(name, identifiable.Id);
+    }
+    
+    private static string ToHex(this Color color)
+        => $"{color.R:X2}{color.G:X2}{color.B:X2}";
 }

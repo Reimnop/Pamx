@@ -1,8 +1,9 @@
 using Pamx.Common;
+using Pamx.Common.Implementation;
 
 namespace Pamx.Vg;
 
 public class VgBeatmapPrefab : VgPrefab, IIdentifiable<string>
 {
-    public string Id { get; } = VgRandomUtil.GenerateId();
+    public string Id { get; } = RandomUtil.GenerateId();
 }

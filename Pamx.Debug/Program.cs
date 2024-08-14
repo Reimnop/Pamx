@@ -1,9 +1,38 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Pamx.Common.Data;
 using Pamx.Common.Enum;
 using Pamx.Vg;
+
+var vgTheme = new VgBeatmapTheme
+{
+    Name = "Lorem ipsum dolor sit amet",
+    Player =
+    {
+        Color.FromArgb(255, 12, 255, 80),
+        Color.FromArgb(255, 0, 124, 136),
+    },
+    Object =
+    {
+        Color.FromArgb(255, 50, 60, 255),
+        Color.FromArgb(255, 0, 0, 123),
+    },
+    Effect =
+    {
+        Color.FromArgb(255, 255, 255, 123),
+        Color.FromArgb(255, 79, 0, 31),
+    },
+    ParallaxObject =
+    {
+        Color.FromArgb(255, 255, 121, 255),
+        Color.FromArgb(255, 214, 0, 0),
+    },
+    Background = Color.FromArgb(255, 0, 0, 124),
+    Gui = Color.FromArgb(255, 0, 0, 255),
+    GuiAccent = Color.FromArgb(255, 0, 128, 0),
+};
 
 var vgObject = new VgObject
 {
@@ -65,19 +94,32 @@ var vgObject = new VgObject
     }
 };
 
-var vgPrefab = new VgPrefab
+var vgCheckpoint = new VgCheckpoint
 {
-    Name = "consectetur adipiscing elit",
-    BeatmapObjects =
+    Name = "Lorem ipsum dolor sit amet",
+    Time = 0.0f,
+    Position = new Vector2(0.0f, 0.0f),
+};
+
+var vgBeatmap = new VgBeatmap
+{
+    Checkpoints =
+    {
+        vgCheckpoint
+    },
+    Objects =
     {
         vgObject
     },
-    Type = PrefabType.Misc3
-};  
+    Themes =
+    {
+        vgTheme
+    }
+};
 
 using var stream = Console.OpenStandardOutput();
 using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions
 {
     Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
 });
-VgSerialization.SerializePrefab(vgPrefab, writer);
+VgSerialization.SerializeBeatmap(vgBeatmap, writer);
