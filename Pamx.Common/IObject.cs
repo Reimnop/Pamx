@@ -27,5 +27,5 @@ public interface IObject : IReference<IObject>
     IList<Keyframe<float>> RotationEvents { get; }
     IList<FixedKeyframe<ThemeColor>> ColorEvents { get; }
     
-    IObject? Parent { get; set; }
+    IReference<IObject>? Parent { get; set; }
 }

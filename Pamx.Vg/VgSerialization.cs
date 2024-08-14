@@ -8,6 +8,54 @@ namespace Pamx.Vg;
 
 public static class VgSerialization
 {
+    public static void SerializePrefab(IPrefab prefab, Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        {
+            if (prefab is IIdentifiable<string> identifiable)
+                writer.WriteString("id", identifiable.Id);
+            
+            if (!string.IsNullOrEmpty(prefab.Name))
+                writer.WriteString("n", prefab.Name);
+            
+            if (!string.IsNullOrEmpty(prefab.Description))
+                writer.WriteString("description", prefab.Description);
+            
+            if (!string.IsNullOrEmpty(prefab.Preview))
+                writer.WriteString("preview", prefab.Preview);
+            
+            if (prefab.Offset != 0.0f)
+                writer.WriteNumber("o", prefab.Offset);
+            
+            writer.WriteStartArray("objs");
+            {
+                foreach (var @object in prefab.BeatmapObjects)
+                    SerializeObject(@object, writer);
+                
+                writer.WriteEndArray();
+            }
+            
+            writer.WriteNumber("type", prefab.Type switch
+            {
+                PrefabType.Character => 0,
+                PrefabType.CharacterParts => 1,
+                PrefabType.Props => 2,
+                PrefabType.Bullets => 3,
+                PrefabType.Pulses => 4,
+                PrefabType.Bombs => 5,
+                PrefabType.Spinners => 6,
+                PrefabType.Beams => 7,
+                PrefabType.Static => 8,
+                PrefabType.Misc1 => 9,
+                PrefabType.Misc2 => 10,
+                PrefabType.Misc3 => 11,
+                _ => throw new ArgumentOutOfRangeException()
+            });
+            
+            writer.WriteEndObject();
+        }
+    }
+    
     public static void SerializeObject(IObject @object, Utf8JsonWriter writer)
     {
         writer.WriteStartObject();

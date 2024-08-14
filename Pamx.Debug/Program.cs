@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Unicode;
 using Pamx.Common.Data;
 using Pamx.Common.Enum;
 using Pamx.Vg;
@@ -26,6 +25,11 @@ var vgObject = new VgObject
         {
             Time = 0.0f,
             Value = new Vector2(1.0f, 1.0f),
+        },
+        new Keyframe<Vector2>
+        {
+            Time = 0.0f,
+            Value = new Vector2(5.0f, 5.0f),
         },
     },
     RotationEvents =
@@ -61,9 +65,19 @@ var vgObject = new VgObject
     }
 };
 
+var vgPrefab = new VgPrefab
+{
+    Name = "consectetur adipiscing elit",
+    BeatmapObjects =
+    {
+        vgObject
+    },
+    Type = PrefabType.Misc3
+};  
+
 using var stream = Console.OpenStandardOutput();
 using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions
 {
-    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
 });
-VgSerialization.SerializeObject(vgObject, writer);
+VgSerialization.SerializePrefab(vgPrefab, writer);

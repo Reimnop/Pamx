@@ -28,5 +28,5 @@ public class VgObject : IObject, IIdentifiable<string>
     public IList<Keyframe<float>> RotationEvents { get; } = [];
     public IList<FixedKeyframe<ThemeColor>> ColorEvents { get; } = [];
     
-    public IObject? Parent { get; set; }
+    public IReference<IObject>? Parent { get; set; }
 }
