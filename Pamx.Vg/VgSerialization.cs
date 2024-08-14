@@ -99,7 +99,7 @@ public static class VgSerialization
                 }
                 writer.WriteEndArray();
             }
-            writer.WriteStartArray("marker");
+            writer.WriteStartArray("markers");
             {
                 foreach (var marker in beatmap.Markers)
                 {
@@ -141,6 +141,157 @@ public static class VgSerialization
             {
                 foreach (var theme in beatmap.Themes)
                     SerializeTheme(theme, writer, true);
+                writer.WriteEndArray();
+            }
+            writer.WriteStartArray("events");
+            {
+                // Write movement events
+                writer.WriteArray(beatmap.Events.Movement, (w, keyframe) =>
+                {
+                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
+                    {
+                        w2.WriteNumberValue(v.X);
+                        w2.WriteNumberValue(v.Y);
+                    });
+                });
+                
+                // Write zoom events
+                writer.WriteArray(beatmap.Events.Zoom, (w, keyframe) =>
+                {
+                    w.WriteFixedKeyframe(keyframe, (w2, v) => w2.WriteNumberValue(v));
+                });
+                
+                // Write rotation events
+                writer.WriteArray(beatmap.Events.Rotation, (w, keyframe) =>
+                {
+                    w.WriteFixedKeyframe(keyframe, (w2, v) => w2.WriteNumberValue(v));
+                });
+                
+                // Write shake events
+                writer.WriteArray(beatmap.Events.Shake, (w, keyframe) =>
+                {
+                    w.WriteFixedKeyframe(keyframe, (w2, v) => w2.WriteNumberValue(v));
+                });
+                
+                // Write theme events
+                writer.WriteArray(beatmap.Events.Theme, (w, keyframe) =>
+                {
+                    w.WriteStartObject();
+                    {
+                        if (keyframe.Time != 0.0f)
+                            w.WriteNumber("t", keyframe.Time);
+                        if (keyframe.Ease != Ease.Linear)
+                            w.WriteString("ct", keyframe.Ease.ToString());
+                        if (keyframe.Value is not IIdentifiable<string> identifiable)
+                            throw new ArgumentException("Can not determine theme id for theme keyframe value");
+                        w.WriteStartArray("evs");
+                        {
+                            w.WriteStringValue(identifiable.Id);
+                            w.WriteEndArray();
+                        }
+                        w.WriteEndObject();
+                    }
+                });
+                
+                // Write chroma events
+                writer.WriteArray(beatmap.Events.Chroma, (w, keyframe) =>
+                {
+                    w.WriteFixedKeyframe(keyframe, (w2, v) => w2.WriteNumberValue(v));
+                });
+                
+                // Write bloom events
+                writer.WriteArray(beatmap.Events.Bloom, (w, keyframe) =>
+                {
+                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
+                    {
+                        w2.WriteNumberValue(v.Intensity);
+                        w2.WriteNumberValue(v.Diffusion);
+                        w2.WriteNumberValue(v.Color);
+                    });
+                });
+                
+                // Write vignette events
+                writer.WriteArray(beatmap.Events.Vignette, (w, keyframe) =>
+                {
+                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
+                    {
+                        w2.WriteNumberValue(v.Intensity);
+                        w2.WriteNumberValue(v.Smoothness);
+                        w2.WriteNumberValue(v.Color);
+                        w2.WriteNumberValue(v.Rounded ? 1.0f : 0.0f);
+                        w2.WriteNumberValue(v.Center.X);
+                        w2.WriteNumberValue(v.Center.Y);
+                    });
+                });
+                
+                // Write lens distortion events
+                writer.WriteArray(beatmap.Events.LensDistortion, (w, keyframe) =>
+                {
+                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
+                    {
+                        w2.WriteNumberValue(v.Intensity);
+                        w2.WriteNumberValue(v.Center.X);
+                        w2.WriteNumberValue(v.Center.Y);
+                    });
+                });
+                
+                // Write grain events
+                writer.WriteArray(beatmap.Events.Grain, (w, keyframe) =>
+                {
+                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
+                    {
+                        w2.WriteNumberValue(v.Intensity);
+                        w2.WriteNumberValue(v.Size);
+                        w2.WriteNumberValue(v.Mix);
+                    });
+                });
+                
+                // Write gradient events
+                writer.WriteArray(beatmap.Events.Gradient, (w, keyframe) =>
+                {
+                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
+                    {
+                        w2.WriteNumberValue(v.Intensity);
+                        w2.WriteNumberValue(v.Rotation);
+                        w2.WriteNumberValue(v.ColorA);
+                        w2.WriteNumberValue(v.ColorB);
+                        w2.WriteNumberValue(v.Mode switch
+                        {
+                            GradientOverlayMode.Linear => 0.0f,
+                            GradientOverlayMode.Additive => 1.0f,
+                            GradientOverlayMode.Multiply => 2.0f,
+                            GradientOverlayMode.Screen => 3.0f,
+                            _ => throw new ArgumentOutOfRangeException()
+                        });
+                    });
+                });
+                
+                // Write glitch events
+                writer.WriteArray(beatmap.Events.Glitch, (w, keyframe) =>
+                {
+                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
+                    {
+                        w2.WriteNumberValue(v.Intensity);
+                        w2.WriteNumberValue(v.Speed);
+                        w2.WriteNumberValue(v.Width);
+                    });
+                });
+                
+                // Write hue events
+                writer.WriteArray(beatmap.Events.Hue, (w, keyframe) =>
+                {
+                    w.WriteFixedKeyframe(keyframe, (w2, v) => w2.WriteNumberValue(v));
+                });
+                
+                // Write player events
+                writer.WriteArray(beatmap.Events.Player, (w, keyframe) =>
+                {
+                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
+                    {
+                        w2.WriteNumberValue(v.X);
+                        w2.WriteNumberValue(v.Y);
+                    });
+                });
                 writer.WriteEndArray();
             }
             writer.WriteEndObject();
@@ -587,6 +738,9 @@ public static class VgSerialization
         {
             if (keyframe.Time != 0.0f)
                 writer.WriteNumber("t", keyframe.Time);
+            
+            if (keyframe.Ease != Ease.Linear)
+                writer.WriteString("ct", keyframe.Ease.ToString());
 
             writer.WriteStartArray("ev");
             {
@@ -607,6 +761,9 @@ public static class VgSerialization
         {
             if (keyframe.Time != 0.0f)
                 writer.WriteNumber("t", keyframe.Time);
+            
+            if (keyframe.Ease != Ease.Linear)
+                writer.WriteString("ct", keyframe.Ease.ToString());
 
             writer.WriteStartArray("ev");
             {
@@ -701,6 +858,16 @@ public static class VgSerialization
 
         if (value is IIdentifiable<string> identifiable)
             writer.WriteString(name, identifiable.Id);
+    }
+    
+    private static void WriteArray<T>(this Utf8JsonWriter writer, IEnumerable<T> items, Action<Utf8JsonWriter, T> writeCallback)
+    {
+        writer.WriteStartArray();
+        {
+            foreach (var item in items)
+                writeCallback(writer, item);
+            writer.WriteEndArray();
+        }
     }
     
     private static string ToHex(this Color color)

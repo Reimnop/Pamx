@@ -2,37 +2,11 @@
 using System.Numerics;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Pamx.Common;
 using Pamx.Common.Data;
 using Pamx.Common.Enum;
+using Pamx.Common.Implementation;
 using Pamx.Vg;
-
-var vgTheme = new VgBeatmapTheme
-{
-    Name = "Lorem ipsum dolor sit amet",
-    Player =
-    {
-        Color.FromArgb(255, 12, 255, 80),
-        Color.FromArgb(255, 0, 124, 136),
-    },
-    Object =
-    {
-        Color.FromArgb(255, 50, 60, 255),
-        Color.FromArgb(255, 0, 0, 123),
-    },
-    Effect =
-    {
-        Color.FromArgb(255, 255, 255, 123),
-        Color.FromArgb(255, 79, 0, 31),
-    },
-    ParallaxObject =
-    {
-        Color.FromArgb(255, 255, 121, 255),
-        Color.FromArgb(255, 214, 0, 0),
-    },
-    Background = Color.FromArgb(255, 0, 0, 124),
-    Gui = Color.FromArgb(255, 0, 0, 255),
-    GuiAccent = Color.FromArgb(255, 0, 128, 0),
-};
 
 var vgObject = new VgObject
 {
@@ -111,9 +85,163 @@ var vgBeatmap = new VgBeatmap
     {
         vgObject
     },
-    Themes =
+    PrefabSpawns =
     {
-        vgTheme
+        new EditorPrefabSpawn(),
+        new EditorPrefabSpawn(),
+        new EditorPrefabSpawn(),
+        new EditorPrefabSpawn(),
+        new EditorPrefabSpawn(),
+        new EditorPrefabSpawn(),
+    },
+    Parallax =
+    {
+        Layers  =
+        {
+            new ParallaxLayer(), 
+            new ParallaxLayer(), 
+            new ParallaxLayer(), 
+            new ParallaxLayer(), 
+            new ParallaxLayer(),
+        }
+    },
+    Events =
+    {
+        Movement =
+        {
+            new FixedKeyframe<Vector2>
+            {
+                Time = 0.0f,
+                Value = Vector2.One * 10.0f,
+            }
+        },
+        Zoom =
+        {
+            new FixedKeyframe<float>
+            {
+                Time = 0.0f,
+                Value = 25.0f,
+            }
+        },
+        Rotation =
+        {
+            new FixedKeyframe<float>
+            {
+                Time = 0.0f,
+                Value = 10.0f,
+            }
+        },
+        Shake =
+        {
+            new FixedKeyframe<float>
+            {
+                Time = 0.0f,
+                Value = 5.0f,
+            }
+        },
+        Theme =
+        {
+            new FixedKeyframe<IReference<ITheme>>
+            {
+                Time = 0.0f,
+                Value = new VgReferenceTheme("20"),
+            }
+        },
+        Chroma =
+        {
+            new FixedKeyframe<float>
+            {
+                Time = 0.0f,
+                Value = 2.0f,
+            }
+        },
+        Bloom =
+        {
+            new FixedKeyframe<BloomData>
+            {
+                Time = 0.0f,
+                Value = new BloomData
+                {
+                    Intensity = 20.0f,
+                    Diffusion = 0.4f,
+                    Color = 1,
+                },
+            }
+        },
+        Vignette =
+        {
+            new FixedKeyframe<VignetteData>
+            {
+                Time = 0.0f,
+                Value = new VignetteData(),
+            }
+        },
+        LensDistortion =
+        {
+            new FixedKeyframe<LensDistortionData>
+            {
+                Time = 0.0f,
+                Value = new LensDistortionData
+                {
+                    Intensity = 1.0f,
+                }
+            },
+        },
+        Grain =
+        {
+            new FixedKeyframe<GrainData>
+            {
+                Time = 0.0f,
+                Value = new GrainData
+                {
+                    Intensity = 0.5f,
+                    Size = 1.0f,
+                },
+            },
+        },
+        Gradient =
+        {
+            new FixedKeyframe<GradientData>
+            {
+                Time = 0.0f,
+                Value = new GradientData
+                {
+                    Intensity = 2.0f,
+                    Rotation = 25.0f,
+                    ColorA = 0,
+                    ColorB = 1,
+                },
+            },
+        },
+        Glitch =
+        {
+            new FixedKeyframe<GlitchData>
+            {
+                Time = 0.0f,
+                Value = new GlitchData
+                {
+                    Intensity = 0.5f,
+                    Speed = 0.5f,
+                    Width = 0.5f,
+                }
+            }
+        },
+        Hue =
+        {
+            new FixedKeyframe<float>
+            {
+                Time = 0.0f,
+                Value = 50.0f,
+            }
+        },
+        Player =
+        {
+            new FixedKeyframe<Vector2>
+            {
+                Time = 0.0f,
+                Value = Vector2.Zero,
+            }
+        }
     }
 };
 

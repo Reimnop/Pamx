@@ -208,7 +208,7 @@ public static class LsSerialization
                 writer.WriteString("x", identifiable.Id.ToString());
             });
             WriteEventKeyframes("chroma", beatmapEvents.Chroma, writer, (writer, v) => writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture)));
-            WriteEventKeyframes("bloom", beatmapEvents.Bloom, writer, (writer, v) => writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture)));
+            WriteEventKeyframes("bloom", beatmapEvents.Bloom, writer, (writer, v) => writer.WriteString("x", v.Intensity.ToString(CultureInfo.InvariantCulture)));
             WriteEventKeyframes("vignette", beatmapEvents.Vignette, writer, (writer, v) =>
             {
                 writer.WriteString("x", v.Intensity.ToString(CultureInfo.InvariantCulture));
@@ -218,7 +218,7 @@ public static class LsSerialization
                 writer.WriteString("y2", v.Center.X.ToString(CultureInfo.InvariantCulture));
                 writer.WriteString("z2", v.Center.Y.ToString(CultureInfo.InvariantCulture));
             });
-            WriteEventKeyframes("lens", beatmapEvents.LensDistortion, writer, (writer, v) => writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture)));
+            WriteEventKeyframes("lens", beatmapEvents.LensDistortion, writer, (writer, v) => writer.WriteString("x", v.Intensity.ToString(CultureInfo.InvariantCulture)));
             WriteEventKeyframes("grain", beatmapEvents.Grain, writer, (writer, v) =>
             {
                 writer.WriteString("x", v.Intensity.ToString(CultureInfo.InvariantCulture));

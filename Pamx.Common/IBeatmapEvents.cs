@@ -11,8 +11,12 @@ public interface IBeatmapEvents
     IList<FixedKeyframe<float>> Shake { get; }
     IList<FixedKeyframe<IReference<ITheme>>> Theme { get; }
     IList<FixedKeyframe<float>> Chroma { get; }
-    IList<FixedKeyframe<float>> Bloom { get; }
+    IList<FixedKeyframe<BloomData>> Bloom { get; }
     IList<FixedKeyframe<VignetteData>> Vignette { get; }
-    IList<FixedKeyframe<float>> LensDistortion { get; }
+    IList<FixedKeyframe<LensDistortionData>> LensDistortion { get; }
     IList<FixedKeyframe<GrainData>> Grain { get; }
+    IList<FixedKeyframe<GradientData>> Gradient { get; }
+    IList<FixedKeyframe<GlitchData>> Glitch { get; }
+    IList<FixedKeyframe<float>> Hue { get; }
+    IList<FixedKeyframe<Vector2>> Player { get; }
 }
