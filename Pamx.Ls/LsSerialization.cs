@@ -1,9 +1,7 @@
 using System.Drawing;
 using System.Globalization;
 using System.Numerics;
-using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Unicode;
 using Pamx.Common;
 using Pamx.Common.Data;
 using Pamx.Common.Enum;
@@ -12,30 +10,6 @@ namespace Pamx.Ls;
 
 public static class LsSerialization
 {
-    public static long WriteBeatmap(IBeatmap beatmap, Stream stream)
-    {
-        using var writer = CreateWriter(stream);
-        SerializeBeatmap(beatmap, writer);
-        writer.Flush();
-        return writer.BytesCommitted;
-    }
-    
-    public static long WritePrefab(IPrefab prefab, Stream stream)
-    {
-        using var writer = CreateWriter(stream);
-        SerializePrefab(prefab, writer);
-        writer.Flush();
-        return writer.BytesCommitted;
-    }
-    
-    public static long WriteTheme(ITheme theme, Stream stream)
-    {
-        using var writer = CreateWriter(stream);
-        SerializeTheme(theme, writer);
-        writer.Flush();
-        return writer.BytesCommitted;
-    }
-
     public static void SerializeBeatmap(IBeatmap beatmap, Utf8JsonWriter writer)
     {
         writer.WriteStartObject();
@@ -88,7 +62,7 @@ public static class LsSerialization
             writer.WriteStartArray("prefabs");
             {
                 foreach (var prefab in beatmap.Prefabs)
-                    SerializePrefab(prefab, writer);
+                    SerializePrefab(prefab, writer, true);
                 writer.WriteEndArray();
             }
             
@@ -96,7 +70,7 @@ public static class LsSerialization
             writer.WriteStartArray("themes");
             {
                 foreach (var theme in beatmap.Themes)
-                    SerializeTheme(theme, writer);
+                    SerializeTheme(theme, writer, true);
                 writer.WriteEndArray();
             }
             
@@ -204,7 +178,7 @@ public static class LsSerialization
             WriteEventKeyframes("theme", beatmapEvents.Theme, writer, (writer, v) =>
             {
                 if (v is not IIdentifiable<int> identifiable)
-                    throw new NotImplementedException();
+                    throw new ArgumentException($"{v.GetType()} is not identifiable, but an id is required");
                 writer.WriteString("x", identifiable.Id.ToString());
             });
             WriteEventKeyframes("chroma", beatmapEvents.Chroma, writer, (writer, v) => writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture)));
@@ -252,13 +226,8 @@ public static class LsSerialization
     {
         writer.WriteStartObject();
         {
-            // Write id if we're IIdentifiable
-            if (prefabObject is IIdentifiable<string> identifiable)
-                writer.WriteString("id", identifiable.Id);
-            
-            // Write prefab id
-            if (prefabObject.Prefab is IIdentifiable<string> prefabIdentifiable)
-                writer.WriteString("pid", prefabIdentifiable.Id);
+            writer.WriteId("id", prefabObject, true);
+            writer.WriteId("pid", prefabObject.Prefab, true);
             
             // Write the properties of prefab object
             writer.WriteString("st", prefabObject.Time.ToString(CultureInfo.InvariantCulture));
@@ -269,13 +238,11 @@ public static class LsSerialization
         }
     }
 
-    public static void SerializeTheme(ITheme theme, Utf8JsonWriter writer)
+    public static void SerializeTheme(ITheme theme, Utf8JsonWriter writer, bool requiresId = false)
     {
         writer.WriteStartObject();
         {
-            // Write id if we're IIdentifiable
-            if (theme is IIdentifiable<int> identifiable)
-                writer.WriteString("id", identifiable.Id.ToString());
+            writer.WriteThemeId("id", theme, requiresId);
             
             // Write the properties of theme
             writer.WriteString("name", theme.Name);
@@ -307,13 +274,11 @@ public static class LsSerialization
         }
     }
     
-    public static void SerializePrefab(IPrefab prefab, Utf8JsonWriter writer)
+    public static void SerializePrefab(IPrefab prefab, Utf8JsonWriter writer, bool requiresId = false)
     {
         writer.WriteStartObject();
         {
-            // Write id if we're IIdentifiable
-            if (prefab is IIdentifiable<string> identifiable)
-                writer.WriteString("id", identifiable.Id);
+            writer.WriteId("id", prefab, requiresId);
             
             // Write the properties of prefab
             writer.WriteString("name", prefab.Name);
@@ -348,14 +313,11 @@ public static class LsSerialization
     {
         writer.WriteStartObject();
         {
-            // Write id if we're IIdentifiable
-            if (@object is IIdentifiable<string> identifiable)
-                writer.WriteString("id", identifiable.Id);
+            writer.WriteId("id", @object, true);
+            writer.WriteId("p", @object.Parent);
             
             // Write the properties of object
             writer.WriteString("name", @object.Name);
-            if (@object.Parent is IIdentifiable<string> parentIdentifiable)
-                writer.WriteString("p", parentIdentifiable.Id);
             writer.WriteString("pt", 
                 (@object.ParentType.HasFlag(ParentType.Position) ? "1" : "0") + 
                 (@object.ParentType.HasFlag(ParentType.Scale) ? "1" : "0") +
@@ -516,13 +478,22 @@ public static class LsSerialization
         }
     }
     
-    private static Utf8JsonWriter CreateWriter(Stream stream)
+    private static void WriteId(this Utf8JsonWriter writer, string name, object? value, bool require = false)
     {
-        return new Utf8JsonWriter(stream, new JsonWriterOptions
-        {
-            Indented = false,
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        });
+        if (value is not IIdentifiable<string> && require)
+            throw new ArgumentException($"{value?.GetType()} is not identifiable, but an id is required");
+
+        if (value is IIdentifiable<string> identifiable)
+            writer.WriteString(name, identifiable.Id);
+    }
+    
+    private static void WriteThemeId(this Utf8JsonWriter writer, string name, object? value, bool require = false)
+    {
+        if (value is not IIdentifiable<int> && require)
+            throw new ArgumentException($"{value?.GetType()} is not identifiable, but an id is required");
+
+        if (value is IIdentifiable<int> identifiable)
+            writer.WriteString(name, identifiable.Id.ToString());
     }
     
     private static string ToHex(this Color color)

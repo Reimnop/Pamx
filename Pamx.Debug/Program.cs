@@ -179,8 +179,5 @@ for (var x = -5; x <= 5; x++)
 }
 
 using var stream = File.Open("level.vgd", FileMode.Create);
-using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions
-{
-    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-});
+using var writer = JsonUtil.CreateJsonWriter(stream);
 VgSerialization.SerializeBeatmap(vgBeatmap, writer);
