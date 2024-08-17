@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Globalization;
 using System.Numerics;
-using System.Text.Json;
+using System.Text.Json.Nodes;
 using Pamx.Common;
 using Pamx.Common.Data;
 using Pamx.Common.Enum;
@@ -10,490 +10,432 @@ namespace Pamx.Ls;
 
 public static class LsSerialization
 {
-    public static void SerializeBeatmap(IBeatmap beatmap, Utf8JsonWriter writer)
+    public static JsonObject SerializeBeatmap(IBeatmap beatmap)
     {
-        writer.WriteStartObject();
-        {
-            // Write the properties of beatmap
-            
-            // Write editor data
-            writer.WriteStartObject("ed");
-            {
-                writer.WriteString("timeline_pos", "0");
-                writer.WriteStartArray("markers");
-                {
-                    foreach (var marker in beatmap.Markers)
-                    {
-                        writer.WriteStartObject();
-                        {
-                            writer.WriteString("active", "True");
-                            writer.WriteString("name", marker.Name);
-                            writer.WriteString("desc", marker.Description);
-                            writer.WriteString("col", marker.Color.ToString());
-                            writer.WriteString("t", marker.Time.ToString(CultureInfo.InvariantCulture));
-                            writer.WriteEndObject();
-                        }
-                    }
-                    writer.WriteEndArray();
-                }
-                writer.WriteEndObject();
-            }
-            
-            // Write prefab objects
-            writer.WriteStartArray("prefab_objects");
-            {
-                foreach (var prefabObject in beatmap.PrefabObjects)
-                    SerializePrefabObject(prefabObject, writer);
-                writer.WriteEndArray();
-            }
+        var json = new JsonObject();
         
-            // Write level metadata
-            // Most of the data here isn't used, so we can simply write constant values
-            writer.WriteStartObject("level_data");
-            {
-                writer.WriteString("level_version", "20.4.4");
-                writer.WriteString("background_color", "0");
-                writer.WriteString("follow_player", "False");
-                writer.WriteString("show_intro", "False");
-                writer.WriteEndObject();
-            }
+        // Write level metadata (unused, but still read by the game)
+        json.Add("level_data", new JsonObject
+        {
+            ["level_version"] = "20.4.4",
+            ["background_color"] = "0",
+            ["follow_player"] = "False",
+            ["show_intro"] = "False",
+        });
         
-            // Write prefabs
-            writer.WriteStartArray("prefabs");
-            {
-                foreach (var prefab in beatmap.Prefabs)
-                    SerializePrefab(prefab, writer, true);
-                writer.WriteEndArray();
-            }
-            
-            // Write themes
-            writer.WriteStartArray("themes");
-            {
-                foreach (var theme in beatmap.Themes)
-                    SerializeTheme(theme, writer, true);
-                writer.WriteEndArray();
-            }
-            
-            // Write checkpoints
-            writer.WriteStartArray("checkpoints");
-            {
-                foreach (var checkpoint in beatmap.Checkpoints)
+        // Write editor data
+        json.Add("ed", new JsonObject
+        {
+            ["timeline_pos"] = "0",
+            ["markers"] = new JsonArray(
+                    beatmap.Markers
+                        .Select(x => new JsonObject
+                        {
+                            ["active"] = "True",
+                            ["name"] = x.Name,
+                            ["desc"] = x.Description,
+                            ["col"] = x.Color.ToString(),
+                            ["t"] = x.Time.ToString(CultureInfo.InvariantCulture),
+                        })
+                        .Cast<JsonNode>()
+                        .ToArray()),
+        });
+        
+        // Write checkpoints
+        json.Add("checkpoints", new JsonArray(
+            beatmap.Checkpoints
+                .Select(x => new JsonObject
                 {
-                    writer.WriteStartObject();
+                    ["active"] = "False",
+                    ["name"] = x.Name,
+                    ["t"] = x.Time.ToString(CultureInfo.InvariantCulture),
+                    ["pos"] = new JsonObject
                     {
-                        writer.WriteString("active", "False");
-                        writer.WriteString("name", checkpoint.Name);
-                        writer.WriteString("t", checkpoint.Time.ToString(CultureInfo.InvariantCulture));
-                        writer.WriteStartObject("pos");
-                        {
-                            writer.WriteString("x", checkpoint.Position.X.ToString(CultureInfo.InvariantCulture));
-                            writer.WriteString("y", checkpoint.Position.Y.ToString(CultureInfo.InvariantCulture));
-                            writer.WriteEndObject();
-                        }
-                        writer.WriteEndObject();
-                    }
-                }
-                writer.WriteEndArray();
-            }
-            
-            // Write objects
-            writer.WriteStartArray("beatmap_objects");
+                        ["x"] = x.Position.X.ToString(CultureInfo.InvariantCulture),
+                        ["y"] = x.Position.Y.ToString(CultureInfo.InvariantCulture),
+                    },
+                })
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write prefabs
+        json.Add("prefabs", new JsonArray(
+            beatmap.Prefabs
+                .Select(x => SerializePrefab(x, true))
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write prefab objects
+        json.Add("prefab_objects", new JsonArray(
+            beatmap.PrefabObjects
+                .Select(SerializePrefabObject)
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write themes
+        json.Add("themes", new JsonArray(
+            beatmap.Themes
+                .Select(SerializeTheme)
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write background objects
+        json.Add("bg_objects", new JsonArray(
+            beatmap.BackgroundObjects
+                .Select(SerializeBackgroundObject)
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write objects
+        json.Add("beatmap_objects", new JsonArray(
+            beatmap.Objects
+                .Select(SerializeBeatmapObject)
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write events
+        var events = beatmap.Events;
+        json.Add("events", new JsonObject
+        {
+            ["pos"] = SerializeEventsArray(events.Movement, (j, kf) =>
             {
-                foreach (var @object in beatmap.Objects)
-                    SerializeBeatmapObject(@object, writer);
-                writer.WriteEndArray();
-            }
-            
-            // Write background objects
-            writer.WriteStartArray("bg_objects");
+                j.Add("x", kf.Value.X.ToString(CultureInfo.InvariantCulture));
+                j.Add("y", kf.Value.Y.ToString(CultureInfo.InvariantCulture));
+            }),
+            ["zoom"] = SerializeEventsArray(events.Zoom, (j, kf) =>
+                j.Add("x", kf.Value.ToString(CultureInfo.InvariantCulture))),
+            ["rot"] = SerializeEventsArray(events.Rotation, (j, kf) =>
+                j.Add("x", kf.Value.ToString(CultureInfo.InvariantCulture))),
+            ["shake"] = SerializeEventsArray(events.Shake, (j, kf) =>
             {
-                foreach (var backgroundObject in beatmap.BackgroundObjects)
-                {
-                    writer.WriteStartObject();
-                    {
-                        writer.WriteString("active", backgroundObject.Active ? "True" : "False");
-                        writer.WriteString("name", backgroundObject.Name);
-                        writer.WriteString("kind", "1");
-                        writer.WriteStartObject("pos");
-                        {
-                            writer.WriteString("x", backgroundObject.Position.X.ToString(CultureInfo.InvariantCulture));
-                            writer.WriteString("y", backgroundObject.Position.Y.ToString(CultureInfo.InvariantCulture));
-                            writer.WriteEndObject();
-                        }
-                        writer.WriteStartObject("size");
-                        {
-                            writer.WriteString("x", backgroundObject.Scale.X.ToString(CultureInfo.InvariantCulture));
-                            writer.WriteString("y", backgroundObject.Scale.Y.ToString(CultureInfo.InvariantCulture));
-                            writer.WriteEndObject();
-                        }
-                        writer.WriteString("rot", backgroundObject.Rotation.ToString(CultureInfo.InvariantCulture));
-                        writer.WriteString("color", backgroundObject.Color.ToString());
-                        writer.WriteString("layer", backgroundObject.Depth.ToString(CultureInfo.InvariantCulture));
-                        writer.WriteString("fade", backgroundObject.Fade ? "True" : "False");
-                        if (backgroundObject.ReactiveType != BackgroundObjectReactiveType.None)
-                        {
-                            writer.WriteStartObject("r_set");
-                            {
-                                writer.WriteString("type", backgroundObject.ReactiveType switch
-                                {
-                                    BackgroundObjectReactiveType.Bass => "LOW",
-                                    BackgroundObjectReactiveType.Mid => "MID",
-                                    BackgroundObjectReactiveType.Treble => "HIGH",
-                                    _ => "LOW"
-                                });
-                                writer.WriteString("scale", backgroundObject.ReactiveScale.ToString(CultureInfo.InvariantCulture));
-                                writer.WriteEndObject();
-                            }
-                        }
-                        writer.WriteEndObject();
-                    }
-                }
-                writer.WriteEndArray();
-            }
-            
-            // Write events
-            writer.WritePropertyName("events");
-            SerializeEvents(beatmap.Events, writer);
-            
-            writer.WriteEndObject();
-        }
+                j.Add("x", kf.Value.ToString(CultureInfo.InvariantCulture));
+                j.Add("y", "0");
+            }),
+            ["theme"] = SerializeEventsArray(events.Theme, (j, kf) =>
+            {
+                if (kf.Value is not IIdentifiable<int> identifiable)
+                    throw new ArgumentException($"{kf.Value.GetType()} is not identifiable, but an id is required");
+                j.Add("x", identifiable.Id.ToString());
+            }),
+            ["chroma"] = SerializeEventsArray(events.Chroma, (j, kf) =>
+                j.Add("x", kf.Value.ToString(CultureInfo.InvariantCulture))),
+            ["bloom"] = SerializeEventsArray(events.Bloom, (j, kf) =>
+                j.Add("x", kf.Value.Intensity.ToString(CultureInfo.InvariantCulture))),
+            ["vignette"] = SerializeEventsArray(events.Vignette, (j, kf) =>
+            {
+                j.Add("x", kf.Value.Intensity.ToString(CultureInfo.InvariantCulture));
+                j.Add("y", kf.Value.Smoothness.ToString(CultureInfo.InvariantCulture));
+                j.Add("z", kf.Value.Rounded ? "1" : "0");
+                j.Add("x2", kf.Value.Roundness.ToString(CultureInfo.InvariantCulture));
+                j.Add("y2", kf.Value.Center.X.ToString(CultureInfo.InvariantCulture));
+                j.Add("z2", kf.Value.Center.Y.ToString(CultureInfo.InvariantCulture));
+            }),
+            ["lens"] = SerializeEventsArray(events.LensDistortion, (j, kf) =>
+                j.Add("x", kf.Value.Intensity.ToString(CultureInfo.InvariantCulture))),
+            ["grain"] = SerializeEventsArray(events.Grain, (j, kf) =>
+            {
+                j.Add("x", kf.Value.Intensity.ToString(CultureInfo.InvariantCulture));
+                j.Add("y", kf.Value.Colored ? "1" : "0");
+                j.Add("z", kf.Value.Size.ToString(CultureInfo.InvariantCulture));
+            }),
+        });
+        
+        return json;
     }
 
-    private static void SerializeEvents(IBeatmapEvents beatmapEvents, Utf8JsonWriter writer)
+    private static JsonArray SerializeEventsArray<T>(
+        IEnumerable<FixedKeyframe<T>> events,
+        Action<JsonObject, FixedKeyframe<T>> valueSerializer)
     {
-        writer.WriteStartObject();
+        var json = new JsonArray();
+        foreach (var keyframe in events)
         {
-            WriteEventKeyframes("pos", beatmapEvents.Movement, writer, (writer, v) =>
+            var keyframeJson = new JsonObject
             {
-                writer.WriteString("x", v.X.ToString(CultureInfo.InvariantCulture));
-                writer.WriteString("y", v.Y.ToString(CultureInfo.InvariantCulture));
-            });
-            WriteEventKeyframes("zoom", beatmapEvents.Zoom, writer, (writer, v) => writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture)));
-            WriteEventKeyframes("rot", beatmapEvents.Rotation, writer, (writer, v) => writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture)));
-            WriteEventKeyframes("shake", beatmapEvents.Shake, writer, (writer, v) =>
-            {
-                writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture));
-                writer.WriteString("y", "0"); // Don't know why this is here, but it's always 0
-            });
-            WriteEventKeyframes("theme", beatmapEvents.Theme, writer, (writer, v) =>
-            {
-                if (v is not IIdentifiable<int> identifiable)
-                    throw new ArgumentException($"{v.GetType()} is not identifiable, but an id is required");
-                writer.WriteString("x", identifiable.Id.ToString());
-            });
-            WriteEventKeyframes("chroma", beatmapEvents.Chroma, writer, (writer, v) => writer.WriteString("x", v.ToString(CultureInfo.InvariantCulture)));
-            WriteEventKeyframes("bloom", beatmapEvents.Bloom, writer, (writer, v) => writer.WriteString("x", v.Intensity.ToString(CultureInfo.InvariantCulture)));
-            WriteEventKeyframes("vignette", beatmapEvents.Vignette, writer, (writer, v) =>
-            {
-                writer.WriteString("x", v.Intensity.ToString(CultureInfo.InvariantCulture));
-                writer.WriteString("y", v.Smoothness.ToString(CultureInfo.InvariantCulture));
-                writer.WriteString("z", v.Rounded ? "1" : "0");
-                writer.WriteString("x2", v.Roundness.ToString(CultureInfo.InvariantCulture));
-                writer.WriteString("y2", v.Center.X.ToString(CultureInfo.InvariantCulture));
-                writer.WriteString("z2", v.Center.Y.ToString(CultureInfo.InvariantCulture));
-            });
-            WriteEventKeyframes("lens", beatmapEvents.LensDistortion, writer, (writer, v) => writer.WriteString("x", v.Intensity.ToString(CultureInfo.InvariantCulture)));
-            WriteEventKeyframes("grain", beatmapEvents.Grain, writer, (writer, v) =>
-            {
-                writer.WriteString("x", v.Intensity.ToString(CultureInfo.InvariantCulture));
-                writer.WriteString("y", v.Colored ? "1" : "0");
-                writer.WriteString("z", v.Size.ToString(CultureInfo.InvariantCulture));
-            });
-            writer.WriteEndObject();
-        }
-    }
-
-    private static void WriteEventKeyframes<T>(string name, IEnumerable<FixedKeyframe<T>> eventKeyframes, Utf8JsonWriter writer, Action<Utf8JsonWriter, T> writeKeyframeDataCallback)
-    {
-        writer.WriteStartArray(name);
-        {
-            foreach (var keyframe in eventKeyframes)
-            {
-                writer.WriteStartObject();
-                {
-                    writer.WriteString("t", keyframe.Time.ToString(CultureInfo.InvariantCulture));
-                    writeKeyframeDataCallback(writer, keyframe.Value);
-                    if (keyframe.Ease != Ease.Linear)
-                        writer.WriteString("ct", keyframe.Ease.ToString());
-                    writer.WriteEndObject();
-                }
-            }
-            writer.WriteEndArray();
-        }
-    }
-
-    public static void SerializePrefabObject(IPrefabObject prefabObject, Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        {
-            writer.WriteId("id", prefabObject, true);
-            writer.WriteId("pid", prefabObject.Prefab, true);
-            
-            // Write the properties of prefab object
-            writer.WriteString("st", prefabObject.Time.ToString(CultureInfo.InvariantCulture));
-            writer.WritePropertyName("ed");
-            SerializeObjectEditorSettings(prefabObject.EditorSettings, writer);
-            
-            writer.WriteEndObject();
-        }
-    }
-
-    public static void SerializeTheme(ITheme theme, Utf8JsonWriter writer, bool requiresId = false)
-    {
-        writer.WriteStartObject();
-        {
-            writer.WriteThemeId("id", theme, requiresId);
-            
-            // Write the properties of theme
-            writer.WriteString("name", theme.Name);
-            writer.WriteString("bg", theme.Background.ToHex());
-            writer.WriteString("gui", theme.Gui.ToHex());
-            
-            writer.WriteStartArray("players");
-            {
-                foreach (var color in theme.Player)
-                    writer.WriteStringValue(color.ToHex());
-                writer.WriteEndArray();
-            }
-            
-            writer.WriteStartArray("objs");
-            {
-                foreach (var color in theme.Object)
-                    writer.WriteStringValue(color.ToHex());
-                writer.WriteEndArray();
-            }
-            
-            writer.WriteStartArray("bgs");
-            {
-                foreach (var color in theme.BackgroundObject)
-                    writer.WriteStringValue(color.ToHex());
-                writer.WriteEndArray();
-            }
-            
-            writer.WriteEndObject();
-        }
-    }
-    
-    public static void SerializePrefab(IPrefab prefab, Utf8JsonWriter writer, bool requiresId = false)
-    {
-        writer.WriteStartObject();
-        {
-            writer.WriteId("id", prefab, requiresId);
-            
-            // Write the properties of prefab
-            writer.WriteString("name", prefab.Name);
-            writer.WriteString("type", prefab.Type switch
-            {
-                PrefabType.Bombs => "0",
-                PrefabType.Bullets => "1",
-                PrefabType.Beams => "2",
-                PrefabType.Spinners => "3",
-                PrefabType.Pulses => "4",
-                PrefabType.Character => "5",
-                PrefabType.Misc1 => "6",
-                PrefabType.Misc2 => "7",
-                PrefabType.Misc3 => "8",
-                PrefabType.Misc4 => "9",
-                _ => "0"
-            });
-            writer.WriteString("offset", prefab.Offset.ToString(CultureInfo.InvariantCulture));
-                
-            // Write prefab objects
-            writer.WriteStartArray("objects");
-            {
-                foreach (var beatmapObject in prefab.BeatmapObjects)
-                    SerializeBeatmapObject(beatmapObject, writer);
-                writer.WriteEndArray();
-            }
-            writer.WriteEndObject();
-        }
-    }
-
-    public static void SerializeBeatmapObject(IObject @object, Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        {
-            writer.WriteId("id", @object, true);
-            writer.WriteId("p", @object.Parent);
-            
-            // Write the properties of object
-            writer.WriteString("name", @object.Name);
-            writer.WriteString("pt", 
-                (@object.ParentType.HasFlag(ParentType.Position) ? "1" : "0") + 
-                (@object.ParentType.HasFlag(ParentType.Scale) ? "1" : "0") +
-                (@object.ParentType.HasFlag(ParentType.Rotation) ? "1" : "0"));
-            writer.WriteStartArray("po");
-            {
-                writer.WriteNumberValue(@object.ParentOffset.Position);
-                writer.WriteNumberValue(@object.ParentOffset.Scale);
-                writer.WriteNumberValue(@object.ParentOffset.Rotation);
-                writer.WriteEndArray();
-            }
-            writer.WriteString("d", @object.RenderDepth.ToString(CultureInfo.InvariantCulture));
-            writer.WriteString("ot", @object.Type switch
-            {
-                ObjectType.LegacyNormal => "0",
-                ObjectType.LegacyHelper => "1",
-                ObjectType.LegacyDecoration => "2",
-                ObjectType.LegacyEmpty => "3",
-                _ => "0"
-            });
-            writer.WriteString("shape", @object.Shape switch
-            {
-                ObjectShape.Square => "0",
-                ObjectShape.Circle => "1",
-                ObjectShape.Triangle => "2",
-                ObjectShape.Arrow => "3",
-                ObjectShape.Text => "4",
-                ObjectShape.Hexagon => "5",
-                _ => "0"
-            });
-            writer.WriteString("so", @object.ShapeOption.ToString(CultureInfo.InvariantCulture));
-            if (@object.Shape == ObjectShape.Text)
-                writer.WriteString("text", @object.Text);
-            writer.WriteString("st", @object.StartTime.ToString(CultureInfo.InvariantCulture));
-            writer.WriteString("akt", @object.AutoKillType switch
-            {
-                AutoKillType.NoAutoKill => "0",
-                AutoKillType.LastKeyframe => "1",
-                AutoKillType.LastKeyframeOffset => "2",
-                AutoKillType.FixedTime => "3",
-                AutoKillType.SongTime => "4",
-                _ => "0"
-            });
-            writer.WriteString("ako", @object.AutoKillOffset.ToString(CultureInfo.InvariantCulture));
-            writer.WriteStartObject("o");
-            {
-                writer.WriteNumber("x", @object.Origin.X);
-                writer.WriteNumber("y", @object.Origin.Y);
-                writer.WriteEndObject();
-            }
-            writer.WritePropertyName("ed");
-            SerializeObjectEditorSettings(@object.EditorSettings, writer);
-            writer.WriteStartObject("events");
-            {
-                writer.WriteStartArray("pos");
-                {
-                    foreach (var keyframe in @object.PositionEvents)
-                        SerializeVector2Keyframe(keyframe, writer);
-                    writer.WriteEndArray();
-                }
-                writer.WriteStartArray("sca");
-                {
-                    foreach (var keyframe in @object.ScaleEvents)
-                        SerializeVector2Keyframe(keyframe, writer);
-                    writer.WriteEndArray();
-                }
-                writer.WriteStartArray("rot");
-                {
-                    foreach (var keyframe in @object.RotationEvents)
-                        SerializeFloatKeyframe(keyframe, writer);
-                    writer.WriteEndArray();
-                }
-                writer.WriteStartArray("col");
-                {
-                    foreach (var keyframe in @object.ColorEvents)
-                        SerializeThemeColorKeyframe(keyframe, writer);
-                    writer.WriteEndArray();
-                }
-                writer.WriteEndObject();
-            }
-            writer.WriteEndObject();
-        }
-    }
-
-    private static void SerializeObjectEditorSettings(ObjectEditorSettings editorSettings, Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        {
-            if (editorSettings.Locked)
-                writer.WriteString("locked", "True");
-            if (editorSettings.Collapsed)
-                writer.WriteString("shrink", "True");
-            writer.WriteString("bin", editorSettings.Bin.ToString(CultureInfo.InvariantCulture));
-            writer.WriteString("layer", editorSettings.Layer.ToString(CultureInfo.InvariantCulture));
-            writer.WriteEndObject();
-        }
-    }
-
-    private static void SerializeVector2Keyframe(Keyframe<Vector2> keyframe, Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        {
-            writer.WriteString("t", keyframe.Time.ToString(CultureInfo.InvariantCulture));
-            writer.WriteString("x", keyframe.Value.X.ToString(CultureInfo.InvariantCulture));
-            writer.WriteString("y", keyframe.Value.Y.ToString(CultureInfo.InvariantCulture));
+                ["t"] = keyframe.Time.ToString(CultureInfo.InvariantCulture),
+            };
+            valueSerializer(keyframeJson, keyframe);
             if (keyframe.Ease != Ease.Linear)
-                writer.WriteString("ct", keyframe.Ease.ToString());
-            if (keyframe.RandomMode != RandomMode.None)
-            {
-                writer.WriteString("r", keyframe.RandomMode switch
-                {
-                    RandomMode.Range => "1",
-                    RandomMode.Select => "3",
-                    RandomMode.Scale => "4", 
-                    _ => "0"
-                });
-                writer.WriteString("rx", keyframe.RandomValue.X.ToString(CultureInfo.InvariantCulture));
-                writer.WriteString("ry", keyframe.RandomValue.Y.ToString(CultureInfo.InvariantCulture));
-                writer.WriteString("rz", keyframe.RandomInterval.ToString(CultureInfo.InvariantCulture));
-            }
-            writer.WriteEndObject();
+                keyframeJson.Add("ct", keyframe.Ease.ToString());
+            json.Add(keyframeJson);
         }
+        return json;
     }
-    
-    private static void SerializeFloatKeyframe(Keyframe<float> keyframe, Utf8JsonWriter writer)
+
+    private static JsonObject SerializeBackgroundObject(BackgroundObject @object)
     {
-        writer.WriteStartObject();
+        var json = new JsonObject
         {
-            writer.WriteString("t", keyframe.Time.ToString(CultureInfo.InvariantCulture));
-            writer.WriteString("x", keyframe.Value.ToString(CultureInfo.InvariantCulture));
-            if (keyframe.Ease != Ease.Linear)
-                writer.WriteString("ct", keyframe.Ease.ToString());
-            if (keyframe.RandomMode != RandomMode.None)
+            ["active"] = @object.Active ? "True" : "False",
+            ["name"] = @object.Name,
+            ["kind"] = "1",
+            ["pos"] = new JsonObject
             {
-                writer.WriteString("r", keyframe.RandomMode switch
-                {
-                    RandomMode.Range => "1",
-                    RandomMode.Select => "3",
-                    RandomMode.Scale => "4", 
-                    _ => "0"
-                });
-                writer.WriteString("rx", keyframe.RandomValue.ToString(CultureInfo.InvariantCulture));
-                writer.WriteString("rz", keyframe.RandomInterval.ToString(CultureInfo.InvariantCulture));
-            }
-            writer.WriteEndObject();
-        }
-    }
-    
-    private static void SerializeThemeColorKeyframe(FixedKeyframe<ThemeColor> keyframe, Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
+                ["x"] = @object.Position.X.ToString(CultureInfo.InvariantCulture),
+                ["y"] = @object.Position.Y.ToString(CultureInfo.InvariantCulture),
+            },
+            ["size"] = new JsonObject
+            {
+                ["x"] = @object.Scale.X.ToString(CultureInfo.InvariantCulture),
+                ["y"] = @object.Scale.Y.ToString(CultureInfo.InvariantCulture),
+            },
+            ["rot"] = @object.Rotation.ToString(CultureInfo.InvariantCulture),
+            ["color"] = @object.Color.ToString(CultureInfo.InvariantCulture),
+            ["layer"] = @object.Depth.ToString(CultureInfo.InvariantCulture),
+            ["fade"] = @object.Fade ? "True" : "False",
+        };
+
+        if (@object.ReactiveType != BackgroundObjectReactiveType.None)
         {
-            writer.WriteString("t", keyframe.Time.ToString(CultureInfo.InvariantCulture));
-            writer.WriteString("x", keyframe.Value.Index.ToString());
-            if (keyframe.Ease != Ease.Linear)
-                writer.WriteString("ct", keyframe.Ease.ToString());
-            writer.WriteEndObject();
+            json.Add("r_set", new JsonObject
+            {
+                ["type"] = @object.ReactiveType switch
+                {
+                    BackgroundObjectReactiveType.Bass => "LOW",
+                    BackgroundObjectReactiveType.Mid => "MID",
+                    BackgroundObjectReactiveType.Treble => "HIGH",
+                    _ => throw new ArgumentOutOfRangeException()
+                },
+                ["scale"] = @object.ReactiveScale.ToString(CultureInfo.InvariantCulture),
+            });
         }
+        
+        return json;
+    }
+
+    private static JsonObject SerializePrefabObject(IPrefabObject prefabObject)
+    {
+        var json = new JsonObject();
+        json.AddId("id", prefabObject, true);
+        json.AddId("pid", prefabObject.Prefab, true);
+        json.Add("st", prefabObject.Time.ToString(CultureInfo.InvariantCulture));
+        json.Add("ed", SerializeObjectEditorSettings(prefabObject.EditorSettings));
+        return json;
     }
     
-    private static void WriteId(this Utf8JsonWriter writer, string name, object? value, bool require = false)
+    public static JsonObject SerializeTheme(ITheme theme)
+    {
+        var json = new JsonObject();
+        json.AddThemeId("id", theme, true);
+        json.Add("name", theme.Name);
+        json.Add("bg", theme.Background.ToHex());
+        json.Add("gui", theme.Gui.ToHex());
+        
+        json.Add("players", new JsonArray(
+            theme.Player
+                .Select(c => c.ToHex())
+                .Select(x => JsonValue.Create(x))
+                .Cast<JsonNode>()
+                .ToArray()));
+        json.Add("objs", new JsonArray(
+            theme.Object
+                .Select(c => c.ToHex())
+                .Select(x => JsonValue.Create(x))
+                .Cast<JsonNode>()
+                .ToArray()));
+        json.Add("bgs", new JsonArray(
+            theme.BackgroundObject
+                .Select(c => c.ToHex())
+                .Select(x => JsonValue.Create(x))
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        return json;
+    }
+    
+    public static JsonObject SerializePrefab(IPrefab prefab, bool requiresId = false)
+    {
+        var json = new JsonObject();
+        json.AddId("id", prefab, requiresId);
+        json.Add("name", prefab.Name);
+        json.Add("type", prefab.Type switch
+        {
+            PrefabType.Bombs => "0",
+            PrefabType.Bullets => "1",
+            PrefabType.Beams => "2",
+            PrefabType.Spinners => "3",
+            PrefabType.Pulses => "4",
+            PrefabType.Character => "5",
+            PrefabType.Misc1 => "6",
+            PrefabType.Misc2 => "7",
+            PrefabType.Misc3 => "8",
+            PrefabType.Misc4 => "9",
+            _ => throw new ArgumentOutOfRangeException()
+        });
+        json.Add("objects", new JsonArray(
+            prefab.BeatmapObjects
+                .Select(SerializeBeatmapObject)
+                .Cast<JsonNode>()
+                .ToArray()));
+        return json;
+    }
+
+    public static JsonObject SerializeBeatmapObject(IObject @object)
+    {
+        var json = new JsonObject();
+        json.AddId("id", @object, true);
+        if (@object.Parent is not null)
+            json.AddId("p", @object.Parent);
+        json.Add("name", @object.Name);
+        json.Add("pt", 
+            $"{(@object.ParentType.HasFlag(ParentType.Position) ? '1' : '0')}" + 
+            $"{(@object.ParentType.HasFlag(ParentType.Scale) ? '1' : '0')}" + 
+            $"{(@object.ParentType.HasFlag(ParentType.Rotation) ? '1' : '0')}");
+        var parentOffset = new JsonArray
+        {
+            @object.ParentOffset.Position,
+            @object.ParentOffset.Scale,
+            @object.ParentOffset.Rotation
+        };
+        json.Add("po", parentOffset);
+        json.Add("d", @object.RenderDepth.ToString());
+        json.Add("ot", @object.Type switch
+        {
+            ObjectType.LegacyNormal => "0",
+            ObjectType.LegacyHelper => "1",
+            ObjectType.LegacyDecoration => "2",
+            ObjectType.LegacyEmpty => "3",
+            _ => throw new ArgumentOutOfRangeException()
+        });
+        json.Add("shape", @object.Shape switch
+        {
+            ObjectShape.Square => "0",
+            ObjectShape.Circle => "1",
+            ObjectShape.Triangle => "2",
+            ObjectShape.Arrow => "3",
+            ObjectShape.Text => "4",
+            ObjectShape.Hexagon => "5",
+            _ => throw new ArgumentOutOfRangeException()
+        });
+        json.Add("so", @object.ShapeOption.ToString());
+        json.Add("text", @object.Text);
+        json.Add("st", @object.StartTime.ToString(CultureInfo.InvariantCulture));
+        json.Add("akt", @object.AutoKillType switch
+        {
+            AutoKillType.NoAutoKill => "0",
+            AutoKillType.LastKeyframe => "1",
+            AutoKillType.LastKeyframeOffset => "2",
+            AutoKillType.FixedTime => "3",
+            AutoKillType.SongTime => "4",
+            _ => throw new ArgumentOutOfRangeException()
+        });
+        json.Add("ako", @object.AutoKillOffset.ToString(CultureInfo.InvariantCulture));
+        json.Add("o", new JsonObject
+        {
+            ["x"] = @object.Origin.X,
+            ["y"] = @object.Origin.Y
+        });
+        json.Add("ed", SerializeObjectEditorSettings(@object.EditorSettings));
+        json.Add("events", new JsonObject
+        {
+            ["pos"] = new JsonArray(
+                @object.PositionEvents
+                    .Select(SerializeVector2Keyframe)
+                    .Cast<JsonNode>()
+                    .ToArray()),
+            ["sca"] = new JsonArray(
+                @object.ScaleEvents
+                    .Select(SerializeVector2Keyframe)
+                    .Cast<JsonNode>()
+                    .ToArray()),
+            ["rot"] = new JsonArray(
+                @object.RotationEvents
+                    .Select(SerializeFloatKeyframe)
+                    .Cast<JsonNode>()
+                    .ToArray()),
+            ["col"] = new JsonArray(
+                @object.ColorEvents
+                    .Select(SerializeThemeColorKeyframe)
+                    .Cast<JsonNode>()
+                    .ToArray()),
+        });
+        return json;
+    }
+
+    private static JsonObject SerializeVector2Keyframe(Keyframe<Vector2> keyframe)
+    {
+        var json = new JsonObject();
+        json.Add("t", keyframe.Time.ToString(CultureInfo.InvariantCulture));
+        json.Add("x", keyframe.Value.X.ToString(CultureInfo.InvariantCulture));
+        json.Add("y", keyframe.Value.Y.ToString(CultureInfo.InvariantCulture));
+        if (keyframe.Ease != Ease.Linear)
+            json.Add("ct", keyframe.Ease.ToString());
+        if (keyframe.RandomMode != RandomMode.None)
+        {
+            json.Add("r", keyframe.RandomMode switch
+            {
+                RandomMode.None => "0",
+                RandomMode.Range => "1",
+                RandomMode.Snap => "2",
+                RandomMode.Select => "3",
+                RandomMode.Scale => "4",
+                _ => throw new ArgumentOutOfRangeException()
+            });
+            json.Add("rx", keyframe.RandomValue.X.ToString(CultureInfo.InvariantCulture));
+            json.Add("ry", keyframe.RandomValue.Y.ToString(CultureInfo.InvariantCulture));
+            json.Add("rz", keyframe.RandomInterval.ToString(CultureInfo.InvariantCulture));
+        }
+        return json;
+    }
+    
+    private static JsonObject SerializeFloatKeyframe(Keyframe<float> keyframe)
+    {
+        var json = new JsonObject();
+        json.Add("t", keyframe.Time.ToString(CultureInfo.InvariantCulture));
+        json.Add("x", keyframe.Value.ToString(CultureInfo.InvariantCulture));
+        if (keyframe.Ease != Ease.Linear)
+            json.Add("ct", keyframe.Ease.ToString());
+        if (keyframe.RandomMode != RandomMode.None)
+        {
+            json.Add("r", keyframe.RandomMode switch
+            {
+                RandomMode.None => "0",
+                RandomMode.Range => "1",
+                RandomMode.Select => "3",
+                RandomMode.Scale => "4",
+                _ => throw new ArgumentOutOfRangeException()
+            });
+            json.Add("rx", keyframe.RandomValue.ToString(CultureInfo.InvariantCulture));
+            json.Add("rz", keyframe.RandomInterval.ToString(CultureInfo.InvariantCulture));
+        }
+        return json;
+    }
+    
+    private static JsonObject SerializeThemeColorKeyframe(FixedKeyframe<ThemeColor> keyframe)
+        => new()
+        {
+            ["t"] = keyframe.Time.ToString(CultureInfo.InvariantCulture),
+            ["x"] = keyframe.Value.Index.ToString(),
+        };
+
+    private static JsonObject SerializeObjectEditorSettings(ObjectEditorSettings editorSettings)
+    {
+        var json = new JsonObject();
+        if (editorSettings.Locked)
+            json.Add("locked", "True");
+        if (editorSettings.Collapsed)
+            json.Add("shrink", "True");
+        json.Add("bin", editorSettings.Bin.ToString());
+        json.Add("layer", editorSettings.Layer.ToString());
+        return json;
+    }
+    
+    private static void AddThemeId(this JsonObject json, string key, ITheme theme, bool require = false)
+    {
+        if (theme is not IIdentifiable<int> && require)
+            throw new ArgumentException($"{theme.GetType()} is not identifiable, but an id is required");
+
+        if (theme is IIdentifiable<int> identifiable)
+            json.Add(key, identifiable.Id.ToString());
+    }
+
+    private static void AddId(this JsonObject json, string key, object? value, bool require = false)
     {
         if (value is not IIdentifiable<string> && require)
             throw new ArgumentException($"{value?.GetType()} is not identifiable, but an id is required");
 
         if (value is IIdentifiable<string> identifiable)
-            writer.WriteString(name, identifiable.Id);
-    }
-    
-    private static void WriteThemeId(this Utf8JsonWriter writer, string name, object? value, bool require = false)
-    {
-        if (value is not IIdentifiable<int> && require)
-            throw new ArgumentException($"{value?.GetType()} is not identifiable, but an id is required");
-
-        if (value is IIdentifiable<int> identifiable)
-            writer.WriteString(name, identifiable.Id.ToString());
+            json.Add(key, identifiable.Id);
     }
     
     private static string ToHex(this Color color)

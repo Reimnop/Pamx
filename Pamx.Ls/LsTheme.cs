@@ -4,7 +4,7 @@ using Pamx.Common.Implementation;
 
 namespace Pamx.Ls;
 
-public class LsTheme : ITheme, IIdentifiable<int>
+public class LsTheme() : ITheme, IIdentifiable<int>
 {
     public int Id { get; } = RandomUtil.GenerateLegacyThemeId();
     public string Name { get; set; } = string.Empty;
@@ -16,4 +16,9 @@ public class LsTheme : ITheme, IIdentifiable<int>
     public Color Background { get; set; }
     public Color Gui { get; set; }
     public Color GuiAccent { get; set; }
+    
+    public LsTheme(int id) : this()
+    {
+        Id = id;
+    }
 }

@@ -4,6 +4,7 @@ public enum RandomMode
 {
     None,
     Range,
+    Snap,
     Select,
     Scale
 }
