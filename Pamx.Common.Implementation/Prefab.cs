@@ -1,9 +1,8 @@
-using Pamx.Common;
 using Pamx.Common.Enum;
 
-namespace Pamx.Ls;
+namespace Pamx.Common.Implementation;
 
-public class LsPrefab : IPrefab
+public class Prefab : IPrefab
 {
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }

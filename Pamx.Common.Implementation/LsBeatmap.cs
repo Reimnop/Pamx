@@ -1,10 +1,8 @@
-using Pamx.Common;
 using Pamx.Common.Data;
-using Pamx.Common.Implementation;
 
-namespace Pamx.Ls;
+namespace Pamx.Common.Implementation;
 
-public class LsBeatmap : IBeatmap
+public class Beatmap : IBeatmap
 {
     public EditorSettings EditorSettings { get; set; }
     public IList<Trigger> Triggers { get; } = [];

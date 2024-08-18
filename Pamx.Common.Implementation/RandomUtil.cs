@@ -18,6 +18,6 @@ public static class RandomUtil
         return builder.ToString();
     }
 
-    public static int GenerateLegacyThemeId()
+    public static int GenerateLsThemeId()
         => Random.Next(100000, 1000000);
 }

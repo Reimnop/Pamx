@@ -44,7 +44,7 @@ public static class VgDeserialization
                 @object.Parent = tuple.Item1;
                 continue;
             }
-            @object.Parent = new VgReferenceObject(parentId);
+            @object.Parent = new BeatmapReferenceObject(parentId);
         }
         
         // Read prefabs
@@ -233,7 +233,7 @@ public static class VgDeserialization
                 x[0].Get<float>(),
                 x[1].Get<float>())));
 
-        var beatmap = new VgBeatmap
+        var beatmap = new Beatmap
         {
             EditorSettings = editorSettings,
             Parallax = parallax,
@@ -539,7 +539,7 @@ public static class VgDeserialization
         var guiAccentColor = ParseColor(json["base_gui_accent"].Get<string>());
         
         var theme = string.IsNullOrEmpty(id)
-            ? new VgTheme
+            ? new Theme
             {
                 Name = name,
                 Background = backgroundColor,
@@ -608,11 +608,11 @@ public static class VgDeserialization
                 @object.Parent = lookedUpObject;
                 continue;
             }
-            @object.Parent = new VgReferenceObject(parentId);
+            @object.Parent = new BeatmapReferenceObject(parentId);
         }
 
         var prefab = string.IsNullOrEmpty(id)
-            ? new VgPrefab
+            ? new Prefab
             {
                 Name = name,
                 Description = description,
@@ -620,7 +620,7 @@ public static class VgDeserialization
                 Offset = offset,
                 Type = type,
             }
-            : new VgBeatmapPrefab(id)
+            : new BeatmapPrefab(id)
             {
                 Name = name,
                 Description = description,
@@ -743,7 +743,7 @@ public static class VgDeserialization
                     EndIndex = x.Count > 2 ? (int) x[2].GetOrDefault(0.0f) : 0,
                 }));
 
-        var @object = new VgObject(id)
+        var @object = new BeatmapObject(id)
         {
             AutoKillType = autoKillType,
             AutoKillOffset = autoKillOffset,

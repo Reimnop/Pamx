@@ -1,9 +1,8 @@
 using System.Drawing;
-using Pamx.Common;
 
-namespace Pamx.Vg;
+namespace Pamx.Common.Implementation;
 
-public class VgTheme : ITheme
+public class Theme : ITheme
 {
     public string Name { get; set; } = string.Empty;
     public IList<Color> Player { get; } = [];

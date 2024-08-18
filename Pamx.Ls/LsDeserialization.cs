@@ -45,7 +45,7 @@ public static class LsDeserialization
                 @object.Parent = tuple.Item1;
                 continue;
             }
-            @object.Parent = new LsReferenceObject(parentId);
+            @object.Parent = new BeatmapReferenceObject(parentId);
         }
 
         // Read prefabs and store it as a dictionary
@@ -144,7 +144,7 @@ public static class LsDeserialization
                 Size = json["z"].Get<float>(),
             });
 
-        var beatmap = new LsBeatmap();
+        var beatmap = new Beatmap();
         beatmap.Markers.AddRange(markers);
         beatmap.Prefabs.AddRange(prefabLookup.Values);
         beatmap.PrefabObjects.AddRange(prefabObjects);
@@ -259,7 +259,7 @@ public static class LsDeserialization
             .Select(x => x.Get<string>())
             .Select(ParseColor);
         
-        var theme = new LsTheme(id)
+        var theme = new LsBeatmapTheme(id)
         {
             Name = name,
             Background = background,
@@ -314,17 +314,17 @@ public static class LsDeserialization
                 @object.Parent = lookedUpObject;
                 continue;
             }
-            @object.Parent = new LsReferenceObject(parentId);
+            @object.Parent = new BeatmapReferenceObject(parentId);
         }
         
         var prefab = string.IsNullOrEmpty(id)
-            ? new LsPrefab
+            ? new Prefab
             {
                 Name = name,
                 Type = type,
                 Offset = offset,
             }
-            : new LsBeatmapPrefab(id)
+            : new BeatmapPrefab(id)
             {
                 Name = name,
                 Type = type,
@@ -409,7 +409,7 @@ public static class LsDeserialization
         var colorEvents = colJson
             .Cast<JsonObject>()
             .Select(GetThemeColorKeyframe);
-        var @object = new LsObject(id)
+        var @object = new BeatmapObject(id)
         {
             Name = name,
             ParentType = parentType,

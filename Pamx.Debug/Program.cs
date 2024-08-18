@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
 using Pamx.Common.Data;
 using Pamx.Common.Enum;
+using Pamx.Common.Implementation;
 using Pamx.Vg;
 
 var beatmapText = File.ReadAllText("level.vgd");
@@ -12,13 +13,13 @@ var beatmapJson = (JsonObject) JsonNode.Parse(beatmapText)!;
 var beatmap = VgDeserialization.DeserializeBeatmap(beatmapJson);
 
 // Add a text object to know if it's working
-var textObject = new VgObject
+var textObject = new BeatmapObject
 {
     Name = "Pamx",
     AutoKillType = AutoKillType.NoAutoKill,
     Shape = ObjectShape.Text,
     Text = "<b>Pamx</b> works!!!!!",
-    Parent = VgReferenceObject.Camera,
+    Parent = null,
     PositionEvents = { new Keyframe<Vector2>() },
     ScaleEvents = { new Keyframe<Vector2>(0.0f, Vector2.One * 2.0f) },
     RotationEvents = { new Keyframe<float>() },
