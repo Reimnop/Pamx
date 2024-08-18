@@ -1,6 +1,6 @@
 using System.Drawing;
 using System.Numerics;
-using System.Text.Json;
+using System.Text.Json.Nodes;
 using Pamx.Common;
 using Pamx.Common.Data;
 using Pamx.Common.Enum;
@@ -9,473 +9,337 @@ namespace Pamx.Vg;
 
 public static class VgSerialization
 {
-    public static void SerializeBeatmap(IBeatmap beatmap, Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        {
-            writer.WriteEditorSettings("editor", beatmap.EditorSettings);
-            writer.WriteStartArray("triggers");
-            {
-                foreach (var trigger in beatmap.Triggers)
-                {
-                    writer.WriteStartObject();
-                    {
-                        writer.WriteNumber("event_trigger", trigger.Type switch
-                        {
-                            TriggerType.Time => 0,
-                            TriggerType.PlayerHit => 1,
-                            TriggerType.PlayerDeath => 2,
-                            TriggerType.PlayerStart => 3,
-                            _ => throw new ArgumentOutOfRangeException()
-                        });
+    private delegate JsonArray WriteKeyframeValueDelegate<in T>(T value);
+    private delegate JsonArray WriteRandomKeyframeValueDelegate<in T>(T value, float interval);
 
-                        var eventTriggerTime = new Vector2(trigger.From, trigger.To); // It's saved as a vector2 internally
-                        writer.WriteVector2("event_trigger_time", eventTriggerTime);
-                        
-                        writer.WriteNumber("event_retrigger", trigger.Retrigger);
-                        writer.WriteNumber("event_type", trigger.EventType switch
-                        {
-                            EventType.VnInk => 0,
-                            EventType.VnTimeline => 1,
-                            EventType.PlayerBubble => 2,
-                            EventType.PlayerLocation => 3,
-                            EventType.PlayerDash => 4,
-                            EventType.PlayerXMovement => 5,
-                            EventType.PlayerYMovement => 6,
-                            EventType.PlayerDashDirection => 9,
-                            EventType.BgSpin => 7,
-                            EventType.BgMove => 8,
-                            _ => throw new ArgumentOutOfRangeException()
-                        });
-                        
-                        writer.WriteStartArray("event_data");
-                        {
-                            foreach (var data in trigger.Data)
-                                writer.WriteStringValue(data);
-                            writer.WriteEndArray();
-                        }
-                        
-                        writer.WriteEndObject();
-                    }
-                }
-                writer.WriteEndArray();
-            }
-            writer.WriteStartArray("editor_prefab_spawn");
-            {
-                foreach (var prefabSpawn in beatmap.PrefabSpawns)
+    public static JsonObject SerializeBeatmap(IBeatmap beatmap)
+    {
+        var json = new JsonObject();
+        
+        // Write editor settings
+        json.Add("editor", SerializeEditorSettings(beatmap.EditorSettings));
+        
+        // Write triggers
+        json.Add("triggers", new JsonArray(
+            beatmap.Triggers
+                .Select(SerializeTrigger)
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write markers
+        json.Add("markers", new JsonArray(
+            beatmap.Markers
+                .Select(SerializeMarker)
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write checkpoints
+        json.Add("checkpoints", new JsonArray(
+            beatmap.Checkpoints
+                .Select(SerializeCheckpoint)
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write editor prefab spawns
+        json.Add("editor_prefab_spawn", new JsonArray(
+            beatmap.PrefabSpawns
+                .Select(SerializeEditorPrefabSpawn)
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write parallax
+        json.Add("parallax_settings", SerializeParallax(beatmap.Parallax));
+        
+        // Write themes
+        json.Add("themes", new JsonArray(
+            beatmap.Themes
+                .Select(x => SerializeTheme(x, true))
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write prefabs
+        json.Add("prefabs", new JsonArray(
+            beatmap.Prefabs
+                .Select(x => SerializePrefab(x, true))
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write prefab objects
+        json.Add("prefab_objects", new JsonArray(
+            beatmap.PrefabObjects
+                .Select(SerializePrefabObject)
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write objects
+        json.Add("objects", new JsonArray(
+            beatmap.Objects
+                .Select(SerializeObject)
+                .Cast<JsonNode>()
+                .ToArray()));
+        
+        // Write events
+        var events = beatmap.Events;
+        json.Add("events", new JsonArray
+        {
+            // Write movement events
+            SerializeArray(
+                events.Movement,
+                GetFixedKeyframeSerializer<Vector2>(x => [x.X, x.Y])),
+            
+            // Write zoom events
+            SerializeArray(
+                events.Zoom,
+                GetFixedKeyframeSerializer<float>(x => [x])),
+            
+            // Write rotation events
+            SerializeArray(
+                events.Rotation,
+                GetFixedKeyframeSerializer<float>(x => [x])),
+            
+            // Write shake events
+            SerializeArray(
+                events.Shake,
+                GetFixedKeyframeSerializer<float>(x => [x])),
+            
+            // Write theme events
+            SerializeArray(
+                events.Theme,
+                x =>
                 {
-                    writer.WriteStartObject();
+                    var json = new JsonObject();
+                    if (x.Time != 0.0f)
+                        json.Add("t", x.Time);
+                    var themeId = x.Value is IIdentifiable<string> identifiable 
+                        ? identifiable.Id 
+                        : throw new ArgumentException("Can not determine theme id for theme keyframe value");
+                    json.Add("evs", new JsonArray
                     {
-                        writer.WriteBoolean("expanded", prefabSpawn.Expanded);
-                        writer.WriteBoolean("active", prefabSpawn.Active);
-                        writer.WriteId("prefab", prefabSpawn.Prefab);
-                        writer.WriteStartArray("keycodes");
-                        {
-                            foreach (var keycode in prefabSpawn.Keycodes)
-                                writer.WriteStringValue(keycode);
-                            writer.WriteEndArray();
-                        }
-                        writer.WriteEndObject();
-                    }
-                }
-                writer.WriteEndArray();
-            }
-            writer.WriteParallax("parallax_settings", beatmap.Parallax);
-            writer.WriteStartArray("checkpoints");
-            {
-                foreach (var checkpoint in beatmap.Checkpoints)
-                {
-                    writer.WriteStartObject();
-                    {
-                        writer.WriteId("ID", checkpoint, true);
-                        if (!string.IsNullOrEmpty(checkpoint.Name))
-                            writer.WriteString("n", checkpoint.Name);
-                        if (checkpoint.Time != 0.0f)
-                            writer.WriteNumber("t", checkpoint.Time);
-                        if (checkpoint.Position != default)
-                            writer.WriteVector2("p", checkpoint.Position);
-                        writer.WriteEndObject();
-                    }
-                }
-                writer.WriteEndArray();
-            }
-            writer.WriteStartArray("markers");
-            {
-                foreach (var marker in beatmap.Markers)
-                {
-                    writer.WriteStartObject();
-                    {
-                        writer.WriteId("ID", marker, true);
-                        if (!string.IsNullOrEmpty(marker.Name))
-                            writer.WriteString("n", marker.Name);
-                        if (!string.IsNullOrEmpty(marker.Description))
-                            writer.WriteString("d", marker.Description);
-                        if (marker.Color != 0)
-                            writer.WriteNumber("c", marker.Color);
-                        if (marker.Time != 0.0f)
-                            writer.WriteNumber("t", marker.Time);
-                        writer.WriteEndObject();
-                    }
-                }
-                writer.WriteEndArray();
-            }
-            writer.WriteStartArray("objects");
-            {
-                foreach (var beatmapObject in beatmap.Objects)
-                    SerializeObject(beatmapObject, writer);
-                writer.WriteEndArray();
-            }
-            writer.WriteStartArray("prefab_objects");
-            {
-                foreach (var prefabObject in beatmap.PrefabObjects)
-                    SerializePrefabObject(prefabObject, writer);
-                writer.WriteEndArray();
-            }
-            writer.WriteStartArray("prefabs");
-            {
-                foreach (var prefab in beatmap.Prefabs)
-                    SerializePrefab(prefab, writer, true);
-                writer.WriteEndArray();
-            }
-            writer.WriteStartArray("themes");
-            {
-                foreach (var theme in beatmap.Themes)
-                    SerializeTheme(theme, writer, true);
-                writer.WriteEndArray();
-            }
-            writer.WriteStartArray("events");
-            {
-                // Write movement events
-                writer.WriteArray(beatmap.Events.Movement, (w, keyframe) =>
-                {
-                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
-                    {
-                        w2.WriteNumberValue(v.X);
-                        w2.WriteNumberValue(v.Y);
+                        themeId
                     });
-                });
-                
-                // Write zoom events
-                writer.WriteArray(beatmap.Events.Zoom, (w, keyframe) =>
-                {
-                    w.WriteFixedKeyframe(keyframe, (w2, v) => w2.WriteNumberValue(v));
-                });
-                
-                // Write rotation events
-                writer.WriteArray(beatmap.Events.Rotation, (w, keyframe) =>
-                {
-                    w.WriteFixedKeyframe(keyframe, (w2, v) => w2.WriteNumberValue(v));
-                });
-                
-                // Write shake events
-                writer.WriteArray(beatmap.Events.Shake, (w, keyframe) =>
-                {
-                    w.WriteFixedKeyframe(keyframe, (w2, v) => w2.WriteNumberValue(v));
-                });
-                
-                // Write theme events
-                writer.WriteArray(beatmap.Events.Theme, (w, keyframe) =>
-                {
-                    w.WriteStartObject();
+                    if (x.Ease != Ease.Linear)
+                        json.Add("ct", x.Ease.ToString());
+                    return json;
+                }),
+            
+            // Write chroma events
+            SerializeArray(
+                events.Chroma,
+                GetFixedKeyframeSerializer<float>(x => [x])),
+            
+            // Write bloom events
+            SerializeArray(
+                events.Bloom,
+                GetFixedKeyframeSerializer<BloomData>(x => [x.Intensity, x.Diffusion, (float) x.Color])),
+            
+            // Write vignette events
+            SerializeArray(
+                events.Vignette,
+                GetFixedKeyframeSerializer<VignetteData>(x => [
+                    x.Intensity, 
+                    x.Smoothness,
+                    (float) x.Color,
+                    x.Rounded ? 1.0f : 0.0f,
+                    x.Center.X,
+                    x.Center.Y])),
+            
+            // Write lens distortion events
+            SerializeArray(
+                events.LensDistortion,
+                GetFixedKeyframeSerializer<LensDistortionData>(x => [
+                    x.Intensity,
+                    x.Center.X,
+                    x.Center.Y])),
+            
+            // Write grain events
+            SerializeArray(
+                events.Grain,
+                GetFixedKeyframeSerializer<GrainData>(x => [
+                    x.Intensity,
+                    x.Size,
+                    x.Mix])),
+            
+            // Write gradient events
+            SerializeArray(
+                events.Gradient,
+                GetFixedKeyframeSerializer<GradientData>(x => [
+                    x.Intensity,
+                    x.Rotation,
+                    (float) x.ColorA,
+                    (float) x.ColorB,
+                    x.Mode switch
                     {
-                        if (keyframe.Time != 0.0f)
-                            w.WriteNumber("t", keyframe.Time);
-                        if (keyframe.Ease != Ease.Linear)
-                            w.WriteString("ct", keyframe.Ease.ToString());
-                        if (keyframe.Value is not IIdentifiable<string> identifiable)
-                            throw new ArgumentException("Can not determine theme id for theme keyframe value");
-                        w.WriteStartArray("evs");
-                        {
-                            w.WriteStringValue(identifiable.Id);
-                            w.WriteEndArray();
-                        }
-                        w.WriteEndObject();
-                    }
-                });
-                
-                // Write chroma events
-                writer.WriteArray(beatmap.Events.Chroma, (w, keyframe) =>
-                {
-                    w.WriteFixedKeyframe(keyframe, (w2, v) => w2.WriteNumberValue(v));
-                });
-                
-                // Write bloom events
-                writer.WriteArray(beatmap.Events.Bloom, (w, keyframe) =>
-                {
-                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
-                    {
-                        w2.WriteNumberValue(v.Intensity);
-                        w2.WriteNumberValue(v.Diffusion);
-                        w2.WriteNumberValue(v.Color);
-                    });
-                });
-                
-                // Write vignette events
-                writer.WriteArray(beatmap.Events.Vignette, (w, keyframe) =>
-                {
-                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
-                    {
-                        w2.WriteNumberValue(v.Intensity);
-                        w2.WriteNumberValue(v.Smoothness);
-                        w2.WriteNumberValue(v.Color);
-                        w2.WriteNumberValue(v.Rounded ? 1.0f : 0.0f);
-                        w2.WriteNumberValue(v.Center.X);
-                        w2.WriteNumberValue(v.Center.Y);
-                    });
-                });
-                
-                // Write lens distortion events
-                writer.WriteArray(beatmap.Events.LensDistortion, (w, keyframe) =>
-                {
-                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
-                    {
-                        w2.WriteNumberValue(v.Intensity);
-                        w2.WriteNumberValue(v.Center.X);
-                        w2.WriteNumberValue(v.Center.Y);
-                    });
-                });
-                
-                // Write grain events
-                writer.WriteArray(beatmap.Events.Grain, (w, keyframe) =>
-                {
-                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
-                    {
-                        w2.WriteNumberValue(v.Intensity);
-                        w2.WriteNumberValue(v.Size);
-                        w2.WriteNumberValue(v.Mix);
-                    });
-                });
-                
-                // Write gradient events
-                writer.WriteArray(beatmap.Events.Gradient, (w, keyframe) =>
-                {
-                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
-                    {
-                        w2.WriteNumberValue(v.Intensity);
-                        w2.WriteNumberValue(v.Rotation);
-                        w2.WriteNumberValue(v.ColorA);
-                        w2.WriteNumberValue(v.ColorB);
-                        w2.WriteNumberValue(v.Mode switch
-                        {
-                            GradientOverlayMode.Linear => 0.0f,
-                            GradientOverlayMode.Additive => 1.0f,
-                            GradientOverlayMode.Multiply => 2.0f,
-                            GradientOverlayMode.Screen => 3.0f,
-                            _ => throw new ArgumentOutOfRangeException()
-                        });
-                    });
-                });
-                
-                // Write glitch events
-                writer.WriteArray(beatmap.Events.Glitch, (w, keyframe) =>
-                {
-                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
-                    {
-                        w2.WriteNumberValue(v.Intensity);
-                        w2.WriteNumberValue(v.Speed);
-                        w2.WriteNumberValue(v.Width);
-                    });
-                });
-                
-                // Write hue events
-                writer.WriteArray(beatmap.Events.Hue, (w, keyframe) =>
-                {
-                    w.WriteFixedKeyframe(keyframe, (w2, v) => w2.WriteNumberValue(v));
-                });
-                
-                // Write player events
-                writer.WriteArray(beatmap.Events.Player, (w, keyframe) =>
-                {
-                    w.WriteFixedKeyframe(keyframe, (w2, v) =>
-                    {
-                        w2.WriteNumberValue(v.X);
-                        w2.WriteNumberValue(v.Y);
-                    });
-                });
-                writer.WriteEndArray();
-            }
-            writer.WriteEndObject();
-        }
+                        GradientOverlayMode.Linear => 0.0f,
+                        GradientOverlayMode.Additive => 1.0f,
+                        GradientOverlayMode.Multiply => 2.0f,
+                        GradientOverlayMode.Screen => 3.0f,
+                        _ => throw new ArgumentOutOfRangeException()
+                    }])),
+            
+            // Write glitch events
+            SerializeArray(
+                events.Glitch,
+                GetFixedKeyframeSerializer<GlitchData>(x => [
+                    x.Intensity,
+                    x.Speed,
+                    x.Width])),
+            
+            // Write hue events
+            SerializeArray(
+                events.Hue,
+                GetFixedKeyframeSerializer<float>(x => [x])),
+            
+            // Write player events
+            SerializeArray(
+                events.Player,
+                GetFixedKeyframeSerializer<Vector2>(x => [x.X, x.Y])),
+        });
+        return json;
     }
     
-    public static void SerializePrefabObject(IPrefabObject prefabObject, Utf8JsonWriter writer)
+    private static JsonObject SerializeEditorPrefabSpawn(EditorPrefabSpawn editorPrefabSpawn)
     {
-        writer.WriteStartObject();
-        {
-            writer.WriteId("id", prefabObject, true);
-            writer.WriteId("pid", prefabObject.Prefab, true);
-            writer.WriteObjectEditorSettings("ed", prefabObject.EditorSettings);
-            writer.WriteNumber("t", prefabObject.Time);
-            
-            writer.WriteStartArray("e");
-            {
-                // Write position
-                writer.WriteStartObject();
-                {
-                    writer.WriteStartArray("ev");
-                    {
-                        writer.WriteNumberValue(prefabObject.Position.X);
-                        writer.WriteNumberValue(prefabObject.Position.Y);
-                        writer.WriteEndArray();
-                    }
-                    writer.WriteEndObject();
-                }
-                
-                // Write scale
-                writer.WriteStartObject();
-                {
-                    writer.WriteStartArray("ev");
-                    {
-                        writer.WriteNumberValue(prefabObject.Scale.X);
-                        writer.WriteNumberValue(prefabObject.Scale.Y);
-                        writer.WriteEndArray();
-                    }
-                    writer.WriteEndObject();
-                }
-                
-                // Write rotation
-                writer.WriteStartObject();
-                {
-                    writer.WriteStartArray("ev");
-                    {
-                        writer.WriteNumberValue(prefabObject.Rotation);
-                        writer.WriteEndArray();
-                    }
-                    writer.WriteEndObject();
-                }
-                
-                writer.WriteEndArray();
-            }
-            
-            writer.WriteEndObject();
-        }
+        var json = new JsonObject();
+        if (editorPrefabSpawn.Expanded)
+            json.Add("expanded", true);
+        if (editorPrefabSpawn.Active)
+            json.Add("active", true);
+        json.AddId("prefab", editorPrefabSpawn.Prefab);
+        json.Add("keycodes", new JsonArray(
+            editorPrefabSpawn.Keycodes
+                .Select(x => (JsonNode) x)
+                .ToArray()));
+        return json;
     }
     
-    public static void SerializeTheme(ITheme theme, Utf8JsonWriter writer, bool requiresId = false)
+    private static JsonObject SerializeTrigger(Trigger trigger)
     {
-        writer.WriteStartObject();
-        {
-            writer.WriteId("id", theme, requiresId);
-            writer.WriteString("name", theme.Name);
-            
-            writer.WriteStartArray("pla");
+        var json = new JsonObject();
+        if (trigger.Type != TriggerType.Time)
+            json.Add("event_trigger", trigger.Type switch
             {
-                foreach (var color in theme.Player)
-                    writer.WriteStringValue(color.ToHex());
-                writer.WriteEndArray();
-            }
-            
-            writer.WriteStartArray("obj");
+                TriggerType.Time => 0,
+                TriggerType.PlayerHit => 1,
+                TriggerType.PlayerDeath => 2,
+                TriggerType.PlayerStart => 3,
+                _ => throw new ArgumentOutOfRangeException()
+            });
+        json.AddVector2("event_trigger_time", new Vector2(trigger.From, trigger.To));
+        if (trigger.Retrigger != 0)
+            json.Add("event_retrigger", trigger.Retrigger);
+        if (trigger.EventType != EventType.VnInk)
+            json.Add("event_type", trigger.EventType switch
             {
-                foreach (var color in theme.Object)
-                    writer.WriteStringValue(color.ToHex());
-                writer.WriteEndArray();
-            }
-            
-            writer.WriteStartArray("fx");
-            {
-                foreach (var color in theme.Effect)
-                    writer.WriteStringValue(color.ToHex());
-                writer.WriteEndArray();
-            }
-            
-            writer.WriteStartArray("bg");
-            {
-                foreach (var color in theme.ParallaxObject)
-                    writer.WriteStringValue(color.ToHex());
-                writer.WriteEndArray();
-            }
-            
-            writer.WriteString("base_bg", theme.Background.ToHex());
-            writer.WriteString("base_gui", theme.Gui.ToHex());
-            writer.WriteString("base_gui_accent", theme.GuiAccent.ToHex());
-            
-            writer.WriteEndObject();
-        }
+                EventType.VnInk => 0,
+                EventType.VnTimeline => 1,
+                EventType.PlayerBubble => 2,
+                EventType.PlayerLocation => 3,
+                EventType.PlayerDash => 4,
+                EventType.PlayerXMovement => 5,
+                EventType.PlayerYMovement => 6,
+                EventType.BgSpin => 7,
+                EventType.BgMove => 8,
+                EventType.PlayerDashDirection => 9,
+                _ => throw new ArgumentOutOfRangeException()
+            });
+        json.Add("event_data", new JsonArray(
+            trigger.Data
+                .Select(x => (JsonNode) x)
+                .ToArray()));
+        return json;
     }
-
-    public static void SerializePrefab(IPrefab prefab, Utf8JsonWriter writer, bool requiresId = false)
+    
+    private static JsonObject SerializeMarker(IMarker marker)
     {
-        writer.WriteStartObject();
-        {
-            writer.WriteId("id", prefab, requiresId);
-
-            if (!string.IsNullOrEmpty(prefab.Name))
-                writer.WriteString("n", prefab.Name);
-
-            if (!string.IsNullOrEmpty(prefab.Description))
-                writer.WriteString("description", prefab.Description);
-
-            if (!string.IsNullOrEmpty(prefab.Preview))
-                writer.WriteString("preview", prefab.Preview);
-
-            if (prefab.Offset != 0.0f)
-                writer.WriteNumber("o", prefab.Offset);
-
-            writer.WriteStartArray("objs");
-            {
-                foreach (var @object in prefab.BeatmapObjects)
-                    SerializeObject(@object, writer);
-
-                writer.WriteEndArray();
-            }
-
-            writer.WriteNumber("type", prefab.Type switch
-            {
-                PrefabType.Character => 0,
-                PrefabType.CharacterParts => 1,
-                PrefabType.Props => 2,
-                PrefabType.Bullets => 3,
-                PrefabType.Pulses => 4,
-                PrefabType.Bombs => 5,
-                PrefabType.Spinners => 6,
-                PrefabType.Beams => 7,
-                PrefabType.Static => 8,
-                PrefabType.Misc1 => 9,
-                PrefabType.Misc2 => 10,
-                PrefabType.Misc3 => 11,
-                _ => throw new ArgumentOutOfRangeException()
-            });
-
-            writer.WriteEndObject();
-        }
+        var json = new JsonObject();
+        json.AddId("ID", marker);
+        if (!string.IsNullOrEmpty(marker.Name))
+            json.Add("n", marker.Name);
+        if (!string.IsNullOrEmpty(marker.Description))
+            json.Add("d", marker.Description);
+        if (marker.Color != 0)
+            json.Add("c", marker.Color);
+        if (marker.Time != 0.0f)
+            json.Add("t", marker.Time);
+        return json;
     }
-
-    public static void SerializeObject(IObject @object, Utf8JsonWriter writer)
+    
+    private static JsonObject SerializeCheckpoint(ICheckpoint checkpoint)
     {
-        writer.WriteStartObject();
+        var json = new JsonObject();
+        json.AddId("ID", checkpoint);
+        if (!string.IsNullOrEmpty(checkpoint.Name))
+            json.Add("n", checkpoint.Name);
+        if (checkpoint.Time != 0.0f)
+            json.Add("t", checkpoint.Time);
+        json.Add("p", SerializeVector2(checkpoint.Position));
+        return json;
+    }
+    
+    private static JsonObject SerializeParallax(IParallax parallax)
+    {
+        var json = new JsonObject();
+        if (parallax.DepthOfField.HasValue)
         {
-            writer.WriteId("id", @object, true);
-            writer.WriteId("p_id", @object.Parent);
-
-            writer.WriteNumber("ak_t", @object.AutoKillType switch
-            {
-                AutoKillType.NoAutoKill => 0,
-                AutoKillType.LastKeyframe => 1,
-                AutoKillType.LastKeyframeOffset => 2,
-                AutoKillType.FixedTime => 3,
-                AutoKillType.SongTime => 4,
-                _ => throw new ArgumentOutOfRangeException()
-            });
-            writer.WriteNumber("ak_o", @object.AutoKillOffset);
-            writer.WriteNumber("ot", @object.Type switch
-            {
-                ObjectType.LegacyNormal => 0,
-                ObjectType.LegacyHelper => 1,
-                ObjectType.LegacyDecoration => 2,
-                ObjectType.LegacyEmpty => 3,
-                ObjectType.Hit => 4,
-                ObjectType.NoHit => 5,
-                ObjectType.Empty => 6,
-                _ => throw new ArgumentOutOfRangeException()
-            });
-            if (!string.IsNullOrEmpty(@object.Name))
-                writer.WriteString("n", @object.Name);
-            if (!string.IsNullOrEmpty(@object.Text))
-                writer.WriteString("text", @object.Text);
-            if (@object.Origin != default)
-                writer.WriteVector2("o", @object.Origin);
-            writer.WriteNumber("s", @object.Shape switch
+            json.Add("dof_active", true);
+            json.Add("dof_value", parallax.DepthOfField.Value);
+        }
+        json.Add("l", new JsonArray(
+            parallax.Layers
+                .Select(SerializeParallaxLayer)
+                .Cast<JsonNode>()
+                .ToArray()));
+        return json;
+    }
+    
+    private static JsonObject SerializeParallaxLayer(IParallaxLayer parallaxLayer)
+    {
+        var json = new JsonObject();
+        if (parallaxLayer.Depth != 0)
+            json.Add("d", parallaxLayer.Depth);
+        if (parallaxLayer.Color != 0)
+            json.Add("c", parallaxLayer.Color);
+        json.Add("o", new JsonArray(
+            parallaxLayer.Objects
+                .Select(SerializeParallaxObject)
+                .Cast<JsonNode>()
+                .ToArray()));
+        return json;
+    }
+    
+    private static JsonObject SerializeParallaxObject(IParallaxObject parallaxObject)
+    {
+        var json = new JsonObject();
+        json.AddId("id", parallaxObject, true);
+        json.Add("t", new JsonObject
+        {
+            ["p"] = SerializeVector2(parallaxObject.Position),
+            ["s"] = SerializeVector2(parallaxObject.Scale),
+            ["r"] = parallaxObject.Rotation,
+        });
+        var anJson = new JsonObject();
+        var animation = parallaxObject.Animation;
+        if (animation.Position.HasValue)
+        {
+            anJson.Add("ap", true);
+            anJson.Add("p", SerializeVector2(animation.Position.Value));
+        }
+        if (animation.Scale.HasValue)
+        {
+            anJson.Add("as", true);
+            anJson.Add("s", SerializeVector2(animation.Scale.Value));
+        }
+        if (animation.Rotation.HasValue)
+        {
+            anJson.Add("ar", true);
+            anJson.Add("r", animation.Rotation.Value);
+        }
+        anJson.Add("l", animation.LoopLength);
+        anJson.Add("ld", animation.LoopDelay);
+        json.Add("an", anJson);
+        json.Add("s", new JsonObject
+        {
+            ["s"] = parallaxObject.Shape switch
             {
                 ObjectShape.Square => 0,
                 ObjectShape.Circle => 1,
@@ -484,389 +348,358 @@ public static class VgSerialization
                 ObjectShape.Text => 4,
                 ObjectShape.Hexagon => 5,
                 _ => throw new ArgumentOutOfRangeException()
-            });
-            writer.WriteNumber("so", @object.ShapeOption);
-            writer.WriteNumber("gt", @object.RenderType switch
-            {
-                RenderType.Normal => 0,
-                RenderType.RightToLeftGradient => 1,
-                RenderType.LeftToRightGradient => 2,
-                RenderType.InwardsGradient => 3,
-                RenderType.OutwardsGradient => 4,
-                _ => throw new ArgumentOutOfRangeException()
-            });
-            if (@object.ParentType != (ParentType.Position | ParentType.Rotation))
-                writer.WriteString("p_t",
-                    (@object.ParentType.HasFlag(ParentType.Position) ? "1" : "0") +
-                    (@object.ParentType.HasFlag(ParentType.Scale) ? "1" : "0") +
-                    (@object.ParentType.HasFlag(ParentType.Rotation) ? "1" : "0"));
-            writer.WriteStartArray("p_o");
-            {
-                writer.WriteNumberValue(@object.ParentOffset.Position);
-                writer.WriteNumberValue(@object.ParentOffset.Scale);
-                writer.WriteNumberValue(@object.ParentOffset.Rotation);
-                writer.WriteEndArray();
-            }
-            if (@object.RenderDepth != 20)
-                writer.WriteNumber("d", @object.RenderDepth);
-            writer.WriteNumber("st", @object.StartTime);
-            writer.WriteObjectEditorSettings("ed", @object.EditorSettings);
-
-            writer.WriteStartArray("e");
-            {
-                // Write position keyframes
-                writer.WriteKeyframeArray(@object.PositionEvents, (w, v) =>
-                {
-                    w.WriteNumberValue(v.X);
-                    w.WriteNumberValue(v.Y);
-                });
-
-                // Write scale keyframes
-                writer.WriteKeyframeArray(@object.ScaleEvents, (w, v) =>
-                {
-                    w.WriteNumberValue(v.X);
-                    w.WriteNumberValue(v.Y);
-                });
-
-                // Write rotation keyframes
-                writer.WriteKeyframeArray(
-                    @object.RotationEvents, 
-                    (w, v) => w.WriteNumberValue(v),
-                    (w, v) =>
-                    {
-                        w.WriteNumberValue(v);
-                        w.WriteNumberValue(0.0f); // ?????
-                    });
-
-                // Write color keyframes
-                writer.WriteFixedKeyframeArray(@object.ColorEvents, (w, v) =>
-                {
-                    w.WriteNumberValue(v.Index);
-                    w.WriteNumberValue(v.Opacity * 100.0f); // It's stored as a percentage
-                    w.WriteNumberValue(v.EndIndex);
-                });
-                writer.WriteEndArray();
-            }
-
-            writer.WriteEndObject();
-        }
-    }
-
-    private static void WriteParallax(this Utf8JsonWriter writer, string name, IParallax parallax)
-    {
-        writer.WriteStartObject(name);
-        {
-            if (parallax.DepthOfField.HasValue)
-            {
-                writer.WriteBoolean("dof_active", true);
-                writer.WriteNumber("dof_value", parallax.DepthOfField.Value);
-            }
-            
-            writer.WriteStartArray("l");
-            {
-                foreach (var layer in parallax.Layers)
-                {
-                    writer.WriteStartObject();
-                    {
-                        writer.WriteNumber("d", layer.Depth);
-                        writer.WriteNumber("c", layer.Color);
-                        writer.WriteStartArray("o");
-                        {
-                            foreach (var parallaxObject in layer.Objects)
-                            {
-                                writer.WriteStartObject();
-                                {
-                                    writer.WriteId("id", parallaxObject, true);
-                                    writer.WriteStartObject("t");
-                                    {
-                                        writer.WriteVector2("p", parallaxObject.Position);
-                                        writer.WriteVector2("s", parallaxObject.Scale);
-                                        writer.WriteNumber("r", parallaxObject.Rotation);
-                                        writer.WriteEndObject();
-                                    }
-                                    writer.WriteStartObject("an");
-                                    {
-                                        var animation = parallaxObject.Animation;
-                                        if (animation.Position.HasValue)
-                                        {
-                                            writer.WriteBoolean("ap", true);
-                                            writer.WriteVector2("p", animation.Position.Value);
-                                        }
-                                        if (animation.Scale.HasValue)
-                                        {
-                                            writer.WriteBoolean("as", true);
-                                            writer.WriteVector2("s", animation.Scale.Value);
-                                        }
-                                        if (animation.Rotation.HasValue)
-                                        {
-                                            writer.WriteBoolean("ar", true);
-                                            writer.WriteNumber("r", animation.Rotation.Value);
-                                        }
-                                        if (animation.LoopLength != 1.0f)
-                                            writer.WriteNumber("l", animation.LoopLength);
-                                        if (animation.LoopDelay != 0.0f)
-                                            writer.WriteNumber("ld", animation.LoopDelay);
-                                        writer.WriteEndObject();
-                                    }
-                                    writer.WriteStartObject("s");
-                                    {
-                                        writer.WriteNumber("s", parallaxObject.Shape switch
-                                        {
-                                            ObjectShape.Square => 0,
-                                            ObjectShape.Circle => 1,
-                                            ObjectShape.Triangle => 2,
-                                            ObjectShape.Arrow => 3,
-                                            ObjectShape.Text => 4,
-                                            ObjectShape.Hexagon => 5,
-                                            _ => throw new ArgumentOutOfRangeException()
-                                        });
-                                        writer.WriteNumber("so", parallaxObject.ShapeOption);
-                                        if (!string.IsNullOrEmpty(parallaxObject.Text))
-                                            writer.WriteString("t", parallaxObject.Text);
-                                        writer.WriteEndObject();
-                                    }
-                                    writer.WriteNumber("c", parallaxObject.Color);
-                                    writer.WriteEndObject();
-                                }
-                            }
-                            writer.WriteEndArray();
-                        }
-                        writer.WriteEndObject();
-                    }
-                }
-                writer.WriteEndArray();
-            }
-            
-            writer.WriteEndObject();
-        }
-    }
-
-    private static void WriteEditorSettings(this Utf8JsonWriter writer, string name, EditorSettings value)
-    {
-        writer.WriteStartObject(name);
-        {
-            // Write bpm settings
-            writer.WriteStartObject("bpm");
-            {
-                var bpm = value.Bpm;
-                writer.WriteStartObject("snap");
-                {
-                    var snap = bpm.Snap;
-                    writer.WriteBoolean("objects", snap.HasFlag(BpmSnap.Objects));
-                    writer.WriteBoolean("checkpoints", snap.HasFlag(BpmSnap.Checkpoints));
-                    writer.WriteEndObject();
-                }
-                writer.WriteNumber("bpm_value", bpm.Value);
-                writer.WriteNumber("bpm_offset", bpm.Offset);
-                writer.WriteNumber("BPMValue", bpm.Value); // TODO: WTF is this?????
-                writer.WriteEndObject();
-            }
-            
-            // Write grid settings
-            writer.WriteStartObject("grid");
-            {
-                var grid = value.Grid;
-                writer.WriteVector2("scale", grid.Scale);
-                writer.WriteNumber("thickness", grid.Thickness);
-                writer.WriteNumber("opacity", grid.Opacity);
-                writer.WriteNumber("color", grid.Color);
-                writer.WriteEndObject();
-            }
-            
-            // Write general settings
-            writer.WriteStartObject("general");
-            {
-                var general = value.General;
-                writer.WriteNumber("collapse_length", general.CollapseLength);
-                writer.WriteNumber("complexity", general.Complexity);
-                writer.WriteNumber("theme", general.Theme);
-                writer.WriteBoolean("text_select_objects", general.SelectTextObjects);
-                writer.WriteBoolean("text_select_backgrounds", general.SelectParallaxTextObjects);
-                writer.WriteEndObject();
-            }
-            
-            // Write preview settings
-            writer.WriteStartObject("preview");
-            {
-                var preview = value.Preview;
-                writer.WriteNumber("cam_zoom_offset", preview.CameraZoomOffset);
-                writer.WriteNumber("cam_zoom_offset_color", preview.CameraZoomOffsetColor);
-                writer.WriteEndObject();
-            }
-            
-            // Write auto save settings
-            writer.WriteStartObject("autosave");
-            {
-                var autoSave = value.AutoSave;
-                writer.WriteNumber("as_max", autoSave.Max);
-                writer.WriteNumber("as_interval", autoSave.Interval);
-                writer.WriteEndObject();
-            }
-            writer.WriteEndObject();
-        }
+            },
+            ["so"] = parallaxObject.ShapeOption,
+            ["t"] = parallaxObject.Text,
+            ["c"] = parallaxObject.Color,
+        });
+        return json;
     }
     
-    private static void WriteFixedKeyframeArray<T>(
-        this Utf8JsonWriter writer,
-        IEnumerable<FixedKeyframe<T>> keyframes,
-        Action<Utf8JsonWriter, T> writeValueCallback)
-    {
-        writer.WriteStartObject();
+    private static JsonObject SerializeEditorSettings(EditorSettings value)
+        => new()
         {
-            writer.WriteStartArray("k");
+            ["bpm"] = new JsonObject
             {
-                foreach (var keyframe in keyframes)
-                    writer.WriteFixedKeyframe(keyframe, writeValueCallback);
-                writer.WriteEndArray();
-            }
-            writer.WriteEndObject();
-        }
+                ["snap"] = new JsonObject
+                {
+                    ["objects"] = value.Bpm.Snap.HasFlag(BpmSnap.Objects),
+                    ["checkpoints"] = value.Bpm.Snap.HasFlag(BpmSnap.Checkpoints),
+                },
+                ["bpm_value"] = value.Bpm.Value,
+                ["bpm_offset"] = value.Bpm.Offset,
+                ["BPMValue"] = value.Bpm.Value, // ???
+            },
+            ["grid"] = new JsonObject
+            {
+                ["scale"] = SerializeVector2(value.Grid.Scale),
+                ["thickness"] = value.Grid.Thickness,
+                ["color"] = value.Grid.Color,
+            },
+            ["general"] = new JsonObject
+            {
+                ["collapse_length"] = value.General.CollapseLength,
+                ["complexity"] = value.General.Complexity,
+                ["theme"] = value.General.Theme,
+                ["text_select_objects"] = value.General.SelectTextObjects,
+                ["text_select_backgrounds"] = value.General.SelectParallaxTextObjects,
+            },
+            ["preview"] = new JsonObject
+            {
+                ["cam_zoom_offset"] = value.Preview.CameraZoomOffset,
+                ["cam_zoom_offset_color"] = value.Preview.CameraZoomOffsetColor,
+            },
+            ["autosave"] = new JsonObject
+            {
+                ["as_max"] = value.AutoSave.Max,
+                ["as_interval"] = value.AutoSave.Interval,
+            },
+        };
+    
+    private static JsonObject SerializePrefabObject(IPrefabObject prefabObject)
+    {
+        var json = new JsonObject();
+        json.AddId("id", prefabObject, true);
+        json.AddId("pid", prefabObject.Prefab, true);
+        json.Add("ed", SerializeObjectEditorSettings(prefabObject.EditorSettings));
+        if (prefabObject.Time != 0.0f)
+            json.Add("t", prefabObject.Time);
+        json.Add("e", new JsonArray
+        {
+            new JsonObject
+            {
+                ["ev"] = new JsonArray
+                {
+                    prefabObject.Position.X,
+                    prefabObject.Position.Y,
+                },
+            },
+            new JsonObject
+            {
+                ["ev"] = new JsonArray
+                {
+                    prefabObject.Scale.X,
+                    prefabObject.Scale.Y,
+                },
+            },
+            new JsonObject
+            {
+                ["ev"] = new JsonArray
+                {
+                    prefabObject.Rotation,
+                },
+            },
+        });
+        return json;
+    }
+    
+    public static JsonObject SerializeTheme(ITheme theme, bool requiresId = false)
+    {
+        var json = new JsonObject();
+        json.AddId("id", theme, requiresId);
+        if (!string.IsNullOrEmpty(theme.Name))
+            json.Add("n", theme.Name);
+        json.Add("pla", new JsonArray(
+            theme.Player
+                .Select(x => (JsonNode) x.ToHex())
+                .ToArray()));
+        json.Add("obj", new JsonArray(
+            theme.Object
+                .Select(x => (JsonNode) x.ToHex())
+                .ToArray()));
+        json.Add("fx", new JsonArray(
+            theme.Effect
+                .Select(x => (JsonNode) x.ToHex())
+                .ToArray()));
+        json.Add("bg", new JsonArray(
+            theme.ParallaxObject
+                .Select(x => (JsonNode) x.ToHex())
+                .ToArray()));
+        json.Add("base_bg", theme.Background.ToHex());
+        json.Add("base_gui", theme.Gui.ToHex());
+        json.Add("base_gui_accent", theme.GuiAccent.ToHex());
+        return json;
+    }
+    
+    public static JsonObject SerializePrefab(IPrefab prefab, bool requiresId = false)
+    {
+        var json = new JsonObject();
+        json.AddId("id", prefab, requiresId);
+        
+        if (!string.IsNullOrEmpty(prefab.Name))
+            json.Add("n", prefab.Name);
+        if (!string.IsNullOrEmpty(prefab.Description))
+            json.Add("description", prefab.Description);
+        if (!string.IsNullOrEmpty(prefab.Preview))
+            json.Add("preview", prefab.Preview);
+        if (prefab.Offset != 0.0f)
+            json.Add("o", prefab.Offset);
+        json.Add("type", prefab.Type switch
+        {
+            PrefabType.Character => 0,
+            PrefabType.CharacterParts => 1,
+            PrefabType.Props => 2,
+            PrefabType.Bullets => 3,
+            PrefabType.Pulses => 4,
+            PrefabType.Bombs => 5,
+            PrefabType.Spinners => 6,
+            PrefabType.Beams => 7,
+            PrefabType.Static => 8,
+            PrefabType.Misc1 => 9,
+            PrefabType.Misc2 => 10,
+            PrefabType.Misc3 => 11,
+            _ => throw new ArgumentOutOfRangeException()
+        });
+        json.Add("objs", new JsonArray(
+            prefab.BeatmapObjects
+                .Select(SerializeObject)
+                .Cast<JsonNode>()
+                .ToArray()));
+        return json;
+    }
+    
+    private static JsonObject SerializeObject(IObject @object)
+    {
+        var json = new JsonObject();
+        json.AddId("id", @object, true);
+        json.AddId("p_id", @object.Parent);
+        json.Add("ak_t", @object.AutoKillType switch
+        {
+            AutoKillType.NoAutoKill => 0,
+            AutoKillType.LastKeyframe => 1,
+            AutoKillType.LastKeyframeOffset => 2,
+            AutoKillType.FixedTime => 3,
+            AutoKillType.SongTime => 4,
+            _ => throw new ArgumentOutOfRangeException()
+        });
+        json.Add("ak_o", @object.AutoKillOffset);
+        json.Add("ot", @object.Type switch
+        {
+            ObjectType.LegacyNormal => 0,
+            ObjectType.LegacyHelper => 1,
+            ObjectType.LegacyDecoration => 2,
+            ObjectType.LegacyEmpty => 3,
+            ObjectType.Hit => 4,
+            ObjectType.NoHit => 5,
+            ObjectType.Empty => 6,
+            _ => throw new ArgumentOutOfRangeException()
+        });
+        if (!string.IsNullOrEmpty(@object.Name))
+            json.Add("n", @object.Name);
+        if (!string.IsNullOrEmpty(@object.Text))
+            json.Add("text", @object.Text);
+        if (@object.Origin != default)
+            json.AddVector2("o", @object.Origin);
+        json.Add("s", @object.Shape switch
+        {
+            ObjectShape.Square => 0,
+            ObjectShape.Circle => 1,
+            ObjectShape.Triangle => 2,
+            ObjectShape.Arrow => 3,
+            ObjectShape.Text => 4,
+            ObjectShape.Hexagon => 5,
+            _ => throw new ArgumentOutOfRangeException()
+        });
+        json.Add("so", @object.ShapeOption);
+        json.Add("gt", @object.RenderType switch
+        {
+            RenderType.Normal => 0,
+            RenderType.RightToLeftGradient => 1,
+            RenderType.LeftToRightGradient => 2,
+            RenderType.InwardsGradient => 3,
+            RenderType.OutwardsGradient => 4,
+            _ => throw new ArgumentOutOfRangeException()
+        });
+        if (@object.ParentType != (ParentType.Position | ParentType.Rotation))
+            json.Add("p_t",
+                (@object.ParentType.HasFlag(ParentType.Position) ? "1" : "0") +
+                (@object.ParentType.HasFlag(ParentType.Scale) ? "1" : "0") +
+                (@object.ParentType.HasFlag(ParentType.Rotation) ? "1" : "0"));
+        json.Add("p_o", new JsonArray
+        {
+            @object.ParentOffset.Position,
+            @object.ParentOffset.Scale,
+            @object.ParentOffset.Rotation,
+        });
+        if (@object.RenderDepth != 20)
+            json.Add("d", @object.RenderDepth);
+        json.Add("st", @object.StartTime);
+        json.Add("ed", SerializeObjectEditorSettings(@object.EditorSettings));
+        json.Add("e", new JsonArray
+        {
+            SerializeObjectEventsArray(
+                @object.PositionEvents, 
+                GetKeyframeSerializer<Vector2>(
+                    x => [x.X, x.Y],
+                    (x, i) => [x.X, x.Y, i])),
+            SerializeObjectEventsArray(
+                @object.ScaleEvents, 
+                GetKeyframeSerializer<Vector2>(
+                    x => [x.X, x.Y],
+                    (x, i) => [x.X, x.Y, i])),
+            SerializeObjectEventsArray(
+                @object.RotationEvents,
+                GetKeyframeSerializer<float>(
+                    x => [x],
+                    (x, i) => [x, 0.0f, i])), // Don't know what the second value is for, but the game blows up if it's not there
+            SerializeObjectEventsArray(
+                @object.ColorEvents,
+                GetFixedKeyframeSerializer<ThemeColor>(x => [x.Index, x.Opacity * 100.0f, x.EndIndex])),
+        });
+        return json;
     }
 
-    private static void WriteKeyframeArray<T>(
-        this Utf8JsonWriter writer,
-        IEnumerable<Keyframe<T>> keyframes,
-        Action<Utf8JsonWriter, T> writeValueCallback,
-        Action<Utf8JsonWriter, T>? writeRandomValueCallback = null)
+    private static JsonObject SerializeObjectEditorSettings(ObjectEditorSettings value)
     {
-        writer.WriteStartObject();
-        {
-            writer.WriteStartArray("k");
-            {
-                foreach (var keyframe in keyframes)
-                    writer.WriteKeyframe(keyframe, writeValueCallback, writeRandomValueCallback);
-                writer.WriteEndArray();
-            }
-            writer.WriteEndObject();
-        }
+        var json = new JsonObject();
+        if (value.Locked)
+            json["lk"] = true;
+        if (value.Collapsed)
+            json["co"] = true;
+        if (value.TextColor != ObjectTimelineColor.None)
+            json["tc"] = SerializeObjectTimelineColor(value.TextColor);
+        if (value.BackgroundColor != ObjectTimelineColor.None)
+            json["bgc"] = SerializeObjectTimelineColor(value.BackgroundColor);
+        if (value.Bin != 0)
+            json["bin"] = value.Bin;
+        if (value.Layer != 0)
+            json["layer"] = value.Layer;
+        return json;
     }
-
-    private static void WriteFixedKeyframe<T>(
-        this Utf8JsonWriter writer, 
+    
+    private static Func<FixedKeyframe<T>, JsonObject> GetFixedKeyframeSerializer<T>(
+        WriteKeyframeValueDelegate<T> writeValueCallback)
+        => keyframe => SerializeFixedKeyframe(keyframe, writeValueCallback);
+    
+    private static Func<Keyframe<T>, JsonObject> GetKeyframeSerializer<T>(
+        WriteKeyframeValueDelegate<T> writeValueCallback,
+        WriteRandomKeyframeValueDelegate<T> writeRandomValueCallback)
+        => keyframe => SerializeKeyframe(keyframe, writeValueCallback, writeRandomValueCallback);
+    
+    private static JsonObject SerializeFixedKeyframe<T>(
         FixedKeyframe<T> keyframe,
-        Action<Utf8JsonWriter, T> writeValueCallback)
+        WriteKeyframeValueDelegate<T> writeValueCallback)
     {
-        writer.WriteStartObject();
-        {
-            if (keyframe.Time != 0.0f)
-                writer.WriteNumber("t", keyframe.Time);
-            
-            if (keyframe.Ease != Ease.Linear)
-                writer.WriteString("ct", keyframe.Ease.ToString());
-
-            writer.WriteStartArray("ev");
-            {
-                writeValueCallback(writer, keyframe.Value);
-                writer.WriteEndArray();
-            }
-            writer.WriteEndObject();
-        }
+        var json = new JsonObject();
+        if (keyframe.Time != 0.0f)
+            json.Add("t", keyframe.Time);
+        json.Add("ev", writeValueCallback(keyframe.Value));
+        if (keyframe.Ease != Ease.Linear)
+            json.Add("ct", keyframe.Ease.ToString());
+        return json;
     }
 
-    private static void WriteKeyframe<T>(
-        this Utf8JsonWriter writer,
+    private static JsonObject SerializeKeyframe<T>(
         Keyframe<T> keyframe,
-        Action<Utf8JsonWriter, T> writeValueCallback,
-        Action<Utf8JsonWriter, T>? writeRandomValueCallback = null)
+        WriteKeyframeValueDelegate<T> writeValueCallback,
+        WriteRandomKeyframeValueDelegate<T> writeRandomValueCallback)
     {
-        writer.WriteStartObject();
-        {
-            if (keyframe.Time != 0.0f)
-                writer.WriteNumber("t", keyframe.Time);
-            
-            if (keyframe.Ease != Ease.Linear)
-                writer.WriteString("ct", keyframe.Ease.ToString());
-
-            writer.WriteStartArray("ev");
+        var json = new JsonObject();
+        if (keyframe.Time != 0.0f)
+            json.Add("t", keyframe.Time);
+        json.Add("ev", writeValueCallback(keyframe.Value));
+        if (keyframe.Ease != Ease.Linear)
+            json.Add("ct", keyframe.Ease.ToString());
+        if (keyframe.RandomMode != RandomMode.None)
+            json.Add("r", keyframe.RandomMode switch
             {
-                writeValueCallback(writer, keyframe.Value);
-                writer.WriteEndArray();
-            }
-
-            if (keyframe.RandomMode != RandomMode.None)
-            {
-                writer.WriteNumber("r", keyframe.RandomMode switch
-                {
-                    RandomMode.Range => 1,
-                    RandomMode.Select => 2,
-                    RandomMode.Scale => 3,
-                    _ => throw new ArgumentOutOfRangeException()
-                });
-                writer.WriteStartArray("er");
-                {
-                    if (keyframe.RandomValue is not null)
-                        (writeRandomValueCallback ?? writeValueCallback)(writer, keyframe.RandomValue);
-                    if (keyframe.RandomInterval != 0.0f)
-                        writer.WriteNumberValue(keyframe.RandomInterval);
-                    writer.WriteEndArray();
-                }
-            }
-
-            writer.WriteEndObject();
-        }
+                RandomMode.None => 0,
+                RandomMode.Range => 1,
+                RandomMode.Snap => 2,
+                RandomMode.Select => 3,
+                RandomMode.Scale => 4,
+                _ => throw new ArgumentOutOfRangeException(),
+            });
+        if (keyframe.RandomValue is not null)
+            json.Add("er", writeRandomValueCallback(keyframe.RandomValue, keyframe.RandomInterval));
+        return json;
     }
-
-    private static void WriteObjectEditorSettings(this Utf8JsonWriter writer, string name, ObjectEditorSettings value)
-    {
-        writer.WriteStartObject(name);
+    
+    private static JsonObject SerializeObjectEventsArray<T>(
+        IEnumerable<T> values,
+        Func<T, JsonObject> writeValueCallback) => 
+        new()
         {
-            if (value.Locked)
-                writer.WriteBoolean("lk", value.Locked);
-            if (value.Collapsed)
-                writer.WriteBoolean("co", value.Collapsed);
-            if (value.TextColor != ObjectTimelineColor.None)
-                writer.WriteObjectTimelineColor("tc", value.TextColor);
-            if (value.BackgroundColor != ObjectTimelineColor.None)
-                writer.WriteObjectTimelineColor("bgc", value.BackgroundColor);
-            if (value.Bin != 0)
-                writer.WriteNumber("b", value.Bin);
-            if (value.Layer != 0)
-                writer.WriteNumber("l", value.Layer);
-            writer.WriteEndObject();
-        }
-    }
-
-    private static void WriteObjectTimelineColor(this Utf8JsonWriter writer, string name, ObjectTimelineColor value)
+            ["k"] = SerializeArray(values, writeValueCallback)
+        };
+    
+    private static JsonArray SerializeArray<T>(
+        IEnumerable<T> values, 
+        Func<T, JsonObject> writeValueCallback)
+        => new(values
+            .Select(writeValueCallback)
+            .Cast<JsonNode>()
+            .ToArray());
+    
+    private static JsonObject SerializeObjectTimelineColor(ObjectTimelineColor value)
     {
-        writer.WriteStartObject(name);
-        {
-            if (value.HasFlag(ObjectTimelineColor.Red))
-                writer.WriteBoolean("r", true);
-            if (value.HasFlag(ObjectTimelineColor.Green))
-                writer.WriteBoolean("g", true);
-            if (value.HasFlag(ObjectTimelineColor.Blue))
-                writer.WriteBoolean("b", true);
-            writer.WriteEndObject();
-        }
+        var json = new JsonObject();
+        if (value.HasFlag(ObjectTimelineColor.Red))
+            json.Add("r", true);
+        if (value.HasFlag(ObjectTimelineColor.Green))
+            json.Add("g", true);
+        if (value.HasFlag(ObjectTimelineColor.Blue))
+            json.Add("b", true);
+        return json;
     }
-
-    private static void WriteVector2(this Utf8JsonWriter writer, string name, Vector2 value)
-    {
-        writer.WriteStartObject(name);
+    
+    private static void AddVector2(this JsonObject json, string name, Vector2 value)
+        => json.Add(name, SerializeVector2(value));
+    
+    private static JsonObject SerializeVector2(Vector2 value)
+        => new()
         {
-            writer.WriteNumber("x", value.X);
-            writer.WriteNumber("y", value.Y);
-            writer.WriteEndObject();
-        }
-    }
-
-    private static void WriteId(this Utf8JsonWriter writer, string name, object? value, bool require = false)
+            ["x"] = value.X,
+            ["y"] = value.Y,
+        };
+    
+    private static void AddId(this JsonObject json, string name, object? value, bool require = false)
     {
         if (value is not IIdentifiable<string> && require)
             throw new ArgumentException($"{value?.GetType()} is not identifiable, but an id is required");
 
         if (value is IIdentifiable<string> identifiable)
-            writer.WriteString(name, identifiable.Id);
-    }
-    
-    private static void WriteArray<T>(this Utf8JsonWriter writer, IEnumerable<T> items, Action<Utf8JsonWriter, T> writeCallback)
-    {
-        writer.WriteStartArray();
-        {
-            foreach (var item in items)
-                writeCallback(writer, item);
-            writer.WriteEndArray();
-        }
+            json.Add(name, identifiable.Id);
     }
     
     private static string ToHex(this Color color)

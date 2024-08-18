@@ -1,8 +1,10 @@
 ﻿using System.Numerics;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization.Metadata;
 using Pamx.Common.Data;
 using Pamx.Common.Enum;
-using Pamx.Common.Implementation;
 using Pamx.Vg;
 
 var beatmapText = File.ReadAllText("level.vgd");
@@ -26,6 +28,10 @@ var textObject = new VgObject
 beatmap.Objects.Add(textObject);
 
 // Re-encode the beatmap to see if it's the same
-using var stream = File.Open("level_re_encode.vgd", FileMode.Create);
-using var writer = JsonUtil.CreateJsonWriter(stream);
-VgSerialization.SerializeBeatmap(beatmap, writer);
+var json = VgSerialization.SerializeBeatmap(beatmap);
+var jsonText = json.ToJsonString(new JsonSerializerOptions
+{
+    TypeInfoResolver = new DefaultJsonTypeInfoResolver(),
+    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+});
+File.WriteAllText("level_re_encode.vgd", jsonText);
