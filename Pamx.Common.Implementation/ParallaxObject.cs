@@ -4,7 +4,7 @@ using Pamx.Common.Enum;
 
 namespace Pamx.Common.Implementation;
 
-public class ParallaxObject : IParallaxObject, IIdentifiable<string>
+public class ParallaxObject() : IParallaxObject, IIdentifiable<string>
 {
     public string Id { get; } = RandomUtil.GenerateId();
     public Vector2 Position { get; set; }
@@ -15,4 +15,9 @@ public class ParallaxObject : IParallaxObject, IIdentifiable<string>
     public int ShapeOption { get; set; }
     public string? Text { get; set; }
     public int Color { get; set; }
+    
+    public ParallaxObject(string id) : this()
+    {
+        Id = id;
+    }
 }

@@ -265,12 +265,9 @@ public static class LsDeserialization
             Background = background,
             Gui = gui,
         };
-        foreach (var player in players)
-            theme.Player.Add(player);
-        foreach (var obj in objects)
-            theme.Object.Add(obj);
-        foreach (var bg in backgroundObjects)
-            theme.BackgroundObject.Add(bg);
+        theme.Player.AddRange(players);
+        theme.Object.AddRange(objects);
+        theme.BackgroundObject.AddRange(backgroundObjects);
         
         return theme;
     }
@@ -349,9 +346,9 @@ public static class LsDeserialization
         if (ptStr.Length != 3)
             throw new ArgumentException($"Invalid pt value length, expected 3, but got {ptStr.Length}");
         var parentType = 
-            (ptStr[0] == '0' ? ParentType.None : ParentType.Position) |
-            (ptStr[1] == '0' ? ParentType.None : ParentType.Scale) |
-            (ptStr[2] == '0' ? ParentType.None : ParentType.Rotation);
+            (ptStr[0] != '0' ? ParentType.Position : ParentType.None) |
+            (ptStr[1] != '0' ? ParentType.Scale : ParentType.None) |
+            (ptStr[2] != '0' ? ParentType.Rotation : ParentType.None);
         var parentOffsetJson = json["po"].GetOrDefault<JsonArray>([0.0f, 0.0f, 0.0f]);
         var parentOffset = new ParentOffset
         {

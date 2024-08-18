@@ -9,7 +9,7 @@ public interface IBeatmap
     IList<EditorPrefabSpawn> PrefabSpawns { get; }
     IList<ICheckpoint> Checkpoints { get; }
     IList<IMarker> Markers { get; }
-    IParallax Parallax { get; }
+    IParallax Parallax { get; set; }
     IList<BackgroundObject> BackgroundObjects { get; }
     IList<IPrefab> Prefabs { get; }
     IList<ITheme> Themes { get; }

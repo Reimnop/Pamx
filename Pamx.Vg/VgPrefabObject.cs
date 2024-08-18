@@ -15,4 +15,9 @@ public class VgPrefabObject(IReference<IPrefab> prefab) : IPrefabObject, IIdenti
     public Vector2 Position { get; set; }
     public Vector2 Scale { get; set; }
     public float Rotation { get; set; }
+    
+    public VgPrefabObject(string id, IReference<IPrefab> prefab) : this(prefab)
+    {
+        Id = id;
+    }
 }

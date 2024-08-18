@@ -11,7 +11,7 @@ public class VgBeatmap : IBeatmap
     public IList<EditorPrefabSpawn> PrefabSpawns { get; } = [];
     public IList<ICheckpoint> Checkpoints { get; } = [];
     public IList<IMarker> Markers { get; } = [];
-    public IParallax Parallax { get; } = new Parallax();
+    public IParallax Parallax { get; set; } = new Parallax();
     public IList<BackgroundObject> BackgroundObjects { get; } = [];
     public IList<IPrefab> Prefabs { get; } = [];
     public IList<ITheme> Themes { get; } = [];

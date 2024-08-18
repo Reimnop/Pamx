@@ -3,7 +3,12 @@ using Pamx.Common.Implementation;
 
 namespace Pamx.Vg;
 
-public class VgBeatmapTheme : VgTheme, IIdentifiable<string>
+public class VgBeatmapTheme() : VgTheme, IIdentifiable<string>
 {
     public string Id { get; } = RandomUtil.GenerateId();
+    
+    public VgBeatmapTheme(string id) : this()
+    {
+        Id = id;
+    }
 }

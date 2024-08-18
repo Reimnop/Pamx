@@ -6,7 +6,7 @@ using Pamx.Common.Implementation;
 
 namespace Pamx.Vg;
 
-public class VgObject : IObject, IIdentifiable<string>
+public class VgObject() : IObject, IIdentifiable<string>
 {
     public string Id { get; } = RandomUtil.GenerateId();
     public string Name { get; set; } = string.Empty;
@@ -30,4 +30,9 @@ public class VgObject : IObject, IIdentifiable<string>
     public IList<FixedKeyframe<ThemeColor>> ColorEvents { get; } = [];
     
     public IReference<IObject>? Parent { get; set; }
+
+    public VgObject(string id) : this()
+    {
+        Id = id;
+    }
 }

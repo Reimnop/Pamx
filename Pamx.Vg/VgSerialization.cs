@@ -387,8 +387,8 @@ public static class VgSerialization
             }
             
             writer.WriteString("base_bg", theme.Background.ToHex());
-            writer.WriteString("gui", theme.Gui.ToHex());
-            writer.WriteString("gui_accent", theme.GuiAccent.ToHex());
+            writer.WriteString("base_gui", theme.Gui.ToHex());
+            writer.WriteString("base_gui_accent", theme.GuiAccent.ToHex());
             
             writer.WriteEndObject();
         }
@@ -448,7 +448,15 @@ public static class VgSerialization
             writer.WriteId("id", @object, true);
             writer.WriteId("p_id", @object.Parent);
 
-            writer.WriteAutoKillType("ak_t", @object.AutoKillType);
+            writer.WriteNumber("ak_t", @object.AutoKillType switch
+            {
+                AutoKillType.NoAutoKill => 0,
+                AutoKillType.LastKeyframe => 1,
+                AutoKillType.LastKeyframeOffset => 2,
+                AutoKillType.FixedTime => 3,
+                AutoKillType.SongTime => 4,
+                _ => throw new ArgumentOutOfRangeException()
+            });
             writer.WriteNumber("ak_o", @object.AutoKillOffset);
             writer.WriteNumber("ot", @object.Type switch
             {
@@ -840,19 +848,6 @@ public static class VgSerialization
             writer.WriteNumber("y", value.Y);
             writer.WriteEndObject();
         }
-    }
-
-    private static void WriteAutoKillType(this Utf8JsonWriter writer, string name, AutoKillType value)
-    {
-        writer.WriteNumber(name, value switch
-        {
-            AutoKillType.NoAutoKill => 0,
-            AutoKillType.LastKeyframe => 1,
-            AutoKillType.LastKeyframeOffset => 2,
-            AutoKillType.FixedTime => 3,
-            AutoKillType.SongTime => 4,
-            _ => throw new ArgumentOutOfRangeException(nameof(value))
-        });
     }
 
     private static void WriteId(this Utf8JsonWriter writer, string name, object? value, bool require = false)
