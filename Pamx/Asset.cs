@@ -39,4 +39,16 @@ public static class Asset
             : id;
         return new BeatmapObject(newId);
     }
+
+    public static IMarker CreateMarker()
+        => new VgMarker();
+    
+    public static IMarker CreateMarker(string id)
+        => new VgMarker(id);
+    
+    public static ICheckpoint CreateCheckpoint()
+        => new VgCheckpoint();
+    
+    public static ICheckpoint CreateCheckpoint(string id)
+        => new VgCheckpoint(id);
 }
