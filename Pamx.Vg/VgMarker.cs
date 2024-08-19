@@ -5,7 +5,7 @@ namespace Pamx.Vg;
 
 public class VgMarker() : IMarker, IIdentifiable<string>
 {
-    public string Id { get; } = RandomUtil.GenerateId();
+    public string Id { get; set; } = RandomUtil.GenerateId();
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int Color { get; set; }

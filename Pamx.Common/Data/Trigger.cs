@@ -9,5 +9,5 @@ public struct Trigger()
     public float To { get; set; } = 100.0f;
     public int Retrigger { get; set; } = -1;
     public EventType EventType { get; set; } = EventType.VnInk;
-    public IList<string> Data { get; } = [];
+    public IList<string> Data { get; set; } = [];
 }

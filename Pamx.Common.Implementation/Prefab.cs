@@ -9,5 +9,5 @@ public class Prefab : IPrefab
     public string? Preview { get; set; }
     public float Offset { get; set; }
     public PrefabType Type { get; set; }
-    public IList<IObject> BeatmapObjects { get; } = [];
+    public IList<IObject> BeatmapObjects { get; set; } = [];
 }

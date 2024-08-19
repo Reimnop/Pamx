@@ -6,7 +6,7 @@ namespace Pamx.Common.Implementation;
 
 public class ParallaxObject() : IParallaxObject, IIdentifiable<string>
 {
-    public string Id { get; } = RandomUtil.GenerateId();
+    public string Id { get; set; } = RandomUtil.GenerateId();
     public Vector2 Position { get; set; }
     public Vector2 Scale { get; set; }
     public float Rotation { get; set; }

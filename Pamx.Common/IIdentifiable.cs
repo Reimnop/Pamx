@@ -4,10 +4,10 @@ namespace Pamx.Common;
 /// An identifiable object
 /// </summary>
 /// <typeparam name="T">The id type</typeparam>
-public interface IIdentifiable<out T>
+public interface IIdentifiable<T>
 {
     /// <summary>
     /// The unique id of the object
     /// </summary>
-    T Id { get; }
+    T Id { get; set; }
 }

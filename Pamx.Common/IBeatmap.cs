@@ -5,15 +5,15 @@ namespace Pamx.Common;
 public interface IBeatmap
 {
     EditorSettings EditorSettings { get; set; }
-    IList<Trigger> Triggers { get; }
-    IList<EditorPrefabSpawn> PrefabSpawns { get; }
-    IList<ICheckpoint> Checkpoints { get; }
-    IList<IMarker> Markers { get; }
+    IList<Trigger> Triggers { get; set; }
+    IList<EditorPrefabSpawn> PrefabSpawns { get; set; }
+    IList<ICheckpoint> Checkpoints { get; set; }
+    IList<IMarker> Markers { get; set; }
     IParallax Parallax { get; set; }
-    IList<BackgroundObject> BackgroundObjects { get; }
-    IList<IPrefab> Prefabs { get; }
-    IList<ITheme> Themes { get; }
-    IList<IPrefabObject> PrefabObjects { get; }
-    IList<IObject> Objects { get; }
+    IList<BackgroundObject> BackgroundObjects { get; set; }
+    IList<IPrefab> Prefabs { get; set; }
+    IList<ITheme> Themes { get; set; }
+    IList<IPrefabObject> PrefabObjects { get; set; }
+    IList<IObject> Objects { get; set; }
     IBeatmapEvents Events { get; set; }
 }

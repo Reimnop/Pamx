@@ -10,5 +10,5 @@ public interface IPrefab : IReference<IPrefab>
     string? Preview { get; set; } // TODO: base64 png
     float Offset { get; set; }
     PrefabType Type { get; set; }
-    IList<IObject> BeatmapObjects { get; }
+    IList<IObject> BeatmapObjects { get; set; }
 }

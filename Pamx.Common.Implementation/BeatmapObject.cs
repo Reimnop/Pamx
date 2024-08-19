@@ -8,7 +8,7 @@ namespace Pamx.Common.Implementation;
 public class BeatmapObject() : IObject, IIdentifiable<string>
 {
     /// <inheritdoc />
-    public string Id { get; } = RandomUtil.GenerateId();
+    public string Id { get; set; } = RandomUtil.GenerateId();
     
     /// <inheritdoc />
     public string Name { get; set; } = string.Empty;
@@ -53,16 +53,16 @@ public class BeatmapObject() : IObject, IIdentifiable<string>
     public ObjectEditorSettings EditorSettings { get; set; }
 
     /// <inheritdoc />
-    public IList<Keyframe<Vector2>> PositionEvents { get; } = [];
+    public IList<Keyframe<Vector2>> PositionEvents { get; set; } = [];
     
     /// <inheritdoc />
-    public IList<Keyframe<Vector2>> ScaleEvents { get; } = [];
+    public IList<Keyframe<Vector2>> ScaleEvents { get; set; } = [];
     
     /// <inheritdoc />
-    public IList<Keyframe<float>> RotationEvents { get; } = [];
+    public IList<Keyframe<float>> RotationEvents { get; set; } = [];
     
     /// <inheritdoc />
-    public IList<FixedKeyframe<ThemeColor>> ColorEvents { get; } = [];
+    public IList<FixedKeyframe<ThemeColor>> ColorEvents { get; set; } = [];
     
     /// <inheritdoc />
     public IReference<IObject>? Parent { get; set; }

@@ -7,7 +7,7 @@ namespace Pamx.Vg;
 
 public class VgPrefabObject(IReference<IPrefab> prefab) : IPrefabObject, IIdentifiable<string>
 {
-    public string Id { get; } = RandomUtil.GenerateId();
+    public string Id { get; set; } = RandomUtil.GenerateId();
     public float Time { get; set; }
     public IReference<IPrefab> Prefab { get; set; } = prefab;
     public ObjectEditorSettings EditorSettings { get; set; }

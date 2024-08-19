@@ -90,22 +90,22 @@ public interface IObject : IReference<IObject>
     /// <summary>
     /// The animated object's position events
     /// </summary>
-    IList<Keyframe<Vector2>> PositionEvents { get; }
+    IList<Keyframe<Vector2>> PositionEvents { get; set; }
     
     /// <summary>
     /// The animated object's scale events
     /// </summary>
-    IList<Keyframe<Vector2>> ScaleEvents { get; }
+    IList<Keyframe<Vector2>> ScaleEvents { get; set; }
     
     /// <summary>
     /// The animated object's rotation events
     /// </summary>
-    IList<Keyframe<float>> RotationEvents { get; }
+    IList<Keyframe<float>> RotationEvents { get; set; }
     
     /// <summary>
     /// The animated object's color events
     /// </summary>
-    IList<FixedKeyframe<ThemeColor>> ColorEvents { get; }
+    IList<FixedKeyframe<ThemeColor>> ColorEvents { get; set; }
     
     /// <summary>
     /// The object's parent. If null, the object does not have a parent

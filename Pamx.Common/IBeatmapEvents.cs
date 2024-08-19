@@ -5,18 +5,18 @@ namespace Pamx.Common;
 
 public interface IBeatmapEvents
 {
-    IList<FixedKeyframe<Vector2>> Movement { get; }
-    IList<FixedKeyframe<float>> Zoom { get; }
-    IList<FixedKeyframe<float>> Rotation { get; }
-    IList<FixedKeyframe<float>> Shake { get; }
-    IList<FixedKeyframe<IReference<ITheme>>> Theme { get; }
-    IList<FixedKeyframe<float>> Chroma { get; }
-    IList<FixedKeyframe<BloomData>> Bloom { get; }
-    IList<FixedKeyframe<VignetteData>> Vignette { get; }
-    IList<FixedKeyframe<LensDistortionData>> LensDistortion { get; }
-    IList<FixedKeyframe<GrainData>> Grain { get; }
-    IList<FixedKeyframe<GradientData>> Gradient { get; }
-    IList<FixedKeyframe<GlitchData>> Glitch { get; }
-    IList<FixedKeyframe<float>> Hue { get; }
-    IList<FixedKeyframe<Vector2>> Player { get; }
+    IList<FixedKeyframe<Vector2>> Movement { get; set; }
+    IList<FixedKeyframe<float>> Zoom { get; set; }
+    IList<FixedKeyframe<float>> Rotation { get; set; }
+    IList<FixedKeyframe<float>> Shake { get; set; }
+    IList<FixedKeyframe<IReference<ITheme>>> Theme { get; set; }
+    IList<FixedKeyframe<float>> Chroma { get; set; }
+    IList<FixedKeyframe<BloomData>> Bloom { get; set; }
+    IList<FixedKeyframe<VignetteData>> Vignette { get; set; }
+    IList<FixedKeyframe<LensDistortionData>> LensDistortion { get; set; }
+    IList<FixedKeyframe<GrainData>> Grain { get; set; }
+    IList<FixedKeyframe<GradientData>> Gradient { get; set; }
+    IList<FixedKeyframe<GlitchData>> Glitch { get; set; }
+    IList<FixedKeyframe<float>> Hue { get; set; }
+    IList<FixedKeyframe<Vector2>> Player { get; set; }
 }

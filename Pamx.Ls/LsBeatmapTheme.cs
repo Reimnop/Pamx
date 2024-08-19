@@ -5,5 +5,5 @@ namespace Pamx.Ls;
 
 public class LsBeatmapTheme(int id) : Theme, IIdentifiable<int>
 {
-    public int Id { get; } = id;
+    public int Id { get; set; } = id;
 }
