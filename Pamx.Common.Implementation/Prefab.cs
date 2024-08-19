@@ -2,6 +2,7 @@ using Pamx.Common.Enum;
 
 namespace Pamx.Common.Implementation;
 
+/// <inheritdoc />
 public class Prefab : IPrefab
 {
     public string Name { get; set; } = string.Empty;

@@ -3,6 +3,7 @@ using Pamx.Common.Data;
 
 namespace Pamx.Common.Implementation;
 
+/// <inheritdoc />
 public class BeatmapEvents : IBeatmapEvents
 {
     public IList<FixedKeyframe<Vector2>> Movement { get; set; } = [];

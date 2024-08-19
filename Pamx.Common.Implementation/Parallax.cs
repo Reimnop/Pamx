@@ -1,5 +1,6 @@
 namespace Pamx.Common.Implementation;
 
+/// <inheritdoc />
 public class Parallax : IParallax
 {
     public int? DepthOfField { get; set; }

@@ -2,6 +2,7 @@ using System.Drawing;
 
 namespace Pamx.Common.Implementation;
 
+/// <inheritdoc />
 public class Theme : ITheme
 {
     public string Name { get; set; } = string.Empty;

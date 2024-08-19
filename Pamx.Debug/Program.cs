@@ -2,55 +2,69 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
-using Pamx;
 using Pamx.Common;
+using Pamx.Common.Data;
 using Pamx.Common.Enum;
-using Pamx.Common.Implementation;
-using Pamx.Ls;
 using Pamx.Vg;
 
 var beatmapText = File.ReadAllText("level.vgd");
 var beatmapJson = (JsonObject) JsonNode.Parse(beatmapText)!;
 var beatmap = VgDeserialization.DeserializeBeatmap(beatmapJson);
 
-// Conversion
-// Convert objects
-foreach (var beatmapObject in beatmap.Objects.Concat(beatmap.Prefabs.SelectMany(x => x.BeatmapObjects)))
+// Compress beatmap by stripping unnecessary data
+beatmap.Markers.Clear();
+beatmap.EditorSettings = new EditorSettings();
+
+var i = 0;
+foreach (var beatmapObject in beatmap.Objects
+             .Concat(beatmap.Prefabs.SelectMany(x => x.BeatmapObjects)))
 {
-    beatmapObject.Type = beatmapObject.Type switch
-    {
-        ObjectType.Empty => ObjectType.LegacyEmpty,
-        ObjectType.NoHit => ObjectType.LegacyHelper,
-        ObjectType.Hit => ObjectType.LegacyNormal,
-        _ => beatmapObject.Type,
-    };
+    var identifiable = (IIdentifiable<string>)beatmapObject;
+    identifiable.Id = $"{i++:X}";
+    
+    beatmapObject.Name = string.Empty;
+    beatmapObject.EditorSettings = new ObjectEditorSettings();
+    
+    if (beatmapObject.Shape != ObjectShape.Text)
+        beatmapObject.Text = string.Empty;
+}
+
+foreach (var prefabObject in beatmap.PrefabObjects)
+{
+    var identifiable = (IIdentifiable<string>)prefabObject;
+    identifiable.Id = $"{i++:X}";
+    
+    prefabObject.EditorSettings = new ObjectEditorSettings();
 }
 
 foreach (var prefab in beatmap.Prefabs)
 {
-    prefab.Type = PrefabType.Misc4;
+    var identifiable = (IIdentifiable<string>)prefab;
+    identifiable.Id = $"{i++:X}";
+    prefab.Name = string.Empty;
+    prefab.Description = string.Empty;
+    prefab.Preview = string.Empty;
+    prefab.Offset = 0.0f;
 }
 
-// Convert themes
-var themeIdToIntId = beatmap.Themes
-    .ToDictionary(x => ((IIdentifiable<string>) x).Id, _ => RandomUtil.GenerateLsThemeId());
-var vgThemes = new List<ITheme>(beatmap.Themes);
-beatmap.Themes.Clear();
-beatmap.Themes.AddRange(vgThemes.Select(x => x.CloneWithLsId(themeIdToIntId[((IIdentifiable<string>) x).Id])));
-
-// We have to convert the theme keyframes as well
-var vgThemeKeyframes = beatmap.Events.Theme.Select(x =>
+foreach (var theme in beatmap.Themes)
 {
-    x.Value = new LsReferenceTheme(themeIdToIntId[((IIdentifiable<string>)x.Value).Id]);
-    return x;
-}).ToList();
-beatmap.Events.Theme.Clear();
-beatmap.Events.Theme.AddRange(vgThemeKeyframes);
+    var identifiable = (IIdentifiable<string>)theme;
+    identifiable.Id = $"{i++:X}";
+    theme.Name = string.Empty;
+}
 
-var json = LsSerialization.SerializeBeatmap(beatmap);
+foreach (var checkpoint in beatmap.Checkpoints)
+{
+    var identifiable = (IIdentifiable<string>)checkpoint;
+    identifiable.Id = string.Empty;
+    checkpoint.Name = string.Empty;
+}
+
+var json = VgSerialization.SerializeBeatmap(beatmap);
 var jsonText = json.ToJsonString(new JsonSerializerOptions
 {
     TypeInfoResolver = new DefaultJsonTypeInfoResolver(),
     Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
 });
-File.WriteAllText("level_re_encode.lsb", jsonText);
+File.WriteAllText("level_compressed.vgd", jsonText);

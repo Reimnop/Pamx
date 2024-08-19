@@ -5,7 +5,7 @@ using Pamx.Common.Enum;
 namespace Pamx.Common;
 
 /// <summary>
-/// An object within the game
+/// Represent an object within the game
 /// </summary>
 public interface IObject : IReference<IObject>
 {

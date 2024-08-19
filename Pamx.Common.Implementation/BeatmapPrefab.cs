@@ -1,6 +1,16 @@
 namespace Pamx.Common.Implementation;
 
-public class BeatmapPrefab(string id) : Prefab, IIdentifiable<string>
+/// <inheritdoc cref="Prefab" />
+public class BeatmapPrefab : Prefab, IIdentifiable<string>
 {
-    public string Id { get; set; } = id;
+    public string Id { get; set; }
+
+    /// <summary>
+    /// Creates a new <see cref="BeatmapPrefab"/>
+    /// </summary>
+    /// <param name="id">The prefab's id</param>
+    public BeatmapPrefab(string id)
+    {
+        Id = id;
+    }
 }
