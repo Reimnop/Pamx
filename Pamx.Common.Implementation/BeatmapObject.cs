@@ -4,62 +4,75 @@ using Pamx.Common.Enum;
 
 namespace Pamx.Common.Implementation;
 
+/// <inheritdoc cref="Pamx.Common.IObject"/>
 public class BeatmapObject() : IObject, IIdentifiable<string>
 {
+    /// <inheritdoc />
     public string Id { get; } = RandomUtil.GenerateId();
+    
+    /// <inheritdoc />
     public string Name { get; set; } = string.Empty;
+    
+    /// <inheritdoc />
     public float StartTime { get; set; }
+    
+    /// <inheritdoc />
     public AutoKillType AutoKillType { get; set; }
+    
+    /// <inheritdoc />
     public float AutoKillOffset { get; set; }
+    
+    /// <inheritdoc />
     public Vector2 Origin { get; set; }
+    
+    /// <inheritdoc />
     public ObjectType Type { get; set; }
+    
+    /// <inheritdoc />
     public ObjectShape Shape { get; set; }
+    
+    /// <inheritdoc />
     public int ShapeOption { get; set; }
+    
+    /// <inheritdoc />
     public string Text { get; set; } = string.Empty;
+    
+    /// <inheritdoc />
     public RenderType RenderType { get; set; }
+    
+    /// <inheritdoc />
     public ParentType ParentType { get; set; }
+    
+    /// <inheritdoc />
     public ParentOffset ParentOffset { get; set; }
+    
+    /// <inheritdoc />
     public int RenderDepth { get; set; }
+    
+    /// <inheritdoc />
     public ObjectEditorSettings EditorSettings { get; set; }
 
+    /// <inheritdoc />
     public IList<Keyframe<Vector2>> PositionEvents { get; } = [];
+    
+    /// <inheritdoc />
     public IList<Keyframe<Vector2>> ScaleEvents { get; } = [];
+    
+    /// <inheritdoc />
     public IList<Keyframe<float>> RotationEvents { get; } = [];
+    
+    /// <inheritdoc />
     public IList<FixedKeyframe<ThemeColor>> ColorEvents { get; } = [];
     
+    /// <inheritdoc />
     public IReference<IObject>? Parent { get; set; }
 
+    /// <summary>
+    /// Creates a new <see cref="BeatmapObject"/>
+    /// </summary>
+    /// <param name="id">The object's id</param>
     public BeatmapObject(string id) : this()
     {
         Id = id;
-    }
-    
-    public IObject Clone()
-    {
-        var clone = new BeatmapObject(Id)
-        {
-            Name = Name,
-            StartTime = StartTime,
-            AutoKillType = AutoKillType,
-            AutoKillOffset = AutoKillOffset,
-            Origin = Origin,
-            Type = Type,
-            Shape = Shape,
-            ShapeOption = ShapeOption,
-            Text = Text,
-            RenderType = RenderType,
-            ParentType = ParentType,
-            ParentOffset = ParentOffset,
-            RenderDepth = RenderDepth,
-            EditorSettings = EditorSettings,
-            Parent = Parent
-        };
-        
-        clone.PositionEvents.AddRange(PositionEvents);
-        clone.ScaleEvents.AddRange(ScaleEvents);
-        clone.RotationEvents.AddRange(RotationEvents);
-        clone.ColorEvents.AddRange(ColorEvents);
-
-        return clone;
     }
 }

@@ -10,6 +10,7 @@
     <ItemGroup>
         <ProjectReference Include="../Pamx.Ls/Pamx.Ls.csproj" />
         <ProjectReference Include="../Pamx.Vg/Pamx.Vg.csproj" />
+        <ProjectReference Include="..\Pamx\Pamx.csproj" />
     </ItemGroup>
 
 </Project>
