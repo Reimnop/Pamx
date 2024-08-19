@@ -7,8 +7,6 @@ namespace Pamx;
 
 public static class Asset
 {
-    public static IReference<IObject> CameraParent { get; } = new BeatmapReferenceObject("camera");
-    
     public static IBeatmap CreateBeatmap()
         => new Beatmap();
 
@@ -39,6 +37,12 @@ public static class Asset
             : id;
         return new BeatmapObject(newId);
     }
+    
+    public static IReference<IObject> CreateCameraReferenceObject()
+        => new BeatmapReferenceObject("camera");
+    
+    public static IReference<IObject> CreateReferenceObject(string id)
+        => new BeatmapReferenceObject(id);
 
     public static IMarker CreateMarker()
         => new VgMarker();
