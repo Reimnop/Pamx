@@ -17,7 +17,7 @@ public static class VgDeserialization
     public static IBeatmap DeserializeBeatmap(JsonObject json)
     {
         // Read editor settings
-        var editorSettings = DeserializeEditorSettings(json["editor"].Get<JsonObject>());
+        var editorSettings = DeserializeEditorSettings(json["editor"].GetOrDefault(new JsonObject()));
         
         // Read triggers
         var triggers = json["triggers"]
@@ -75,7 +75,7 @@ public static class VgDeserialization
                 id => prefabLookup.TryGetValue(id, out var tuple) ? tuple.prefab : null));
         
         // Read parallax
-        var parallax = DeserializeParallax(json["parallax_settings"].Get<JsonObject>());
+        var parallax = DeserializeParallax(json["parallax_settings"].GetOrDefault(new JsonObject()));
         
         // Read checkpoints
         var checkpoints = json["checkpoints"]
@@ -499,7 +499,7 @@ public static class VgDeserialization
     {
         var id = json["id"].Get<string>();
         var prefabId = json["pid"].Get<string>();
-        var editorSettings = DeserializeObjectEditorSettings(json["ed"].Get<JsonObject>());
+        var editorSettings = DeserializeObjectEditorSettings(json["ed"].GetOrDefault(new JsonObject()));
         var time = json["t"].GetOrDefault(0.0f);
         var position = new Vector2(
             (json["e"]?[0]?["ev"]?[0]).GetOrDefault(0.0f),
@@ -695,7 +695,7 @@ public static class VgDeserialization
             (json["p_o"]?[2]).GetOrDefault(0.0f));
         var renderDepth = json["d"].GetOrDefault(20);
         var startTime = json["st"].GetOrDefault(0.0f);
-        var editorSettings = DeserializeObjectEditorSettings(json["ed"].Get<JsonObject>());
+        var editorSettings = DeserializeObjectEditorSettings(json["ed"].GetOrDefault(new JsonObject()));
 
         var eventsJson = json["e"].GetOrDefault<JsonArray>([]);
         var positionEvents = DeserializeObjectEventsArray(

@@ -36,4 +36,32 @@ public struct ObjectEditorSettings()
     /// The object strip's background color
     /// </summary>
     public ObjectTimelineColor BackgroundColor { get; set; }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not ObjectEditorSettings settings)
+            return false;
+
+        return Locked == settings.Locked &&
+               Collapsed == settings.Collapsed &&
+               Bin == settings.Bin &&
+               Layer == settings.Layer &&
+               TextColor == settings.TextColor &&
+               BackgroundColor == settings.BackgroundColor;
+    }
+    
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Locked, Collapsed, Bin, Layer, TextColor, BackgroundColor);
+    }
+    
+    public static bool operator ==(ObjectEditorSettings left, ObjectEditorSettings right)
+    {
+        return left.Equals(right);
+    }
+    
+    public static bool operator !=(ObjectEditorSettings left, ObjectEditorSettings right)
+    {
+        return !left.Equals(right);
+    }
 }

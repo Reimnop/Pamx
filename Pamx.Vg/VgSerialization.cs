@@ -17,66 +17,75 @@ public static class VgSerialization
         var json = new JsonObject();
         
         // Write editor settings
-        json.Add("editor", SerializeEditorSettings(beatmap.EditorSettings));
+        if (beatmap.EditorSettings != default)
+            json.Add("editor", SerializeEditorSettings(beatmap.EditorSettings));
         
         // Write triggers
-        json.Add("triggers", new JsonArray(
-            beatmap.Triggers
-                .Select(SerializeTrigger)
-                .Cast<JsonNode>()
-                .ToArray()));
+        if (beatmap.Triggers.Count > 0)
+            json.Add("triggers", new JsonArray(
+                beatmap.Triggers
+                    .Select(SerializeTrigger)
+                    .Cast<JsonNode>()
+                    .ToArray()));
         
         // Write markers
-        json.Add("markers", new JsonArray(
-            beatmap.Markers
-                .Select(SerializeMarker)
-                .Cast<JsonNode>()
-                .ToArray()));
+        if (beatmap.Markers.Count > 0)
+            json.Add("markers", new JsonArray(
+                beatmap.Markers
+                    .Select(SerializeMarker)
+                    .Cast<JsonNode>()
+                    .ToArray()));
         
         // Write checkpoints
-        json.Add("checkpoints", new JsonArray(
-            beatmap.Checkpoints
-                .Select(SerializeCheckpoint)
-                .Cast<JsonNode>()
-                .ToArray()));
+        if (beatmap.Checkpoints.Count > 0)
+            json.Add("checkpoints", new JsonArray(
+                beatmap.Checkpoints
+                    .Select(SerializeCheckpoint)
+                    .Cast<JsonNode>()
+                    .ToArray()));
         
         // Write editor prefab spawns
-        json.Add("editor_prefab_spawn", new JsonArray(
-            beatmap.PrefabSpawns
-                .Select(SerializeEditorPrefabSpawn)
-                .Cast<JsonNode>()
-                .ToArray()));
+        if (beatmap.PrefabSpawns.Count > 0)
+            json.Add("editor_prefab_spawn", new JsonArray(
+                beatmap.PrefabSpawns
+                    .Select(SerializeEditorPrefabSpawn)
+                    .Cast<JsonNode>()
+                    .ToArray()));
         
         // Write parallax
         json.Add("parallax_settings", SerializeParallax(beatmap.Parallax));
         
         // Write themes
-        json.Add("themes", new JsonArray(
-            beatmap.Themes
-                .Select(x => SerializeTheme(x, true))
-                .Cast<JsonNode>()
-                .ToArray()));
+        if (beatmap.Themes.Count > 0)
+            json.Add("themes", new JsonArray(
+                beatmap.Themes
+                    .Select(x => SerializeTheme(x, true))
+                    .Cast<JsonNode>()
+                    .ToArray()));
         
         // Write prefabs
-        json.Add("prefabs", new JsonArray(
-            beatmap.Prefabs
-                .Select(x => SerializePrefab(x, true))
-                .Cast<JsonNode>()
-                .ToArray()));
+        if (beatmap.Prefabs.Count > 0)
+            json.Add("prefabs", new JsonArray(
+                beatmap.Prefabs
+                    .Select(x => SerializePrefab(x, true))
+                    .Cast<JsonNode>()
+                    .ToArray()));
         
         // Write prefab objects
-        json.Add("prefab_objects", new JsonArray(
-            beatmap.PrefabObjects
-                .Select(SerializePrefabObject)
-                .Cast<JsonNode>()
-                .ToArray()));
+        if (beatmap.PrefabObjects.Count > 0)
+            json.Add("prefab_objects", new JsonArray(
+                beatmap.PrefabObjects
+                    .Select(SerializePrefabObject)
+                    .Cast<JsonNode>()
+                    .ToArray()));
         
         // Write objects
-        json.Add("objects", new JsonArray(
-            beatmap.Objects
-                .Select(SerializeObject)
-                .Cast<JsonNode>()
-                .ToArray()));
+        if (beatmap.Objects.Count > 0)
+            json.Add("objects", new JsonArray(
+                beatmap.Objects
+                    .Select(SerializeObject)
+                    .Cast<JsonNode>()
+                    .ToArray()));
         
         // Write events
         var events = beatmap.Events;
@@ -284,11 +293,12 @@ public static class VgSerialization
             json.Add("dof_active", true);
             json.Add("dof_value", parallax.DepthOfField.Value);
         }
-        json.Add("l", new JsonArray(
-            parallax.Layers
-                .Select(SerializeParallaxLayer)
-                .Cast<JsonNode>()
-                .ToArray()));
+        if (parallax.Layers.Count > 0)
+            json.Add("l", new JsonArray(
+                parallax.Layers
+                    .Select(SerializeParallaxLayer)
+                    .Cast<JsonNode>()
+                    .ToArray()));
         return json;
     }
     
@@ -299,11 +309,12 @@ public static class VgSerialization
             json.Add("d", parallaxLayer.Depth);
         if (parallaxLayer.Color != 0)
             json.Add("c", parallaxLayer.Color);
-        json.Add("o", new JsonArray(
-            parallaxLayer.Objects
-                .Select(SerializeParallaxObject)
-                .Cast<JsonNode>()
-                .ToArray()));
+        if (parallaxLayer.Objects.Count > 0)
+            json.Add("o", new JsonArray(
+                parallaxLayer.Objects
+                    .Select(SerializeParallaxObject)
+                    .Cast<JsonNode>()
+                    .ToArray()));
         return json;
     }
     
@@ -401,7 +412,8 @@ public static class VgSerialization
         var json = new JsonObject();
         json.AddId("id", prefabObject, true);
         json.AddId("pid", prefabObject.Prefab, true);
-        json.Add("ed", SerializeObjectEditorSettings(prefabObject.EditorSettings));
+        if (prefabObject.EditorSettings != default)
+            json.Add("ed", SerializeObjectEditorSettings(prefabObject.EditorSettings));
         if (prefabObject.Time != 0.0f)
             json.Add("t", prefabObject.Time);
         json.Add("e", new JsonArray
@@ -503,53 +515,59 @@ public static class VgSerialization
         var json = new JsonObject();
         json.AddId("id", @object, true);
         json.AddId("p_id", @object.Parent);
-        json.Add("ak_t", @object.AutoKillType switch
-        {
-            AutoKillType.NoAutoKill => 0,
-            AutoKillType.LastKeyframe => 1,
-            AutoKillType.LastKeyframeOffset => 2,
-            AutoKillType.FixedTime => 3,
-            AutoKillType.SongTime => 4,
-            _ => throw new ArgumentOutOfRangeException()
-        });
-        json.Add("ak_o", @object.AutoKillOffset);
-        json.Add("ot", @object.Type switch
-        {
-            ObjectType.LegacyNormal => 0,
-            ObjectType.LegacyHelper => 1,
-            ObjectType.LegacyDecoration => 2,
-            ObjectType.LegacyEmpty => 3,
-            ObjectType.Hit => 4,
-            ObjectType.NoHit => 5,
-            ObjectType.Empty => 6,
-            _ => throw new ArgumentOutOfRangeException()
-        });
+        if (@object.AutoKillType != AutoKillType.NoAutoKill)
+            json.Add("ak_t", @object.AutoKillType switch
+            {
+                AutoKillType.NoAutoKill => 0,
+                AutoKillType.LastKeyframe => 1,
+                AutoKillType.LastKeyframeOffset => 2,
+                AutoKillType.FixedTime => 3,
+                AutoKillType.SongTime => 4,
+                _ => throw new ArgumentOutOfRangeException()
+            });
+        if (@object.AutoKillOffset != 0.0f)
+            json.Add("ak_o", @object.AutoKillOffset);
+        if (@object.Type != ObjectType.LegacyNormal)
+            json.Add("ot", @object.Type switch
+            {
+                ObjectType.LegacyNormal => 0,
+                ObjectType.LegacyHelper => 1,
+                ObjectType.LegacyDecoration => 2,
+                ObjectType.LegacyEmpty => 3,
+                ObjectType.Hit => 4,
+                ObjectType.NoHit => 5,
+                ObjectType.Empty => 6,
+                _ => throw new ArgumentOutOfRangeException()
+            });
         if (!string.IsNullOrEmpty(@object.Name))
             json.Add("n", @object.Name);
         if (!string.IsNullOrEmpty(@object.Text))
             json.Add("text", @object.Text);
         if (@object.Origin != default)
             json.AddVector2("o", @object.Origin);
-        json.Add("s", @object.Shape switch
-        {
-            ObjectShape.Square => 0,
-            ObjectShape.Circle => 1,
-            ObjectShape.Triangle => 2,
-            ObjectShape.Arrow => 3,
-            ObjectShape.Text => 4,
-            ObjectShape.Hexagon => 5,
-            _ => throw new ArgumentOutOfRangeException()
-        });
-        json.Add("so", @object.ShapeOption);
-        json.Add("gt", @object.RenderType switch
-        {
-            RenderType.Normal => 0,
-            RenderType.RightToLeftGradient => 1,
-            RenderType.LeftToRightGradient => 2,
-            RenderType.InwardsGradient => 3,
-            RenderType.OutwardsGradient => 4,
-            _ => throw new ArgumentOutOfRangeException()
-        });
+        if (@object.Shape != ObjectShape.Square)
+            json.Add("s", @object.Shape switch
+            {
+                ObjectShape.Square => 0,
+                ObjectShape.Circle => 1,
+                ObjectShape.Triangle => 2,
+                ObjectShape.Arrow => 3,
+                ObjectShape.Text => 4,
+                ObjectShape.Hexagon => 5,
+                _ => throw new ArgumentOutOfRangeException()
+            });
+        if (@object.ShapeOption != 0)
+            json.Add("so", @object.ShapeOption);
+        if (@object.RenderType != RenderType.Normal)
+            json.Add("gt", @object.RenderType switch
+            {
+                RenderType.Normal => 0,
+                RenderType.RightToLeftGradient => 1,
+                RenderType.LeftToRightGradient => 2,
+                RenderType.InwardsGradient => 3,
+                RenderType.OutwardsGradient => 4,
+                _ => throw new ArgumentOutOfRangeException()
+            });
         if (@object.ParentType != (ParentType.Position | ParentType.Rotation))
             json.Add("p_t",
                 (@object.ParentType.HasFlag(ParentType.Position) ? "1" : "0") +
@@ -563,8 +581,10 @@ public static class VgSerialization
         });
         if (@object.RenderDepth != 20)
             json.Add("d", @object.RenderDepth);
-        json.Add("st", @object.StartTime);
-        json.Add("ed", SerializeObjectEditorSettings(@object.EditorSettings));
+        if (@object.StartTime != 0.0f)
+            json.Add("st", @object.StartTime);
+        if (@object.EditorSettings != default)
+            json.Add("ed", SerializeObjectEditorSettings(@object.EditorSettings));
         json.Add("e", new JsonArray
         {
             SerializeObjectEventsArray(
@@ -698,7 +718,7 @@ public static class VgSerialization
         if (value is not IIdentifiable<string> && require)
             throw new ArgumentException($"{value?.GetType()} is not identifiable, but an id is required");
 
-        if (value is IIdentifiable<string> identifiable)
+        if (value is IIdentifiable<string> identifiable && !string.IsNullOrEmpty(identifiable.Id))
             json.Add(name, identifiable.Id);
     }
     
