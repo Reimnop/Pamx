@@ -356,8 +356,8 @@ public static class LsDeserialization
             Scale = parentOffsetJson[1].Get<float>(),
             Rotation = parentOffsetJson[2].Get<float>(),
         };
-        var renderDepth = json["d"].Get<int>();
-        var objectType = json["ot"].Get<int>() switch
+        var renderDepth = json["d"].GetOrDefault(15);
+        var objectType = json["ot"].GetOrDefault(0) switch
         {
             0 => ObjectType.LegacyNormal,
             1 => ObjectType.LegacyHelper,
@@ -378,7 +378,7 @@ public static class LsDeserialization
         var shapeOption = int.Parse(json["so"].GetOrDefault<string>("0"));
         var text = json["text"].GetOrDefault(string.Empty);
         var startTime = float.Parse(json["st"].GetOrDefault<string>("0"), CultureInfo.InvariantCulture);
-        var autoKillType = json["akt"].Get<int>() switch
+        var autoKillType = json["akt"].GetOrDefault(0) switch
         {
             0 => AutoKillType.NoAutoKill,
             1 => AutoKillType.LastKeyframe,
@@ -387,7 +387,7 @@ public static class LsDeserialization
             4 => AutoKillType.SongTime,
             _ => throw new ArgumentOutOfRangeException(),
         };
-        var autoKillOffset = json["ako"].Get<float>();
+        var autoKillOffset = json["ako"].GetOrDefault(0.0f);
         var originJson = json["o"].Get<JsonObject>();
         var origin = new Vector2(
             originJson["x"].Get<float>(), 
