@@ -224,14 +224,14 @@ public static class VgDeserialization
         // Read hue events
         var hueEvents = DeserializeArray(
             eventsJson[12].GetOrDefault<JsonArray>([]),
-            GetFixedKeyframeDeserializer(x => x[0].Get<float>()));
+            GetFixedKeyframeDeserializer(x => x.Count > 0 ? x[0].Get<float>() : 0.0f));
         
         // Read player events
         var playerEvents = DeserializeArray(
             eventsJson[13].GetOrDefault<JsonArray>([]),
             GetFixedKeyframeDeserializer(x => new Vector2(
-                x[0].Get<float>(),
-                x[1].Get<float>())));
+                x.Count > 0 ? x[0].Get<float>() : 0.0f,
+                x.Count > 1 ? x[1].Get<float>() : 0.0f)));
 
         var beatmap = new Beatmap
         {
