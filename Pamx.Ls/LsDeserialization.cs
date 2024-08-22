@@ -373,6 +373,9 @@ public static class LsDeserialization
         if (json.ContainsKey("h") && json["h"].GetOrDefault("False") != "False")
             objectType = ObjectType.LegacyHelper;
         
+        if (json.ContainsKey("empty") && json["empty"].GetOrDefault("False") != "False")
+            objectType = ObjectType.LegacyEmpty;
+        
         var shape = json["shape"].GetOrDefault<string>("0") switch
         {
             "0" => ObjectShape.Square,
