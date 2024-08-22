@@ -56,6 +56,8 @@ public static class LsDeserialization
                 x, 
                 id => objectLookup.TryGetValue(id, out var tuple) ? tuple.Item1 : null, 
                 true))
+            .GroupBy(x => ((IIdentifiable<string>) x).Id)
+            .Select(x => x.First())
             .ToDictionary(x => ((IIdentifiable<string>) x).Id, x => x);
         
         // Read prefab objects
@@ -90,6 +92,8 @@ public static class LsDeserialization
             .GetOrDefault<JsonArray>([])
             .Cast<JsonObject>()
             .Select(DeserializeTheme)
+            .GroupBy(x => ((IIdentifiable<int>) x).Id)
+            .Select(x => x.First())
             .ToDictionary(x => ((IIdentifiable<int>) x).Id, x => x);
         
         // Read events
