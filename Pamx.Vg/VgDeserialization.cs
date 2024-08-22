@@ -275,7 +275,7 @@ public static class VgDeserialization
         var prefab = string.IsNullOrEmpty(prefabId) ? null : prefabLookup(prefabId);
         var keycodes = json["keycodes"]
             .GetOrDefault<JsonArray>([])
-            .Select(x => x.GetOrDefault(string.Empty));
+            .Select(x => x.GetOrDefault(0));
         var editorPrefabSpawn = new EditorPrefabSpawn
         {
             Expanded = expanded,
