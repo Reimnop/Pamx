@@ -365,6 +365,10 @@ public static class LsDeserialization
             3 => ObjectType.LegacyEmpty,
             _ => throw new ArgumentOutOfRangeException(),
         };
+        
+        if (json.ContainsKey("h") && json["h"].GetOrDefault("False") != "False")
+            objectType = ObjectType.LegacyHelper;
+        
         var shape = json["shape"].GetOrDefault<string>("0") switch
         {
             "0" => ObjectShape.Square,
@@ -387,6 +391,9 @@ public static class LsDeserialization
             4 => AutoKillType.SongTime,
             _ => throw new ArgumentOutOfRangeException(),
         };
+        if (json.ContainsKey("ak") && json["ak"].GetOrDefault("False") != "False")
+            autoKillType = AutoKillType.LastKeyframe;
+        
         var autoKillOffset = json["ako"].GetOrDefault(0.0f);
         var originJson = json["o"].Get<JsonObject>();
         var origin = new Vector2(
