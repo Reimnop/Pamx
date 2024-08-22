@@ -353,7 +353,11 @@ public static class LsDeserialization
             (ptStr[0] != '0' ? ParentType.Position : ParentType.None) |
             (ptStr[1] != '0' ? ParentType.Scale : ParentType.None) |
             (ptStr[2] != '0' ? ParentType.Rotation : ParentType.None);
-        var parentOffsetJson = json["po"].GetOrDefault<JsonArray>([0.0f, 0.0f, 0.0f]);
+        var parentOffsetJson = json["po"].GetOrDefault<JsonArray>([
+            JsonValue.Create(0.0f),
+            JsonValue.Create(0.0f),
+            JsonValue.Create(0.0f),
+        ]);
         var parentOffset = new ParentOffset
         {
             Position = parentOffsetJson[0].Get<float>(),
@@ -560,7 +564,7 @@ public static class LsDeserialization
             return (T)(object) int.Parse(node.GetValue<string>());
         if (typeof(T) == typeof(float) && node.GetValueKind() == JsonValueKind.String)
             return (T)(object) float.Parse(node.GetValue<string>(), CultureInfo.InvariantCulture);
-        
+
         return node.GetValue<T>();
     }
     
