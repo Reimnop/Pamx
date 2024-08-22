@@ -296,7 +296,7 @@ public static class LsDeserialization
         };
         var offset = json["offset"].Get<float>();
         
-        var objectsJson = json["objects"].Get<JsonArray>();
+        var objectsJson = json["objects"].GetOrDefault<JsonArray>([]);
         var objectsLookup = objectsJson
             .Cast<JsonObject>()
             .Select(o => (DeserializeBeatmapObject(o, out var parentId), parentId))
