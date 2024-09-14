@@ -33,6 +33,8 @@ public static class LsDeserialization
             .GetOrDefault<JsonArray>([])
             .Cast<JsonObject>()
             .Select(x => (DeserializeBeatmapObject(x, out var parentId), parentId))
+            .GroupBy(x => ((IIdentifiable<string>)x.Item1).Id)
+            .Select(x => x.Last())
             .ToDictionary(x => ((IIdentifiable<string>) x.Item1).Id, x => x);
         
         // Assign parents
@@ -57,7 +59,7 @@ public static class LsDeserialization
                 id => objectLookup.TryGetValue(id, out var tuple) ? tuple.Item1 : null, 
                 true))
             .GroupBy(x => ((IIdentifiable<string>) x).Id)
-            .Select(x => x.First())
+            .Select(x => x.Last())
             .ToDictionary(x => ((IIdentifiable<string>) x).Id, x => x);
         
         // Read prefab objects
