@@ -459,10 +459,14 @@ public static class LsDeserialization
         {
             Index = int.Parse(json["x"].GetOrDefault<string>("0")),
         };
+        var ease = Ease.Linear;
+        if (Enum.TryParse<Ease>(json["ct"].GetOrDefault("Linear"), out var easeValue))
+            ease = easeValue;
         return new FixedKeyframe<ThemeColor>
         {
             Time = time,
             Value = value,
+            Ease = ease,
         };
     }
     
