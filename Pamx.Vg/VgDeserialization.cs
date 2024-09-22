@@ -94,6 +94,8 @@ public static class VgDeserialization
             .GetOrDefault<JsonArray>([])
             .Cast<JsonObject>()
             .Select(t => DeserializeTheme(t, true))
+            .GroupBy(x => ((IIdentifiable<string>)x).Id)
+            .Select(x => x.Last())
             .ToDictionary(t => ((IIdentifiable<string>) t).Id, t => t);
         
         // Read events
