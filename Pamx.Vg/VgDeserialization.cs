@@ -30,6 +30,8 @@ public static class VgDeserialization
             .GetOrDefault<JsonArray>([])
             .Cast<JsonObject>()
             .Select(o => (DeserializeBeatmapObject(o, out var parentId), parentId))
+            .GroupBy(t => ((IIdentifiable<string>) t.Item1).Id)
+            .Select(g => g.Last())
             .ToDictionary(
                 t => ((IIdentifiable<string>) t.Item1).Id,
                 t => t);
