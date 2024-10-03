@@ -505,12 +505,16 @@ public static class VgDeserialization
         var prefabId = json["pid"].Get<string>();
         var editorSettings = DeserializeObjectEditorSettings(json["ed"].GetOrDefault(new JsonObject()));
         var time = json["t"].GetOrDefault(0.0f);
+        
+        var positionEvs = json["e"]?[0]?["ev"]?.GetOrDefault<JsonArray>([]);
+        var scaleEvs = json["e"]?[1]?["ev"]?.GetOrDefault<JsonArray>([]);
+        
         var position = new Vector2(
-            (json["e"]?[0]?["ev"]?[0]).GetOrDefault(0.0f),
-            (json["e"]?[0]?["ev"]?[1]).GetOrDefault(0.0f));
+            (positionEvs?[0]).GetOrDefault(0.0f),
+            (positionEvs?.Count ?? 0) > 1 ? (positionEvs?[1]).GetOrDefault(0.0f) : 0.0f);
         var scale = new Vector2(
-            (json["e"]?[1]?["ev"]?[0]).GetOrDefault(0.0f),
-            (json["e"]?[1]?["ev"]?[1]).GetOrDefault(0.0f));
+            (scaleEvs?[0]).GetOrDefault(1.0f),
+            (scaleEvs?.Count ?? 0) > 1 ? (scaleEvs?[1]).GetOrDefault(1.0f) : 1.0f);
         var rotation = (json["e"]?[2]?["ev"]?[0]).GetOrDefault(0.0f);
         return new VgPrefabObject(id, prefabLookupCallback(prefabId))
         {
