@@ -210,6 +210,23 @@ public static class LsSerialization
         json.AddId("pid", prefabObject.Prefab, true);
         json.Add("st", prefabObject.Time.ToString(CultureInfo.InvariantCulture));
         json.Add("ed", SerializeObjectEditorSettings(prefabObject.EditorSettings));
+        json.Add("e", new JsonObject
+        {
+            ["pos"] = new JsonObject
+            {
+                ["x"] = prefabObject.Position.X.ToString(CultureInfo.InvariantCulture),
+                ["y"] = prefabObject.Position.Y.ToString(CultureInfo.InvariantCulture),
+            },
+            ["sca"] = new JsonObject
+            {
+                ["x"] = prefabObject.Scale.X.ToString(CultureInfo.InvariantCulture),
+                ["y"] = prefabObject.Scale.Y.ToString(CultureInfo.InvariantCulture),
+            },
+            ["rot"] = new JsonObject
+            {
+                ["x"] = prefabObject.Rotation.ToString(CultureInfo.InvariantCulture),  
+            },
+        });
         return json;
     }
     

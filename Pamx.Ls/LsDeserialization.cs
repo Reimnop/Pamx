@@ -239,10 +239,20 @@ public static class LsDeserialization
         var prefab = prefabLookupCallback(prefabId);
         var time = json["st"].Get<float>();
         var editorSettings = GetObjectEditorSettings(json["ed"].Get<JsonObject>());
+        var position = new Vector2(
+            (json["e"]?["pos"]?["x"]).GetOrDefault(0.0f),
+            (json["e"]?["pos"]?["y"]).GetOrDefault(0.0f));
+        var scale = new Vector2(
+            (json["e"]?["sca"]?["x"]).GetOrDefault(1.0f),
+            (json["e"]?["sca"]?["y"]).GetOrDefault(1.0f));
+        var rotation = (json["e"]?["rot"]?["x"]).GetOrDefault(0.0f);
         return new LsPrefabObject(id, prefab)
         {
             Time = time,
             EditorSettings = editorSettings,
+            Position = position,
+            Scale = scale,
+            Rotation = rotation,
         };
     }
     
