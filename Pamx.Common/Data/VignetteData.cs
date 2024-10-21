@@ -20,7 +20,7 @@ public struct VignetteData()
     /// <summary>
     /// The color of the vignette effect
     /// </summary>
-    public int Color { get; set; } = 0;
+    public int? Color { get; set; } = null;
     
     /// <summary>
     /// Whether the vignette effect should be rounded

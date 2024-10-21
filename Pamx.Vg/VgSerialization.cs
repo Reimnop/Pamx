@@ -147,7 +147,7 @@ public static class VgSerialization
                 GetFixedKeyframeSerializer<VignetteData>(x => [
                     x.Intensity, 
                     x.Smoothness,
-                    (float) x.Color,
+                    x.Color ?? 0.0f,
                     x.Rounded ? 1.0f : 0.0f,
                     x.Center.X,
                     x.Center.Y])),
