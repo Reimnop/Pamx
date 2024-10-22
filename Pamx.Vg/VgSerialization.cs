@@ -147,10 +147,11 @@ public static class VgSerialization
                 GetFixedKeyframeSerializer<VignetteData>(x => [
                     x.Intensity, 
                     x.Smoothness,
-                    x.Color ?? 0.0f,
                     x.Rounded ? 1.0f : 0.0f,
+                    0.0f, // ???
                     x.Center.X,
-                    x.Center.Y])),
+                    x.Center.Y,
+                    (float?) x.Color ?? 0.0f])),
             
             // Write lens distortion events
             SerializeArray(

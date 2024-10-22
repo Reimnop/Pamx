@@ -166,13 +166,14 @@ public static class VgDeserialization
             eventsJson[7].GetOrDefault<JsonArray>([]),
             GetFixedKeyframeDeserializer(x => new VignetteData
             {
-                Intensity = x[0].Get<float>(),
-                Smoothness = x[1].Get<float>(),
-                Color = (int) x[2].Get<float>(),
-                Rounded = x[3].Get<float>() != 0.0f,
+                // God knows what x[3] is supposed to be
+                Intensity = x.Count > 0 ? x[0].Get<float>() : 0.0f,
+                Smoothness = x.Count > 1 ? x[1].Get<float>() : 0.0f,
+                Color = x.Count > 6 ? (int) x[6].Get<float>() : 9,
+                Rounded = x.Count > 2 ? x[2].Get<float>() != 0.0f : false,
                 Center = new Vector2(
-                    x[4].Get<float>(),
-                    x[5].Get<float>()),
+                    x.Count > 4 ? x[4].Get<float>() : 0.5f,
+                    x.Count > 5 ? x[5].Get<float>() : 0.5f),
             }));
         
         // Read lens distortion events
