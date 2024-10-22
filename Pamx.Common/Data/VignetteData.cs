@@ -30,7 +30,7 @@ public struct VignetteData()
     /// <summary>
     /// How much the vignette effect should be rounded
     /// </summary>
-    public float Roundness { get; set; } = 0.0f;
+    public float? Roundness { get; set; } = null;
     
     /// <summary>
     /// The center of the vignette effect

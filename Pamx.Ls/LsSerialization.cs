@@ -126,7 +126,7 @@ public static class LsSerialization
                 j.Add("x", kf.Value.Intensity.ToString(CultureInfo.InvariantCulture));
                 j.Add("y", kf.Value.Smoothness.ToString(CultureInfo.InvariantCulture));
                 j.Add("z", kf.Value.Rounded ? "1" : "0");
-                j.Add("x2", kf.Value.Roundness.ToString(CultureInfo.InvariantCulture));
+                j.Add("x2", kf.Value.Roundness?.ToString(CultureInfo.InvariantCulture) ?? "0");
                 j.Add("y2", kf.Value.Center.X.ToString(CultureInfo.InvariantCulture));
                 j.Add("z2", kf.Value.Center.Y.ToString(CultureInfo.InvariantCulture));
             }),
