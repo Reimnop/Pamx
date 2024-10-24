@@ -1,6 +1,6 @@
 # Project Arrhythmia assets Manipulation eXtension
 
-> An API for reading/writing ALL Project Arrhythmia asset in ALL versions with a single, common API
+> A library for reading/writing ALL Project Arrhythmia asset in ALL versions with a single, common API
 
 ## Features
 
