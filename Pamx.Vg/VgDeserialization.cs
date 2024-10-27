@@ -204,9 +204,9 @@ public static class VgDeserialization
             {
                 Intensity = x.Count > 0 ? x[0].Get<float>() : 0.0f,
                 Rotation = x.Count > 1 ? x[1].Get<float>() : 0.0f,
-                ColorA = x.Count > 2 ? (int) x[2].Get<float>() : 0,
-                ColorB = x.Count > 3 ? (int) x[3].Get<float>() : 0,
-                Mode = (x.Count > 4 ? (int) x[4].Get<float>() : 0) switch
+                ColorA = x.Count > 2 ? (int) x[2].Get<float>() : 9,
+                ColorB = x.Count > 3 ? (int) x[3].Get<float>() : 9,
+                Mode = (x.Count > 4 ? (int) x[4].Get<float>() : 2) switch
                 {
                     0 => GradientOverlayMode.Linear,
                     1 => GradientOverlayMode.Additive,
