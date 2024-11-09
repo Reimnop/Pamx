@@ -22,10 +22,10 @@ public static class LsDeserialization
             .Select(x => x.Get<JsonObject>())
             .Select(x => new LsMarker
             {
-                Name = x["name"].Get<string>(),
-                Description = x["desc"].Get<string>(),
-                Color = x["col"].Get<int>(),
-                Time = x["t"].Get<float>(),
+                Name = x["name"].GetOrDefault(string.Empty),
+                Description = x["desc"].GetOrDefault(string.Empty),
+                Color = x["col"].GetOrDefault(0),
+                Time = x["t"].GetOrDefault(0.0f),
             });
         
         // Read objects and store as dictionary
@@ -238,7 +238,7 @@ public static class LsDeserialization
         var prefabId = json["pid"].Get<string>();
         var prefab = prefabLookupCallback(prefabId);
         var time = json["st"].Get<float>();
-        var editorSettings = GetObjectEditorSettings(json["ed"].Get<JsonObject>());
+        var editorSettings = GetObjectEditorSettings(json["ed"].GetOrDefault(new JsonObject()));
         var position = new Vector2(
             (json["e"]?["pos"]?["x"]).GetOrDefault(0.0f),
             (json["e"]?["pos"]?["y"]).GetOrDefault(0.0f));
@@ -418,10 +418,10 @@ public static class LsDeserialization
             autoKillType = AutoKillType.LastKeyframe;
         
         var autoKillOffset = json["ako"].GetOrDefault(0.0f);
-        var originJson = json["o"].Get<JsonObject>();
+        var originJson = json["o"].GetOrDefault<JsonObject?>(null);
         var origin = new Vector2(
-            originJson["x"].Get<float>(), 
-            originJson["y"].Get<float>());
+            (originJson?["x"]).GetOrDefault(0.0f), 
+            (originJson?["y"]).GetOrDefault(0.0f));
         var editorSettings = GetObjectEditorSettings(json["ed"].Get<JsonObject>());
         var posJson = (json["events"]?["pos"]).Get<JsonArray>();
         var scaJson = (json["events"]?["sca"]).Get<JsonArray>();
