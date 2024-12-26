@@ -54,4 +54,9 @@ public enum EventType
     /// Move the parallax background
     /// </summary>
     BgMove,
+    
+    /// <summary>
+    /// Unknown event type
+    /// </summary>
+    Unknown,
 }

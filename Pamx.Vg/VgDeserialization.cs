@@ -61,6 +61,8 @@ public static class VgDeserialization
                     true);
                 return (((IIdentifiable<string>) prefab).Id, prefab);
             })
+            .GroupBy(x => x.Id)
+            .Select(x => x.First())
             .ToDictionary(x => x.Id, x => x);
         
         // Read prefab objects
@@ -299,7 +301,7 @@ public static class VgDeserialization
             1 => TriggerType.PlayerHit,
             2 => TriggerType.PlayerDeath,
             3 => TriggerType.PlayerStart,
-            _ => throw new ArgumentOutOfRangeException()
+            _ => TriggerType.Unknown,
         };
         var fromTime = (json["event_trigger_time"]?["x"]).GetOrDefault(0.0f);
         var toTime = (json["event_trigger_time"]?["y"]).GetOrDefault(0.0f);
@@ -316,7 +318,7 @@ public static class VgDeserialization
             7 => EventType.BgSpin,
             8 => EventType.BgMove,
             9 => EventType.PlayerDashDirection,
-            _ => throw new ArgumentOutOfRangeException()
+            _ => EventType.Unknown,
         };
         var eventData = json["event_data"]
             .GetOrDefault<JsonArray>([])

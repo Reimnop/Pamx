@@ -24,4 +24,9 @@ public enum TriggerType
     /// Triggers when player starts
     /// </summary>
     PlayerStart,
+    
+    /// <summary>
+    /// Unknown trigger type
+    /// </summary>
+    Unknown,
 }
