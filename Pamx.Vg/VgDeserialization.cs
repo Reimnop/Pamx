@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Globalization;
 using System.Numerics;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Pamx.Common;
 using Pamx.Common.Data;
@@ -282,6 +283,8 @@ public static class VgDeserialization
         var prefab = string.IsNullOrEmpty(prefabId) ? null : prefabLookup(prefabId);
         var keycodes = json["keycodes"]
             .GetOrDefault<JsonArray>([])
+            .OfType<JsonValue>()
+            .Where(x => x.GetValueKind() == JsonValueKind.Number) // TODO: Properly parse this!!!
             .Select(x => x.GetOrDefault(0));
         var editorPrefabSpawn = new EditorPrefabSpawn
         {
