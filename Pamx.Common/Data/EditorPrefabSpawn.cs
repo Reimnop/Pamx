@@ -23,5 +23,5 @@ public struct EditorPrefabSpawn()
     /// <summary>
     /// The keycodes to be used to spawn the prefab
     /// </summary>
-    public IList<int> Keycodes { get; set; } = [];
+    public IList<string> Keycodes { get; set; } = [];
 }
