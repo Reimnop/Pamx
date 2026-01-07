@@ -80,7 +80,7 @@ public interface IObject : IReference<IObject>
     /// <summary>
     /// The object's Z depth
     /// </summary>
-    int RenderDepth { get; set; }
+    float RenderDepth { get; set; }
     
     /// <summary>
     /// The object's editor settings. Only has an effect when in editor

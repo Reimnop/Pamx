@@ -704,7 +704,7 @@ public static class VgDeserialization
             (json["p_o"]?[0]).GetOrDefault(0.0f),
             (json["p_o"]?[1]).GetOrDefault(0.0f),
             (json["p_o"]?[2]).GetOrDefault(0.0f));
-        var renderDepth = json["d"].GetOrDefault(20);
+        var renderDepth = json["d"].GetOrDefault(20.0f);
         var startTime = json["st"].GetOrDefault(0.0f);
         var editorSettings = DeserializeObjectEditorSettings(json["ed"].GetOrDefault(new JsonObject()));
 

@@ -20,7 +20,7 @@ public class BeatmapObject() : IObject, IIdentifiable<string>
     public RenderType RenderType { get; set; }
     public ParentType ParentType { get; set; }
     public ParentOffset ParentOffset { get; set; }
-    public int RenderDepth { get; set; }
+    public float RenderDepth { get; set; }
     public ObjectEditorSettings EditorSettings { get; set; }
     public IList<Keyframe<Vector2>> PositionEvents { get; set; } = [];
     public IList<Keyframe<Vector2>> ScaleEvents { get; set; } = [];
