@@ -853,10 +853,10 @@ public static class VgDeserialization
         
         return new CustomShapeParams
         {
-            Sides = (int)json[0].Get<float>(),
-            Roundness = json[1].Get<float>(),
-            Thickness = json[2].Get<float>(),
-            Slices = (int)json[3].Get<float>()
+            Sides = json.Count > 0 ? (int)json[0].Get<float>() : 0,
+            Roundness = json.Count > 1 ? json[1].Get<float>() : 0f,
+            Thickness = json.Count > 2 ? json[2].Get<float>() : 0f,
+            Slices = json.Count > 3 ? (int)json[3].Get<float>() : 0
         };
     }
 
