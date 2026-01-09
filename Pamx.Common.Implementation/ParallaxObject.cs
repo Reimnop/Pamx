@@ -13,7 +13,6 @@ public class ParallaxObject() : IParallaxObject, IIdentifiable<string>
     public float Rotation { get; set; }
     public ParallaxObjectAnimation Animation { get; set; }
     public ObjectShape Shape { get; set; }
-    public int ShapeOption { get; set; }
     public string? Text { get; set; }
     public int Color { get; set; }
     

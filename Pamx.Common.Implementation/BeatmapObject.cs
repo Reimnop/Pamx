@@ -15,7 +15,6 @@ public class BeatmapObject() : IObject, IIdentifiable<string>
     public Vector2 Origin { get; set; }
     public ObjectType Type { get; set; }
     public ObjectShape Shape { get; set; }
-    public int ShapeOption { get; set; }
     public string Text { get; set; } = string.Empty;
     public RenderType RenderType { get; set; }
     public ParentType ParentType { get; set; }

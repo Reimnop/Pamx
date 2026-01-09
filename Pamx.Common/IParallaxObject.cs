@@ -38,14 +38,6 @@ public interface IParallaxObject : IReference<IParallaxObject>
     ObjectShape Shape { get; set; }
     
     /// <summary>
-    /// The specific variant of the object's shape. Can be cast from
-    /// <see cref="ObjectSquareShape"/>, <see cref="ObjectCircleShape"/>,
-    /// <see cref="ObjectTriangleShape"/>, <see cref="ObjectArrowShape"/>
-    /// and <see cref="ObjectHexagonShape"/>
-    /// </summary>
-    int ShapeOption { get; set; }
-    
-    /// <summary>
     /// The object's text data. Only has an effect when <see cref="Shape"/>
     /// is <see cref="ObjectShape.Text"/>
     /// </summary>

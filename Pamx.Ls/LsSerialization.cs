@@ -314,17 +314,12 @@ public static class LsSerialization
             ObjectType.LegacyEmpty => "3",
             _ => throw new ArgumentOutOfRangeException()
         });
-        json.Add("shape", @object.Shape switch
-        {
-            ObjectShape.Square => "0",
-            ObjectShape.Circle => "1",
-            ObjectShape.Triangle => "2",
-            ObjectShape.Arrow => "3",
-            ObjectShape.Text => "4",
-            ObjectShape.Hexagon => "5",
-            _ => throw new ArgumentOutOfRangeException()
-        });
-        json.Add("so", @object.ShapeOption.ToString());
+        
+        var shape = (int) @object.Shape & 0xffff;
+        var shapeOption = (int) @object.Shape >> 16;
+        json.Add("shape", shape.ToString());
+        json.Add("so", shapeOption.ToString());
+        
         json.Add("text", @object.Text);
         json.Add("st", @object.StartTime.ToString(CultureInfo.InvariantCulture));
         json.Add("akt", @object.AutoKillType switch

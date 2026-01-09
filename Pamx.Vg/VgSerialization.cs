@@ -349,19 +349,14 @@ public static class VgSerialization
         anJson.Add("l", animation.LoopLength);
         anJson.Add("ld", animation.LoopDelay);
         json.Add("an", anJson);
+
+        var shape = (int) parallaxObject.Shape & 0xffff;
+        var shapeOption = (int) parallaxObject.Shape >> 16;
+        
         json.Add("s", new JsonObject
         {
-            ["s"] = parallaxObject.Shape switch
-            {
-                ObjectShape.Square => 0,
-                ObjectShape.Circle => 1,
-                ObjectShape.Triangle => 2,
-                ObjectShape.Arrow => 3,
-                ObjectShape.Text => 4,
-                ObjectShape.Hexagon => 5,
-                _ => throw new ArgumentOutOfRangeException()
-            },
-            ["so"] = parallaxObject.ShapeOption,
+            ["s"] = shape,
+            ["so"] = shapeOption,
             ["t"] = parallaxObject.Text,
             ["c"] = parallaxObject.Color,
         });
@@ -546,19 +541,15 @@ public static class VgSerialization
             json.Add("text", @object.Text);
         if (@object.Origin != default)
             json.AddVector2("o", @object.Origin);
-        if (@object.Shape != ObjectShape.Square)
-            json.Add("s", @object.Shape switch
-            {
-                ObjectShape.Square => 0,
-                ObjectShape.Circle => 1,
-                ObjectShape.Triangle => 2,
-                ObjectShape.Arrow => 3,
-                ObjectShape.Text => 4,
-                ObjectShape.Hexagon => 5,
-                _ => throw new ArgumentOutOfRangeException()
-            });
-        if (@object.ShapeOption != 0)
-            json.Add("so", @object.ShapeOption);
+        
+        var shape = (int) @object.Shape & 0xffff;
+        var shapeOption = (int) @object.Shape >> 16;
+        
+        if (shape != 0)
+            json.Add("s", shape);
+        if (shapeOption != 0)
+            json.Add("so", shapeOption);
+        
         if (@object.RenderType != RenderType.Normal)
             json.Add("gt", @object.RenderType switch
             {

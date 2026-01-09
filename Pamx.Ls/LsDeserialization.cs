@@ -391,18 +391,11 @@ public static class LsDeserialization
         
         if (json.ContainsKey("empty") && json["empty"].GetOrDefault("False") != "False")
             objectType = ObjectType.LegacyEmpty;
+
+        var shape = json["shape"].GetOrDefault(0);
+        var shapeOption = json["so"].GetOrDefault(0);
+        var shapeEnum = (ObjectShape) ((shape & 0xffff) | shapeOption << 16);
         
-        var shape = json["shape"].GetOrDefault<string>("0") switch
-        {
-            "0" => ObjectShape.Square,
-            "1" => ObjectShape.Circle,
-            "2" => ObjectShape.Triangle,
-            "3" => ObjectShape.Arrow,
-            "4" => ObjectShape.Text,
-            "5" => ObjectShape.Hexagon,
-            _ => throw new ArgumentOutOfRangeException(),
-        };
-        var shapeOption = int.Parse(json["so"].GetOrDefault<string>("0"));
         var text = json["text"].GetOrDefault(string.Empty);
         var startTime = float.Parse(json["st"].GetOrDefault<string>("0"), CultureInfo.InvariantCulture);
         var autoKillType = json["akt"].GetOrDefault(0) switch
@@ -446,8 +439,7 @@ public static class LsDeserialization
             ParentOffset = parentOffset,
             RenderDepth = renderDepth,
             Type = objectType,
-            Shape = shape,
-            ShapeOption = shapeOption,
+            Shape = shapeEnum,
             Text = text,
             StartTime = startTime,
             AutoKillType = autoKillType,

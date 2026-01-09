@@ -428,17 +428,11 @@ public static class VgDeserialization
             : null;
         var loopLength = (json["an"]?["l"]).GetOrDefault(1.0f);
         var loopDelay = (json["an"]?["ld"]).GetOrDefault(0.0f);
-        var shape = (json["s"]?["s"]).GetOrDefault(0) switch
-        {
-            0 => ObjectShape.Square,
-            1 => ObjectShape.Circle,
-            2 => ObjectShape.Triangle,
-            3 => ObjectShape.Arrow,
-            4 => ObjectShape.Text,
-            5 => ObjectShape.Hexagon,
-            _ => throw new ArgumentOutOfRangeException()
-        };
+        
+        var shape = (json["s"]?["s"]).GetOrDefault(0);
         var shapeOption = (json["s"]?["so"]).GetOrDefault(0);
+        var shapeEnum = (ObjectShape) ((shape & 0xffff) | shapeOption << 16);
+        
         var text = (json["s"]?["t"]).GetOrDefault(string.Empty);
         var color = (json["s"]?["c"]).GetOrDefault(0);
         return new ParallaxObject(id)
@@ -454,8 +448,7 @@ public static class VgDeserialization
                 LoopLength = loopLength,
                 LoopDelay = loopDelay,
             },
-            Shape = shape,
-            ShapeOption = shapeOption,
+            Shape = shapeEnum,
             Text = text,
             Color = color,
         };
@@ -673,17 +666,11 @@ public static class VgDeserialization
         var origin = new Vector2(
             (json["o"]?["x"]).GetOrDefault(0.0f),
             (json["o"]?["y"]).GetOrDefault(0.0f));
-        var shape = json["s"].GetOrDefault(0) switch
-        {
-            0 => ObjectShape.Square,
-            1 => ObjectShape.Circle,
-            2 => ObjectShape.Triangle,
-            3 => ObjectShape.Arrow,
-            4 => ObjectShape.Text,
-            5 => ObjectShape.Hexagon,
-            _ => throw new ArgumentOutOfRangeException(),
-        };
+        
+        var shape = json["s"].GetOrDefault(0);
         var shapeOption = json["so"].GetOrDefault(0);
+        var shapeEnum = (ObjectShape) ((shape & 0xffff) | shapeOption << 16);
+        
         var renderType = json["gt"].GetOrDefault(0) switch
         {
             0 => RenderType.Normal,
@@ -762,8 +749,7 @@ public static class VgDeserialization
             Name = name,
             Text = text,
             Origin = origin,
-            Shape = shape,
-            ShapeOption = shapeOption,
+            Shape = shapeEnum,
             RenderType = renderType,
             ParentType = parentType,
             ParentOffset = parentOffset,
