@@ -848,7 +848,7 @@ public static class VgDeserialization
 
     private static CustomShapeParams? DeserializeCustomShapeParams(JsonArray? json)
     {
-        if (json == null)
+        if (json is null)
             return null;
         
         return new CustomShapeParams
