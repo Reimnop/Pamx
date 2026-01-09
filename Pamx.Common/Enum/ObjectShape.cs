@@ -36,7 +36,9 @@ public enum ObjectShape
     // Arrow shapes
     ArrowNormal = 3 | 0 << 16,
     ArrowHead   = 3 | 1 << 16,
-    ArrowCustom = 3 | 2 << 16,
+    
+    // Custom shape
+    Custom = 3 | 2 << 16,
     
     // Text shape
     Text = 4 | 0 << 16,

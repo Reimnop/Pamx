@@ -172,7 +172,7 @@ public static class VgDeserialization
                 Intensity = x.Count > 0 ? x[0].Get<float>() : 0.0f,
                 Smoothness = x.Count > 1 ? x[1].Get<float>() : 0.0f,
                 Color = x.Count > 6 ? (int) x[6].Get<float>() : 9,
-                Rounded = x.Count > 2 ? x[2].Get<float>() != 0.0f : false,
+                Rounded = x.Count > 2 && x[2].Get<float>() != 0.0f,
                 Center = new Vector2(
                     x.Count > 4 ? x[4].Get<float>() : 0.5f,
                     x.Count > 5 ? x[5].Get<float>() : 0.5f),
@@ -669,7 +669,9 @@ public static class VgDeserialization
         
         var shape = json["s"].GetOrDefault(0);
         var shapeOption = json["so"].GetOrDefault(0);
-        var shapeEnum = (ObjectShape) ((shape & 0xffff) | shapeOption << 16);
+        var shapeEnum = ObjectShapeUtil.FromSeparate(shape, shapeOption);
+
+        var csp = DeserializeCustomShapeParams(json["csp"].Get<JsonArray?>());
         
         var renderType = json["gt"].GetOrDefault(0) switch
         {
@@ -891,21 +893,19 @@ public static class VgDeserialization
         return Color.FromArgb(r, g, b);
     }
     
-    private static T Get<T>(this JsonNode? node)
-    {
-        if (node is null)
-            throw new ArgumentNullException(nameof(node));
-        if (node is T node1)
-            return node1;
-        return node.GetValue<T>();
-    }
-    
-    private static T GetOrDefault<T>(this JsonNode? node, T defaultValue)
-    {
-        if (node is null)
-            return defaultValue;
-        if (node is T node1)
-            return node1; 
-        return node.GetValue<T>();
-    }
+    private static T Get<T>(this JsonNode? node) =>
+        node switch
+        {
+            null => throw new ArgumentNullException(nameof(node)),
+            T node1 => node1,
+            _ => node.GetValue<T>()
+        };
+
+    private static T GetOrDefault<T>(this JsonNode? node, T defaultValue) =>
+        node switch
+        {
+            null => defaultValue,
+            T node1 => node1,
+            _ => node.GetValue<T>()
+        };
 }
