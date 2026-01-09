@@ -46,6 +46,16 @@ public interface IObject : IReference<IObject>
     /// The shape of the object
     /// </summary>
     ObjectShape Shape { get; set; }
+
+    /// <summary>
+    /// Whether the object uses a custom shape
+    /// </summary>
+    bool UsesCustomShape => Shape is 
+        ObjectShape.SquareCustom or 
+        ObjectShape.CircleCustom or 
+        ObjectShape.TriangleCustom or 
+        ObjectShape.ArrowCustom or 
+        ObjectShape.HexagonCustom;
     
     /// <summary>
     /// The object's text data. Only has an effect when <see cref="Shape"/>
