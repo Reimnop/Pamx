@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using Pamx.Common;
 using Pamx.Common.Data;
 using Pamx.Common.Enum;
+using Pamx.Common.Implementation;
 
 namespace Pamx.Vg;
 
@@ -542,13 +543,15 @@ public static class VgSerialization
         if (@object.Origin != default)
             json.AddVector2("o", @object.Origin);
         
-        var shape = (int) @object.Shape & 0xffff;
-        var shapeOption = (int) @object.Shape >> 16;
+        @object.Shape.ToSeparate(out var shape, out var shapeOption);
         
         if (shape != 0)
             json.Add("s", shape);
         if (shapeOption != 0)
             json.Add("so", shapeOption);
+
+        if (@object.CustomShapeParams.HasValue)
+            json.Add("csp", SerializeCustomShapeParams(@object.CustomShapeParams.Value));
         
         if (@object.RenderType != RenderType.Normal)
             json.Add("gt", @object.RenderType switch
@@ -600,6 +603,9 @@ public static class VgSerialization
         });
         return json;
     }
+
+    private static JsonArray SerializeCustomShapeParams(CustomShapeParams value) =>
+        [(float)value.Sides, value.Roundness, value.Thickness, (float)value.Slices, 0.0f];
 
     private static JsonObject SerializeObjectEditorSettings(ObjectEditorSettings value)
     {
