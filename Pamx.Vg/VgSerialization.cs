@@ -549,6 +549,9 @@ public static class VgSerialization
             json.Add("s", shape);
         if (shapeOption != 0)
             json.Add("so", shapeOption);
+
+        if (@object.CustomShapeParams.HasValue)
+            json.Add("csp", SerializeCustomShapeParams(@object.CustomShapeParams.Value));
         
         if (@object.RenderType != RenderType.Normal)
             json.Add("gt", @object.RenderType switch
@@ -600,6 +603,9 @@ public static class VgSerialization
         });
         return json;
     }
+
+    private static JsonArray SerializeCustomShapeParams(CustomShapeParams value) =>
+        [(float)value.Sides, value.Roundness, value.Thickness, (float)value.Slices, 0.0f];
 
     private static JsonObject SerializeObjectEditorSettings(ObjectEditorSettings value)
     {

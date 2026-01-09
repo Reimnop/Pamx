@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Pamx.Common.Data;
 using Pamx.Common.Enum;
@@ -46,15 +47,21 @@ public interface IObject : IReference<IObject>
     /// The shape of the object
     /// </summary>
     ObjectShape Shape { get; set; }
+    
+    /// <summary>
+    /// The custom shape parameters of the object
+    /// </summary>
+    CustomShapeParams? CustomShapeParams { get; set; }
 
     /// <summary>
     /// Whether the object uses a custom shape
     /// </summary>
-    bool UsesCustomShape => Shape is 
-        ObjectShape.SquareCustom or 
-        ObjectShape.CircleCustom or 
-        ObjectShape.TriangleCustom or 
-        ObjectShape.ArrowCustom or 
+    [MemberNotNullWhen(true, nameof(CustomShapeParams))]
+    bool UsesCustomShape => CustomShapeParams.HasValue && Shape is
+        ObjectShape.SquareCustom or
+        ObjectShape.CircleCustom or
+        ObjectShape.TriangleCustom or
+        ObjectShape.Custom or
         ObjectShape.HexagonCustom;
     
     /// <summary>

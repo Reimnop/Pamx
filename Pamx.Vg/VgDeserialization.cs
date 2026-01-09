@@ -750,6 +750,7 @@ public static class VgDeserialization
             Text = text,
             Origin = origin,
             Shape = shapeEnum,
+            CustomShapeParams = csp,
             RenderType = renderType,
             ParentType = parentType,
             ParentOffset = parentOffset,
@@ -841,6 +842,20 @@ public static class VgDeserialization
                 continue;
             yield return readValueCallback(obj);
         }
+    }
+
+    private static CustomShapeParams? DeserializeCustomShapeParams(JsonArray? json)
+    {
+        if (json == null)
+            return null;
+        
+        return new CustomShapeParams
+        {
+            Sides = (int)json[0].Get<float>(),
+            Roundness = json[1].Get<float>(),
+            Thickness = json[2].Get<float>(),
+            Slices = (int)json[3].Get<float>()
+        };
     }
 
     private static ObjectEditorSettings DeserializeObjectEditorSettings(JsonObject json)
