@@ -12,6 +12,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pamx.Common.Implementation"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pamx", "Pamx\Pamx.csproj", "{8BCAA2A4-716F-4302-AB29-B32D4B7F0937}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{FC5F848E-98DB-49D5-B4FE-92A7F87DF2B2}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		DOCS.md = DOCS.md
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
