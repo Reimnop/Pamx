@@ -671,7 +671,7 @@ public static class VgDeserialization
         var shapeOption = json["so"].GetOrDefault(0);
         var shapeEnum = ObjectShapeUtil.FromSeparate(shape, shapeOption);
 
-        var csp = DeserializeCustomShapeParams(json["csp"].Get<JsonArray?>());
+        var csp = DeserializeCustomShapeParams(json["csp"].GetOrDefault<JsonArray?>(null));
         
         var renderType = json["gt"].GetOrDefault(0) switch
         {
