@@ -26,4 +26,9 @@ public enum ParentType
     /// No inheritance
     /// </summary>
     None = 0,
+    
+    /// <summary>
+    /// Inherit all transform components from the parent
+    /// </summary>
+    All = Position | Scale | Rotation,
 }
