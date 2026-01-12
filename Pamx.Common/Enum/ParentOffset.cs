@@ -6,6 +6,11 @@ namespace Pamx.Common.Enum;
 public struct ParentOffset()
 {
     /// <summary>
+    /// A <see cref="ParentOffset"/> with all offsets set to zero
+    /// </summary>
+    public static ParentOffset Zero => new(0.0f, 0.0f, 0.0f);
+    
+    /// <summary>
     /// The position offset
     /// </summary>
     public float Position { get; set; } = 0.0f;
