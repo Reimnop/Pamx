@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using JetBrains.Annotations;
 using Pamx.Common.Data;
 using Pamx.Common.Enum;
 
@@ -74,6 +75,16 @@ public interface IObject : IReference<IObject>
     /// The object's render type
     /// </summary>
     RenderType RenderType { get; set; }
+    
+    /// <summary>
+    /// The rotation of the object's gradient
+    /// </summary>
+    float GradientRotation { get; set; }
+    
+    /// <summary>
+    /// The rotation of the object's gradient
+    /// </summary>
+    float GradientScale { get; set; }
     
     /// <summary>
     /// The specific transform component from which this object inherits
