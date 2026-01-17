@@ -1,6 +1,6 @@
 using Pamx.Common.Enum;
 
-namespace Pamx.Common.Implementation;
+namespace Pamx.Common;
 
 public static class ObjectShapeUtil
 {
