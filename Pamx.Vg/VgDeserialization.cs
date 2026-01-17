@@ -682,6 +682,9 @@ public static class VgDeserialization
             4 => RenderType.OutwardsGradient,
             _ => throw new ArgumentOutOfRangeException(),
         };
+        var gradientRotation = json["gr"].GetOrDefault(0.0f);
+        var gradientScale = json["gs"].GetOrDefault(1.0f);
+        
         var parentTypeString = json["p_t"].GetOrDefault("101");
         if (parentTypeString.Length != 3)
             throw new ArgumentException($"Invalid p_t value length, expected 3, but got {parentTypeString.Length}");
@@ -754,6 +757,8 @@ public static class VgDeserialization
             Shape = shapeEnum,
             CustomShapeParams = csp,
             RenderType = renderType,
+            GradientRotation = gradientRotation,
+            GradientScale = gradientScale,
             ParentType = parentType,
             ParentOffset = parentOffset,
             RenderDepth = renderDepth,

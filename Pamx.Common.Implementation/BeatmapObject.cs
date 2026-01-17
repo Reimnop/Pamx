@@ -18,6 +18,8 @@ public class BeatmapObject() : IObject, IIdentifiable<string>
     public CustomShapeParams? CustomShapeParams { get; set; }
     public string Text { get; set; } = string.Empty;
     public RenderType RenderType { get; set; }
+    public float GradientRotation { get; set; }
+    public float GradientScale { get; set; }
     public ParentType ParentType { get; set; }
     public ParentOffset ParentOffset { get; set; }
     public float RenderDepth { get; set; }
