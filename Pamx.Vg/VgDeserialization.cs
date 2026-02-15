@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Globalization;
 using System.Numerics;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Pamx.Common;
 using Pamx.Common.Data;
@@ -903,7 +904,7 @@ public static class VgDeserialization
         {
             null => throw new ArgumentNullException(nameof(node)),
             T node1 => node1,
-            _ => node.GetValue<T>()
+            _ => GetNodeValue<T>(node)
         };
 
     private static T GetOrDefault<T>(this JsonNode? node, T defaultValue) =>
@@ -911,6 +912,23 @@ public static class VgDeserialization
         {
             null => defaultValue,
             T node1 => node1,
-            _ => node.GetValue<T>()
+            _ => GetNodeValue<T>(node)
         };
+
+    private static T GetNodeValue<T>(JsonNode node)
+    {
+        if (node is not JsonValue value)
+            throw new ArgumentException($"Expected a JsonValue, but got {node.GetType().Name}", nameof(node));
+        
+        if (typeof(T) == typeof(string) && value.TryGetValue<float>(out var number))
+            return (T)(object)number.ToString(CultureInfo.InvariantCulture);
+        if (typeof(T) == typeof(string) && value.TryGetValue<int>(out var intNumber))
+            return (T)(object)intNumber.ToString(CultureInfo.InvariantCulture);
+        if (typeof(T) == typeof(float) && value.TryGetValue<string>(out var strValue) && float.TryParse(strValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedFloat))
+            return (T)(object)parsedFloat;
+        if (typeof(T) == typeof(int) && value.TryGetValue<string>(out var strIntValue) && int.TryParse(strIntValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedInt))
+            return (T)(object)parsedInt;
+        
+        return value.GetValue<T>();
+    }
 }
