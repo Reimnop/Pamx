@@ -564,7 +564,7 @@ public static class VgSerialization
                 _ => throw new ArgumentOutOfRangeException()
             });
         json.Add("gr", @object.GradientRotation);
-        json.Add("gr", @object.GradientScale);
+        json.Add("gs", @object.GradientScale);
         
         if (@object.ParentType != (ParentType.Position | ParentType.Rotation))
             json.Add("p_t",
