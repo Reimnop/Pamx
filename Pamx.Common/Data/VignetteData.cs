@@ -1,39 +1,41 @@
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Pamx.Common.Data;
 
 /// <summary>
 /// The settings for vignette keyframes
 /// </summary>
-public struct VignetteData()
+[StructLayout(LayoutKind.Sequential)]
+public struct VignetteData
 {
     /// <summary>
     /// The intensity of the vignette effect
     /// </summary>
-    public float Intensity { get; set; } = 0.0f;
-    
+    public float Intensity;
+
     /// <summary>
     /// The smoothness of the vignette effect
     /// </summary>
-    public float Smoothness { get; set; } = 0.0f;
+    public float Smoothness;
     
     /// <summary>
     /// The color of the vignette effect
     /// </summary>
-    public int? Color { get; set; } = null;
+    public int? Color;
     
     /// <summary>
     /// Whether the vignette effect should be rounded
     /// </summary>
-    public bool Rounded { get; set; } = false;
+    public bool Rounded;
     
     /// <summary>
     /// How much the vignette effect should be rounded
     /// </summary>
-    public float? Roundness { get; set; } = null;
+    public float? Roundness;
     
     /// <summary>
     /// The center of the vignette effect
     /// </summary>
-    public Vector2 Center { get; set; } = Vector2.Zero;
+    public Vector2 Center;
 }

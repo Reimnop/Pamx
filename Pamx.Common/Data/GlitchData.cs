@@ -1,22 +1,25 @@
+using System.Runtime.InteropServices;
+
 namespace Pamx.Common.Data;
 
 /// <summary>
 /// The settings for glitch keyframes
 /// </summary>
-public struct GlitchData()
+[StructLayout(LayoutKind.Sequential)]
+public struct GlitchData
 {
     /// <summary>
     /// The intensity of the glitch effect
     /// </summary>
-    public float Intensity { get; set; } = 0.0f;
+    public float Intensity;
     
     /// <summary>
     /// The speed of the glitch effect
     /// </summary>
-    public float Speed { get; set; } = 0.0f;
+    public float Speed;
     
     /// <summary>
     /// The width of each individual glitch
     /// </summary>
-    public float Width { get; set; } = 0.0f;
+    public float Width;
 }
