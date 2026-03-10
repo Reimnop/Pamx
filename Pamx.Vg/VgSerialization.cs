@@ -192,8 +192,8 @@ public static class VgSerialization
                 events.Glitch,
                 GetFixedKeyframeSerializer<GlitchData>(x => [
                     x.Intensity,
-                    x.Speed,
-                    x.Width])),
+                    x.Width,
+                    x.Speed])),
             
             // Write hue events
             SerializeArray(

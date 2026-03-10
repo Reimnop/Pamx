@@ -225,8 +225,8 @@ public static class VgDeserialization
             GetFixedKeyframeDeserializer(x => new GlitchData
             {
                 Intensity = x.Count > 0 ? x[0].Get<float>() : 0f,
-                Speed = x.Count > 1 ? x[1].Get<float>() : 0.88f,
-                Width = x.Count > 2 ? x[2].Get<float>() : 1f,
+                Width = x.Count > 1 ? x[1].Get<float>() : 0.88f,
+                Speed = x.Count > 2 ? x[2].Get<float>() : 1f,
             }));
         
         // Read hue events
