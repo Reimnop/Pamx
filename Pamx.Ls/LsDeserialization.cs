@@ -428,7 +428,7 @@ public static class LsDeserialization
             .Select(GetVector2Keyframe);
         var rotationEvents = rotJson
             .Cast<JsonObject>()
-            .Select(GetFloatKeyframe);
+            .Select(GetObjectRotationKeyframe);
         var colorEvents = colJson
             .Cast<JsonObject>()
             .Select(GetThemeColorKeyframe);
@@ -472,7 +472,7 @@ public static class LsDeserialization
         };
     }
     
-    private static Keyframe<float> GetFloatKeyframe(JsonObject json)
+    private static Keyframe<float> GetObjectRotationKeyframe(JsonObject json)
     {
         var time = float.Parse(json["t"].GetOrDefault("0"), CultureInfo.InvariantCulture);
         var value = float.Parse(json["x"].GetOrDefault("0"), CultureInfo.InvariantCulture);
@@ -498,6 +498,7 @@ public static class LsDeserialization
             RandomMode = randomMode,
             RandomValue = randomValue,
             RandomInterval = randomInterval,
+            IsRelative = true
         };
     }
 

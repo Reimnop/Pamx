@@ -12,6 +12,7 @@ namespace Pamx.Vg;
 
 public static class VgDeserialization
 {
+    private delegate bool ReadKeyframeIsRelativeDelegate(JsonArray eventValues);
     private delegate T ReadKeyframeValueDelegate<out T>(JsonArray eventValues);
     private delegate T ReadRandomKeyframeValueDelegate<out T>(JsonArray eventValues, out float interval);
 
@@ -736,7 +737,13 @@ public static class VgDeserialization
                 {
                     i = x.Count > 2 ? x[2].Get<float>() : 0.0f;
                     return x.Count > 0 ? x[0].Get<float>() : 0.0f;
-                }));
+                },
+                x =>
+                {
+                    if (x.Count <= 1)
+                        return true;
+                    return x[1].Get<float>() != 1.0f;
+                })); // IsRelative is false if second value is 1
         var colorEvents = DeserializeObjectEventsArray(
             eventsJson[3].Get<JsonObject>(),
             GetFixedKeyframeDeserializer(
@@ -779,8 +786,9 @@ public static class VgDeserialization
 
     private static Func<JsonObject, Keyframe<T>> GetKeyframeDeserializer<T>(
         ReadKeyframeValueDelegate<T> readValueCallback,
-        ReadRandomKeyframeValueDelegate<T> readRandomValueCallback)
-        => json => DeserializeKeyframe(json, readValueCallback, readRandomValueCallback);
+        ReadRandomKeyframeValueDelegate<T> readRandomValueCallback,
+        ReadKeyframeIsRelativeDelegate? readIsRelativeCallback = null)
+        => json => DeserializeKeyframe(json, readValueCallback, readRandomValueCallback, readIsRelativeCallback);
 
     private static FixedKeyframe<T> DeserializeFixedKeyframe<T>(
         JsonObject json,
@@ -802,10 +810,13 @@ public static class VgDeserialization
     private static Keyframe<T> DeserializeKeyframe<T>(
         JsonObject json, 
         ReadKeyframeValueDelegate<T> readValueCallback,
-        ReadRandomKeyframeValueDelegate<T> readRandomValueCallback)
+        ReadRandomKeyframeValueDelegate<T> readRandomValueCallback,
+        ReadKeyframeIsRelativeDelegate? readIsRelativeCallback = null)
     {
         var time = json["t"].GetOrDefault(0.0f);
-        var value = readValueCallback(json["ev"].GetOrDefault<JsonArray>([]));
+        var ev = json["ev"].GetOrDefault<JsonArray>([]);
+        var value = readValueCallback(ev);
+        var isRelative = readIsRelativeCallback?.Invoke(ev) ?? false;
         var ease = Ease.Linear;
         if (Enum.TryParse<Ease>(json["ct"].GetOrDefault("Linear"), out var easeValue))
             ease = easeValue;
@@ -830,6 +841,7 @@ public static class VgDeserialization
             RandomMode = randomMode,
             RandomValue = randomValue,
             RandomInterval = randomInterval,
+            IsRelative = isRelative,
         };
     }
     

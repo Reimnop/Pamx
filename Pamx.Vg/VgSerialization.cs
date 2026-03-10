@@ -597,9 +597,7 @@ public static class VgSerialization
                     (x, i) => [x.X, x.Y, i])),
             SerializeObjectEventsArray(
                 @object.RotationEvents,
-                GetKeyframeSerializer<float>(
-                    x => [x],
-                    (x, i) => [x, 0.0f, i])), // Don't know what the second value is for, but the game blows up if it's not there
+                SerializeObjectRotationKeyframe),
             SerializeObjectEventsArray(
                 @object.ColorEvents,
                 GetFixedKeyframeSerializer<ThemeColor>(x => [x.Index, x.Opacity * 100.0f, x.EndIndex])),
@@ -673,6 +671,37 @@ public static class VgSerialization
             });
         if (keyframe.RandomValue is not null)
             json.Add("er", writeRandomValueCallback(keyframe.RandomValue, keyframe.RandomInterval));
+        return json;
+    }
+    
+    private static JsonObject SerializeObjectRotationKeyframe(Keyframe<float> keyframe)
+    {
+        var json = new JsonObject();
+        if (keyframe.Time != 0.0f)
+            json.Add("t", keyframe.Time);
+        json.Add("ev", new JsonArray
+        {
+            keyframe.Value,
+            keyframe.IsRelative ? 0.0f : 1.0f
+        });
+        if (keyframe.Ease != Ease.Linear)
+            json.Add("ct", keyframe.Ease.ToString());
+        if (keyframe.RandomMode != RandomMode.None)
+            json.Add("r", keyframe.RandomMode switch
+            {
+                RandomMode.None => 0,
+                RandomMode.Range => 1,
+                RandomMode.Snap => 2,
+                RandomMode.Select => 3,
+                RandomMode.Scale => 4,
+                _ => throw new ArgumentOutOfRangeException(),
+            });
+        json.Add("er", new JsonArray
+        {
+            keyframe.RandomValue,
+            0.0f, // ???
+            keyframe.RandomInterval,
+        });
         return json;
     }
     

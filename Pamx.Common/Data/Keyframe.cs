@@ -39,6 +39,11 @@ public struct Keyframe<T>()
     public float RandomInterval { get; set; } = 0.0f;
     
     /// <summary>
+    /// Whether the keyframe's value is relative to the previous keyframe's value
+    /// </summary>
+    public bool IsRelative { get; set; } = false;
+    
+    /// <summary>
     /// Creates a new <see cref="Keyframe{T}"/>
     /// </summary>
     /// <param name="time">The keyframe's time</param>
