@@ -27,11 +27,13 @@ public enum ObjectShape
     CircleCustom            = 1 | 9 << 16,
     
     // Triangle shapes
-    TriangleSolid             = 2 | 0 << 16,
-    TriangleHollow            = 2 | 1 << 16,
-    TriangleRightAngledSolid  = 2 | 2 << 16,
-    TriangleRightAngledHollow = 2 | 3 << 16,
-    TriangleCustom            = 2 | 4 << 16,
+    TriangleSolid              = 2 | 0 << 16,
+    TriangleHollow             = 2 | 1 << 16,
+    TriangleRightAngledSolid   = 2 | 2 << 16,
+    TriangleRightAngledHollow  = 2 | 3 << 16,
+    TriangleBottomOriginSolid  = 2 | 4 << 16,
+    TriangleBottomOriginHollow = 2 | 5 << 16,
+    TriangleCustom             = 2 | 6 << 16,
     
     // Arrow shapes
     ArrowNormal = 3 | 0 << 16,
