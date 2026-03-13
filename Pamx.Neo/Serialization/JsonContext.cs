@@ -2,10 +2,10 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
-using System.Text.Unicode;
 using Pamx.Neo.Serialization.Converters.Events;
 using Pamx.Neo.Serialization.Converters.Keyframes;
 using Pamx.Neo.Serialization.Converters.Primitives;
+using Pamx.Neo.Themes;
 
 namespace Pamx.Neo.Serialization;
 
@@ -17,15 +17,22 @@ namespace Pamx.Neo.Serialization;
         typeof(Vector2Converter),
         typeof(ColorConverter),
         typeof(EaseConverter),
-        
+
         typeof(FixedFloatKeyframeConverter),
         typeof(FixedStringKeyframeConverter),
         typeof(FixedVector2KeyframeConverter),
-        
-        typeof(BeatmapEventsConverter)
+
+        typeof(BeatmapEventsConverter),
+        typeof(FixedBloomKeyframeConverter),
+        typeof(FixedVignetteKeyframeConverter),
+        typeof(FixedLensDistortionKeyframeConverter),
+        typeof(FixedGrainKeyframeConverter),
+        typeof(FixedGradientKeyframeConverter),
+        typeof(FixedGlitchKeyframeConverter)
     ]
 )]
 [JsonSerializable(typeof(Beatmap))]
+[JsonSerializable(typeof(ExternalTheme))]
 public partial class JsonContext : JsonSerializerContext
 {
     private static JsonSerializerOptions? _customOptions;
@@ -35,7 +42,7 @@ public partial class JsonContext : JsonSerializerContext
         TypeInfoResolver = Default.WithAddedModifier(IgnoreEmptyStrings),
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
-    
+
     private static void IgnoreEmptyStrings(JsonTypeInfo typeInfo)
     {
         foreach (var property in typeInfo.Properties)

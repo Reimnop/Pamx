@@ -25,6 +25,14 @@ public sealed class BeatmapParityTests(BeatmapFixture fixture)
     [InlineData(3, TestDisplayName = "Shake")]
     [InlineData(4, TestDisplayName = "Theme")]
     [InlineData(5, TestDisplayName = "Chroma")]
+    [InlineData(6, TestDisplayName = "Bloom")]
+    [InlineData(7, TestDisplayName = "Vignette")]
+    [InlineData(8, TestDisplayName = "LensDistortion")]
+    [InlineData(9, TestDisplayName = "Grain")]
+    [InlineData(10, TestDisplayName = "Gradient")]
+    [InlineData(11, TestDisplayName = "Glitch")]
+    [InlineData(12, TestDisplayName = "Hue")]
+    [InlineData(13, TestDisplayName = "Player")]
     public void Events_Keyframes_AreIdentical(int index)
     {
         var expected = fixture.Expected["events"]![index];

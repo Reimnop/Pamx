@@ -36,7 +36,38 @@ internal sealed class BeatmapEventsConverter : JsonConverter<BeatmapEvents>
                     events.Theme = JsonSerializer.Deserialize<List<FixedKeyframe<string>>>(ref reader, options) ?? [];
                     break;
                 case 5:
-                    events.Chroma = JsonSerializer.Deserialize<List<FixedKeyframe<float>>>(ref reader, options) ?? [];
+                    events.Chromatic =
+                        JsonSerializer.Deserialize<List<FixedKeyframe<float>>>(ref reader, options) ?? [];
+                    break;
+                case 6:
+                    events.Bloom =
+                        JsonSerializer.Deserialize<List<FixedKeyframe<BloomValue>>>(ref reader, options) ?? [];
+                    break;
+                case 7:
+                    events.Vignette =
+                        JsonSerializer.Deserialize<List<FixedKeyframe<VignetteValue>>>(ref reader, options) ?? [];
+                    break;
+                case 8:
+                    events.LensDistortion =
+                        JsonSerializer.Deserialize<List<FixedKeyframe<LensDistortionValue>>>(ref reader, options) ?? [];
+                    break;
+                case 9:
+                    events.Grain =
+                        JsonSerializer.Deserialize<List<FixedKeyframe<GrainValue>>>(ref reader, options) ?? [];
+                    break;
+                case 10:
+                    events.Gradient =
+                        JsonSerializer.Deserialize<List<FixedKeyframe<GradientValue>>>(ref reader, options) ?? [];
+                    break;
+                case 11:
+                    events.Glitch =
+                        JsonSerializer.Deserialize<List<FixedKeyframe<GlitchValue>>>(ref reader, options) ?? [];
+                    break;
+                case 12:
+                    events.Hue = JsonSerializer.Deserialize<List<FixedKeyframe<float>>>(ref reader, options) ?? [];
+                    break;
+                case 13:
+                    events.Player = JsonSerializer.Deserialize<List<FixedKeyframe<Vector2>>>(ref reader, options) ?? [];
                     break;
                 default:
                     reader.Skip();
@@ -58,7 +89,15 @@ internal sealed class BeatmapEventsConverter : JsonConverter<BeatmapEvents>
         JsonSerializer.Serialize(writer, value.Rotate, options);
         JsonSerializer.Serialize(writer, value.Shake, options);
         JsonSerializer.Serialize(writer, value.Theme, options);
-        JsonSerializer.Serialize(writer, value.Chroma, options);
+        JsonSerializer.Serialize(writer, value.Chromatic, options);
+        JsonSerializer.Serialize(writer, value.Bloom, options);
+        JsonSerializer.Serialize(writer, value.Vignette, options);
+        JsonSerializer.Serialize(writer, value.LensDistortion, options);
+        JsonSerializer.Serialize(writer, value.Grain, options);
+        JsonSerializer.Serialize(writer, value.Gradient, options);
+        JsonSerializer.Serialize(writer, value.Glitch, options);
+        JsonSerializer.Serialize(writer, value.Hue, options);
+        JsonSerializer.Serialize(writer, value.Player, options);
 
         writer.WriteEndArray();
     }
