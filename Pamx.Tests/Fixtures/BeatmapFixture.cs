@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
+using Pamx.Neo;
 using Pamx.Neo.Serialization;
 using Pamx.Vg;
 
@@ -17,7 +18,7 @@ public sealed class BeatmapFixture
         var expectedBeatmap = VgDeserialization.DeserializeBeatmap((JsonObject)JsonNode.Parse(original)!);
         Expected = VgSerialization.SerializeBeatmap(expectedBeatmap);
 
-        var actualBeatmap = JsonSerializer.Deserialize(original, JsonContext.Default.Beatmap)!;
-        Actual = (JsonObject)JsonSerializer.SerializeToNode(actualBeatmap, JsonContext.Default.Beatmap)!;
+        var actualBeatmap = JsonSerializer.Deserialize<Beatmap>(original, JsonContext.CustomOptions)!;
+        Actual = (JsonObject)JsonSerializer.SerializeToNode(actualBeatmap, JsonContext.CustomOptions)!;
     }
 }
