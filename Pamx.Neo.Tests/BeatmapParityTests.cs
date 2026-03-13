@@ -40,4 +40,13 @@ public sealed class BeatmapParityTests(BeatmapFixture fixture)
 
         actual.Should().BeIdenticalTo(expected);
     }
+
+    [Fact]
+    public void Objects_AreIdentical()
+    {
+        var expected = fixture.Expected["objects"];
+        var actual = fixture.Actual["objects"];
+
+        actual.Should().BeIdenticalTo(expected);
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using Pamx.Neo.Editor;
 using Pamx.Neo.Events;
+using Pamx.Neo.Objects;
 using Pamx.Neo.Themes;
 
 namespace Pamx.Neo;
@@ -12,20 +13,25 @@ public sealed class Beatmap
     /// <summary>
     /// The beatmap's checkpoints.
     /// </summary>
-    public required List<Checkpoint> Checkpoints { get; set; }
-    
+    public List<Checkpoint> Checkpoints { get; set; } = [new()];
+
     /// <summary>
     /// The beatmap's internal themes.
     /// </summary>
-    public required List<BeatmapTheme> Themes { get; set; }
+    public List<BeatmapTheme> Themes { get; set; } = [];
 
     /// <summary>
     /// The beatmap's timeline markers.
     /// </summary>
-    public required List<Marker> Markers { get; set; }
-    
+    public List<Marker> Markers { get; set; } = [];
+
+    /// <summary>
+    /// The beatmap's objects.
+    /// </summary>
+    public List<BeatmapObject> Objects { get; set; } = []; // TODO
+
     /// <summary>
     /// The beatmap's event keyframes.
     /// </summary>
-    public required BeatmapEvents Events { get; set; }
+    public BeatmapEvents Events { get; set; } = new();
 }
