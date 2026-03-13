@@ -447,7 +447,7 @@ public static class VgSerialization
         var json = new JsonObject();
         json.AddId("id", theme, requiresId);
         if (!string.IsNullOrEmpty(theme.Name))
-            json.Add("n", theme.Name);
+            json.Add("name", theme.Name);
         json.Add("pla", new JsonArray(
             theme.Player
                 .Select(x => (JsonNode) x.ToHex())

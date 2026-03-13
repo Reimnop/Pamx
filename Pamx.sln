@@ -20,6 +20,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pamx.Neo", "Pamx.Neo\Pamx.Neo.csproj", "{C710238E-28C6-4A2C-9B8E-DF6B8E7528E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pamx.Tests", "Pamx.Tests\Pamx.Tests.csproj", "{72617F92-6C19-4315-9757-D09DDE63382F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,5 +54,13 @@ Global
 		{8BCAA2A4-716F-4302-AB29-B32D4B7F0937}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BCAA2A4-716F-4302-AB29-B32D4B7F0937}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BCAA2A4-716F-4302-AB29-B32D4B7F0937}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C710238E-28C6-4A2C-9B8E-DF6B8E7528E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C710238E-28C6-4A2C-9B8E-DF6B8E7528E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C710238E-28C6-4A2C-9B8E-DF6B8E7528E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C710238E-28C6-4A2C-9B8E-DF6B8E7528E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72617F92-6C19-4315-9757-D09DDE63382F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72617F92-6C19-4315-9757-D09DDE63382F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72617F92-6C19-4315-9757-D09DDE63382F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72617F92-6C19-4315-9757-D09DDE63382F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
