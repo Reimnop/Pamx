@@ -3,6 +3,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using System.Text.Unicode;
+using Pamx.Neo.Serialization.Converters.Events;
+using Pamx.Neo.Serialization.Converters.Keyframes;
 using Pamx.Neo.Serialization.Converters.Primitives;
 
 namespace Pamx.Neo.Serialization;
@@ -13,7 +15,14 @@ namespace Pamx.Neo.Serialization;
     Converters =
     [
         typeof(Vector2Converter),
-        typeof(ColorConverter)
+        typeof(ColorConverter),
+        typeof(EaseConverter),
+        
+        typeof(FixedFloatKeyframeConverter),
+        typeof(FixedStringKeyframeConverter),
+        typeof(FixedVector2KeyframeConverter),
+        
+        typeof(BeatmapEventsConverter)
     ]
 )]
 [JsonSerializable(typeof(Beatmap))]

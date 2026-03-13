@@ -6,30 +6,30 @@ namespace Pamx.Tests;
 [Collection("Beatmap")]
 public sealed class BeatmapParityTests(BeatmapFixture fixture)
 {
-    [Fact]
-    public void Checkpoints_AreIdentical()
+    [Theory]
+    [InlineData("checkpoints", TestDisplayName = "Checkpoints")]
+    [InlineData("themes", TestDisplayName = "Themes")]
+    [InlineData("markers", TestDisplayName = "Markers")]
+    public void Beatmap_Collections_AreIdentical(string key)
     {
-        var expectedCheckpoints = fixture.Expected["checkpoints"];
-        var actualCheckpoints = fixture.Actual["checkpoints"];
+        var expected = fixture.Expected[key];
+        var actual = fixture.Actual[key];
 
-        actualCheckpoints.Should().BeIdenticalTo(expectedCheckpoints);
+        actual.Should().BeIdenticalTo(expected);
     }
     
-    [Fact]
-    public void Themes_AreIdentical()
+    [Theory]
+    [InlineData(0, TestDisplayName = "Move")]
+    [InlineData(1, TestDisplayName = "Zoom")]
+    [InlineData(2, TestDisplayName = "Rotate")]
+    [InlineData(3, TestDisplayName = "Shake")]
+    [InlineData(4, TestDisplayName = "Theme")]
+    [InlineData(5, TestDisplayName = "Chroma")]
+    public void Events_Keyframes_AreIdentical(int index)
     {
-        var expectedThemes = fixture.Expected["themes"];
-        var actualThemes = fixture.Actual["themes"];
+        var expected = fixture.Expected["events"]![index];
+        var actual = fixture.Actual["events"]![index];
 
-        actualThemes.Should().BeIdenticalTo(expectedThemes);
-    }
-    
-    [Fact]
-    public void Markers_AreIdentical()
-    {
-        var expectedMarkers = fixture.Expected["markers"];
-        var actualMarkers = fixture.Actual["markers"];
-
-        actualMarkers.Should().BeIdenticalTo(expectedMarkers);
+        actual.Should().BeIdenticalTo(expected);
     }
 }

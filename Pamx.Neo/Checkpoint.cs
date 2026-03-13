@@ -12,7 +12,7 @@ public sealed class Checkpoint : IIdentifiable<string>
     /// The checkpoint's ID.
     /// </summary>
     [JsonPropertyName("ID")]
-    public required string Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     /// <summary>
     /// The checkpoint's name.

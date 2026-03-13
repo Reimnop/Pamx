@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Pamx.Neo.Serialization.Converters.Primitives;
 
-public sealed class ColorConverter : JsonConverter<Color>
+internal sealed class ColorConverter : JsonConverter<Color>
 {
     public override Color Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

@@ -1,4 +1,5 @@
 ﻿using Pamx.Neo.Editor;
+using Pamx.Neo.Events;
 using Pamx.Neo.Themes;
 
 namespace Pamx.Neo;
@@ -22,4 +23,9 @@ public sealed class Beatmap
     /// The beatmap's timeline markers.
     /// </summary>
     public required List<Marker> Markers { get; set; }
+    
+    /// <summary>
+    /// The beatmap's event keyframes.
+    /// </summary>
+    public required BeatmapEvents Events { get; set; }
 }
