@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Text.Json;
+using Pamx.Neo.Editor;
 using Pamx.Neo.Objects;
 
 namespace Pamx.Neo.Serialization.Converters.Objects;
@@ -12,7 +13,7 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
     private static readonly JsonEncodedText ParentIdProperty = JsonEncodedText.Encode("p_id");
     private static readonly JsonEncodedText AutoKillTypeProperty = JsonEncodedText.Encode("ak_t");
     private static readonly JsonEncodedText AutoKillOffsetProperty = JsonEncodedText.Encode("ak_o");
-    private static readonly JsonEncodedText ObjectTypeProperty = JsonEncodedText.Encode("o");
+    private static readonly JsonEncodedText ObjectTypeProperty = JsonEncodedText.Encode("ot");
     private static readonly JsonEncodedText NameProperty = JsonEncodedText.Encode("n");
     private static readonly JsonEncodedText TextProperty = JsonEncodedText.Encode("text");
     private static readonly JsonEncodedText OriginProperty = JsonEncodedText.Encode("o");
@@ -26,15 +27,16 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
     private static readonly JsonEncodedText ParentOffsetProperty = JsonEncodedText.Encode("p_o");
     private static readonly JsonEncodedText RenderDepthProperty = JsonEncodedText.Encode("d");
     private static readonly JsonEncodedText StartTimeProperty = JsonEncodedText.Encode("st");
+    private static readonly JsonEncodedText EditorSettingsProperty = JsonEncodedText.Encode("ed");
     private static readonly JsonEncodedText EventsProperty = JsonEncodedText.Encode("e");
-    
+
     private static ReadOnlySpan<byte> IdKey => "id"u8;
     private static ReadOnlySpan<byte> PrefabIdKey => "pre_id"u8;
     private static ReadOnlySpan<byte> PrefabInstanceIdKey => "pre_iid"u8;
     private static ReadOnlySpan<byte> ParentIdKey => "p_id"u8;
     private static ReadOnlySpan<byte> AutoKillTypeKey => "ak_t"u8;
     private static ReadOnlySpan<byte> AutoKillOffsetKey => "ak_o"u8;
-    private static ReadOnlySpan<byte> ObjectTypeKey => "o"u8;
+    private static ReadOnlySpan<byte> ObjectTypeKey => "ot"u8;
     private static ReadOnlySpan<byte> NameKey => "n"u8;
     private static ReadOnlySpan<byte> TextKey => "text"u8;
     private static ReadOnlySpan<byte> OriginKey => "o"u8;
@@ -48,6 +50,7 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
     private static ReadOnlySpan<byte> ParentOffsetKey => "p_o"u8;
     private static ReadOnlySpan<byte> RenderDepthKey => "d"u8;
     private static ReadOnlySpan<byte> StartTimeKey => "st"u8;
+    private static ReadOnlySpan<byte> EditorSettingsKey => "ed"u8;
     private static ReadOnlySpan<byte> EventsKey => "e"u8;
 
     protected override BeatmapObject GetDefaultValue() => new();
@@ -188,15 +191,24 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
             value.RenderDepth = reader.GetSingle();
             return true;
         }
-        
+
         if (reader.ValueTextEquals(StartTimeKey))
         {
             reader.Read();
             value.StartTime = reader.GetSingle();
             return true;
         }
-        
-        // TODO: editor settings and events
+
+        if (reader.ValueTextEquals(EditorSettingsKey))
+        {
+            reader.Read();
+            var result = JsonSerializer.Deserialize<ObjectEditorSettings>(ref reader, options);
+            if (result is not null)
+                value.EditorSettings = result;
+            return true;
+        }
+
+        // TODO: events
 
         return false;
     }
@@ -208,16 +220,16 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
             writer.WriteString(PrefabIdProperty, value.PrefabId);
         if (!string.IsNullOrEmpty(value.PrefabInstanceId))
             writer.WriteString(PrefabInstanceIdProperty, value.PrefabInstanceId);
-        if (!string.IsNullOrEmpty(value.PrefabId))
-            writer.WriteString(PrefabIdProperty, value.PrefabId);
-        
+        if (!string.IsNullOrEmpty(value.ParentId))
+            writer.WriteString(ParentIdProperty, value.ParentId);
+
         if (value.AutoKillType != AutoKillType.NoAutoKill)
             writer.WriteNumber(AutoKillTypeProperty, (int)value.AutoKillType);
         if (value.AutoKillOffset != 0.0f)
             writer.WriteNumber(AutoKillOffsetProperty, value.AutoKillOffset);
         if (value.Type != ObjectType.LegacyNormal)
             writer.WriteNumber(ObjectTypeProperty, (int)value.Type);
-        
+
         if (!string.IsNullOrEmpty(value.Name))
             writer.WriteString(NameProperty, value.Name);
         if (!string.IsNullOrEmpty(value.Text))
@@ -227,7 +239,7 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
             writer.WritePropertyName(OriginProperty);
             JsonSerializer.Serialize(writer, value.Origin, options);
         }
-        
+
         value.Shape.ToSeparate(out var shape, out var shapeOption);
         if (shape != 0)
             writer.WriteNumber(ShapeProperty, shape);
@@ -238,7 +250,7 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
             writer.WritePropertyName(CustomShapeParamsProperty);
             JsonSerializer.Serialize(writer, value.CustomShapeParams, options);
         }
-        
+
         if (value.Gradient.Type != GradientType.None)
             writer.WriteNumber(GradientTypeProperty, (int)value.Gradient.Type);
         writer.WriteNumber(GradientRotationProperty, value.Gradient.Rotation);
@@ -249,14 +261,21 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
             writer.WritePropertyName(ParentTypeProperty);
             JsonSerializer.Serialize(writer, value.ParentType, options);
         }
+
         writer.WritePropertyName(ParentOffsetProperty);
         JsonSerializer.Serialize(writer, value.ParentOffset, options);
-        
+
         if (Math.Abs(value.RenderDepth - 20.0f) > float.Epsilon)
             writer.WriteNumber(RenderDepthProperty, value.RenderDepth);
         if (value.StartTime != 0.0f)
             writer.WriteNumber(StartTimeProperty, value.StartTime);
-        
-        // TODO: editor settings and events
+
+        if (!value.EditorSettings.IsDefault())
+        {
+            writer.WritePropertyName(EditorSettingsProperty);
+            JsonSerializer.Serialize(writer, value.EditorSettings, options);
+        }
+
+        // TODO: events
     }
 }

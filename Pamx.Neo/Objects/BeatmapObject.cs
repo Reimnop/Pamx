@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Pamx.Neo.Editor;
 using Pamx.Neo.Keyframes;
 
 namespace Pamx.Neo.Objects;
@@ -92,6 +93,11 @@ public sealed class BeatmapObject : IIdentifiable<string>
     /// The object's render depth.
     /// </summary>
     public float RenderDepth { get; set; } = 20.0f;
+
+    /// <summary>
+    /// The object's editor settings.
+    /// </summary>
+    public ObjectEditorSettings EditorSettings { get; set; } = new();
 
     /// <summary>
     /// The object's position keyframes.

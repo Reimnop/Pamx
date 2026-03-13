@@ -583,6 +583,8 @@ public static class VgSerialization
             json.Add("st", @object.StartTime);
         if (@object.EditorSettings != default)
             json.Add("ed", SerializeObjectEditorSettings(@object.EditorSettings));
+        // json.Add("ed", SerializeObjectEditorSettings(@object.EditorSettings));
+        return json;
         json.Add("e", new JsonArray
         {
             SerializeObjectEventsArray(
@@ -622,7 +624,7 @@ public static class VgSerialization
         if (value.Bin != 0)
             json["bin"] = value.Bin;
         if (value.Layer != 0)
-            json["layer"] = value.Layer;
+            json["l"] = value.Layer;
         return json;
     }
     

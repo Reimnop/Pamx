@@ -1,16 +1,11 @@
-namespace Pamx.Common.Enum;
+﻿namespace Pamx.Neo.Editor;
 
 /// <summary>
-/// The color of the object in the timeline
+/// The color of the beatmap object in the timeline.
 /// </summary>
 [Flags]
 public enum ObjectTimelineColor
 {
-    /// <summary>
-    /// No color
-    /// </summary>
-    None = 0,
-    
     /// <summary>
     /// Red
     /// </summary>
@@ -44,5 +39,10 @@ public enum ObjectTimelineColor
     /// <summary>
     /// White
     /// </summary>
-    White = Red | Green | Blue
+    White = Red | Green | Blue,
+    
+    /// <summary>
+    /// No color
+    /// </summary>
+    None = 0
 }

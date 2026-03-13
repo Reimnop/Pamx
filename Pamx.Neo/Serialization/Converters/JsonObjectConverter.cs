@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Pamx.Neo.Serialization.Converters;
 
-internal abstract class JsonObjectConverter<T> : JsonConverter<T>
+public abstract class JsonObjectConverter<T> : JsonConverter<T>
 {
     public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

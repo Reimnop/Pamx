@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
+using Pamx.Neo.Serialization.Converters.Editor;
 using Pamx.Neo.Serialization.Converters.Events;
 using Pamx.Neo.Serialization.Converters.Keyframes;
 using Pamx.Neo.Serialization.Converters.Objects;
@@ -27,6 +28,7 @@ namespace Pamx.Neo.Serialization;
         typeof(CustomShapeParamsConverter),
         typeof(ParentTypeConverter),
         typeof(ParentOffsetConverter),
+        typeof(ObjectTimelineColorConverter),
 
         typeof(BeatmapEventsConverter),
         typeof(FixedBloomKeyframeConverter),
