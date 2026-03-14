@@ -18,7 +18,7 @@ public abstract class JsonObjectConverter<T> : JsonConverter<T>
             if (reader.TokenType != JsonTokenType.PropertyName)
                 continue;
             if (!TryReadProperties(ref reader, ref value, options))
-                reader.Skip();
+                reader.TrySkip();
         }
         
         throw new JsonException("Expected EndObject token");

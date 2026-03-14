@@ -10,7 +10,8 @@ namespace Pamx.Neo.Benchmark;
 [MemoryDiagnoser]
 public class DeserializationBenchmarks
 {
-    private const string Path = @"E:\Project\Programming\pase\static\magnetar.vgd";
+    // private const string Path = @"E:\Project\Programming\pase\static\magnetar.vgd";
+    private const string Path = @"C:\Users\enchart\Downloads\pas\levels\pam4.vgd";
 
     [Benchmark(Baseline = true)]
     public IBeatmap Old()

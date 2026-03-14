@@ -1,6 +1,7 @@
 ﻿using Pamx.Neo.Editor;
 using Pamx.Neo.Events;
 using Pamx.Neo.Objects;
+using Pamx.Neo.Prefabs;
 using Pamx.Neo.Themes;
 
 namespace Pamx.Neo;
@@ -14,6 +15,16 @@ public sealed class Beatmap
     /// The beatmap's checkpoints.
     /// </summary>
     public List<Checkpoint> Checkpoints { get; set; } = [new()];
+
+    /// <summary>
+    /// The beatmap's prefab instance objects.
+    /// </summary>
+    public List<PrefabObject> PrefabObjects { get; set; } = [];
+    
+    /// <summary>
+    /// The beatmap's prefabs.
+    /// </summary>
+    public List<Prefab> Prefabs { get; set; } = [];
 
     /// <summary>
     /// The beatmap's internal themes.

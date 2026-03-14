@@ -344,8 +344,6 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
             
             reader.Read();
             result = JsonSerializer.Deserialize<List<T>>(ref reader, options) ?? [];
-            
-            reader.Skip();
         }
 
         throw new JsonException("Expected EndObject token");

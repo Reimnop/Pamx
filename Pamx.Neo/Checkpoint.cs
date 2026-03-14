@@ -30,5 +30,6 @@ public sealed class Checkpoint : IIdentifiable<string>
     /// The position of the player upon respawning at the checkpoint.
     /// </summary>
     [JsonPropertyName("p")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     public Vector2 Position { get; set; } = Vector2.Zero;
 }

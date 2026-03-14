@@ -15,10 +15,10 @@ public record struct GlitchValue()
     /// <summary>
     /// The speed of the glitch.
     /// </summary>
-    public float Speed { get; set; } = 0.88f;
+    public float Speed { get; set; } = 1.0f;
 
     /// <summary>
     /// The width of the glitch.
     /// </summary>
-    public float Width { get; set; } = 1.0f;
+    public float Width { get; set; } = 0.88f;
 }
