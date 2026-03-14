@@ -29,6 +29,9 @@ namespace Pamx.Neo.Serialization;
         typeof(ParentTypeConverter),
         typeof(ParentOffsetConverter),
         typeof(ObjectTimelineColorConverter),
+        typeof(RandomVector2KeyframeConverter),
+        typeof(ObjectRotationKeyframeConverter),
+        typeof(FixedObjectColorKeyframeConverter),
 
         typeof(BeatmapEventsConverter),
         typeof(FixedBloomKeyframeConverter),

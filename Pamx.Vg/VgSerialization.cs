@@ -584,7 +584,7 @@ public static class VgSerialization
         if (@object.EditorSettings != default)
             json.Add("ed", SerializeObjectEditorSettings(@object.EditorSettings));
         // json.Add("ed", SerializeObjectEditorSettings(@object.EditorSettings));
-        return json;
+        // return json;
         json.Add("e", new JsonArray
         {
             SerializeObjectEventsArray(

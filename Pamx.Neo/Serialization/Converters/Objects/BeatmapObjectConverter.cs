@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using System.Text.Json;
 using Pamx.Neo.Editor;
+using Pamx.Neo.Keyframes;
 using Pamx.Neo.Objects;
 
 namespace Pamx.Neo.Serialization.Converters.Objects;
@@ -29,6 +30,7 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
     private static readonly JsonEncodedText StartTimeProperty = JsonEncodedText.Encode("st");
     private static readonly JsonEncodedText EditorSettingsProperty = JsonEncodedText.Encode("ed");
     private static readonly JsonEncodedText EventsProperty = JsonEncodedText.Encode("e");
+    private static readonly JsonEncodedText EventKeyframesProperty = JsonEncodedText.Encode("k");
 
     private static ReadOnlySpan<byte> IdKey => "id"u8;
     private static ReadOnlySpan<byte> PrefabIdKey => "pre_id"u8;
@@ -52,6 +54,7 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
     private static ReadOnlySpan<byte> StartTimeKey => "st"u8;
     private static ReadOnlySpan<byte> EditorSettingsKey => "ed"u8;
     private static ReadOnlySpan<byte> EventsKey => "e"u8;
+    private static ReadOnlySpan<byte> EventKeyframesKey => "k"u8;
 
     protected override BeatmapObject GetDefaultValue() => new();
 
@@ -208,7 +211,38 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
             return true;
         }
 
-        // TODO: events
+        if (reader.ValueTextEquals(EventsKey))
+        {
+            reader.Read();
+
+            if (reader.TokenType != JsonTokenType.StartArray)
+                throw new JsonException("Expected StartArray token");
+
+            var i = 0;
+            while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+            {
+                switch (i)
+                {
+                    case 0:
+                        value.PositionEvents = ReadEvents<RandomKeyframe<Vector2>>(ref reader, options);
+                        break;
+                    case 1:
+                        value.ScaleEvents = ReadEvents<RandomKeyframe<Vector2>>(ref reader, options);
+                        break;
+                    case 2:
+                        value.RotationEvents = ReadEvents<ObjectRotationKeyframe>(ref reader, options);
+                        break;
+                    case 3:
+                        value.ColorEvents = ReadEvents<FixedKeyframe<ObjectColorValue>>(ref reader, options);
+                        break;
+                    default:
+                        reader.Skip();
+                        break;
+                }
+
+                i++;
+            }
+        }
 
         return false;
     }
@@ -216,10 +250,13 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
     protected override void WriteProperties(Utf8JsonWriter writer, BeatmapObject value, JsonSerializerOptions options)
     {
         writer.WriteString(IdProperty, value.Id);
-        if (!string.IsNullOrEmpty(value.PrefabId))
-            writer.WriteString(PrefabIdProperty, value.PrefabId);
-        if (!string.IsNullOrEmpty(value.PrefabInstanceId))
-            writer.WriteString(PrefabInstanceIdProperty, value.PrefabInstanceId);
+        
+        // TODO: write
+        // if (!string.IsNullOrEmpty(value.PrefabId))
+        //     writer.WriteString(PrefabIdProperty, value.PrefabId);
+        // if (!string.IsNullOrEmpty(value.PrefabInstanceId))
+        //     writer.WriteString(PrefabInstanceIdProperty, value.PrefabInstanceId);
+        
         if (!string.IsNullOrEmpty(value.ParentId))
             writer.WriteString(ParentIdProperty, value.ParentId);
 
@@ -276,6 +313,50 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
             JsonSerializer.Serialize(writer, value.EditorSettings, options);
         }
 
-        // TODO: events
+        writer.WritePropertyName(EventsProperty);
+        writer.WriteStartArray();
+        WriteEvents(writer, value.PositionEvents, options);
+        WriteEvents(writer, value.ScaleEvents, options);
+        WriteEvents(writer, value.RotationEvents, options);
+        WriteEvents(writer, value.ColorEvents, options);
+        writer.WriteEndArray();
+    }
+
+    private static List<T> ReadEvents<T>(ref Utf8JsonReader reader, JsonSerializerOptions options) where T : Keyframe
+    {
+        if (reader.TokenType != JsonTokenType.StartObject)
+            throw new JsonException("Expected StartObject token");
+
+        var result = new List<T>();
+
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonTokenType.EndObject)
+                return result;
+            if (reader.TokenType != JsonTokenType.PropertyName)
+                continue;
+
+            if (!reader.ValueTextEquals(EventKeyframesKey))
+            {
+                reader.Skip();
+                continue;
+            }
+            
+            reader.Read();
+            result = JsonSerializer.Deserialize<List<T>>(ref reader, options) ?? [];
+            
+            reader.Skip();
+        }
+
+        throw new JsonException("Expected EndObject token");
+    }
+
+    private static void WriteEvents<T>(Utf8JsonWriter writer, List<T> keyframes, JsonSerializerOptions options)
+        where T : Keyframe
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName(EventKeyframesProperty);
+        JsonSerializer.Serialize(writer, keyframes, options);
+        writer.WriteEndObject();
     }
 }

@@ -11,7 +11,7 @@ public class ObjectRotationKeyframe(float value, float time = 0.0f, Ease ease = 
     : RandomKeyframe<float>(value, time, ease)
 {
     /// <summary>
-    /// Whether the value is relative to the previous keyframe's value or not.
+    /// Whether the value is absolute or relative to the previous keyframe's value.
     /// </summary>
-    public bool IsRelative { get; set; } = false;
+    public bool IsAbsolute { get; set; } = false;
 }

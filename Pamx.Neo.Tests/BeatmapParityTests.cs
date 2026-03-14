@@ -4,7 +4,7 @@ using Pamx.Tests.Fixtures;
 namespace Pamx.Tests;
 
 [Collection("Beatmap")]
-public sealed class BeatmapParityTests(BeatmapFixture fixture)
+public sealed class BeatmapParityTests(BeatmapFixture fixture, ITestOutputHelper output)
 {
     [Theory]
     [InlineData("checkpoints", TestDisplayName = "Checkpoints")]
