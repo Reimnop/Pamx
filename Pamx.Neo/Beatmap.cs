@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Pamx.Neo.Editor;
 using Pamx.Neo.Events;
+using Pamx.Neo.Legacy;
 using Pamx.Neo.Objects;
 using Pamx.Neo.Parallax;
 using Pamx.Neo.Prefabs;
