@@ -2,6 +2,7 @@
 using Pamx.Neo.Editor;
 using Pamx.Neo.Events;
 using Pamx.Neo.Objects;
+using Pamx.Neo.Prefabs;
 using Pamx.Neo.Themes;
 
 namespace Pamx.Neo.Serialization.Legacy.Converters;
@@ -10,21 +11,24 @@ internal sealed class LegacyBeatmapConverter : ReadonlyJsonObjectConverter<Beatm
 {
     private static ReadOnlySpan<byte> EditorDataKey => "ed"u8;
     private static ReadOnlySpan<byte> MarkersKey => "markers"u8;
+    private static ReadOnlySpan<byte> PrefabObjectsKey => "prefab_objects"u8;
+    private static ReadOnlySpan<byte> PrefabsKey => "prefabs"u8;
     private static ReadOnlySpan<byte> ThemesKey => "themes"u8;
     private static ReadOnlySpan<byte> CheckpointsKey => "checkpoints"u8;
     private static ReadOnlySpan<byte> ObjectsKey => "beatmap_objects"u8;
     private static ReadOnlySpan<byte> EventsKey => "events"u8;
-    
+
     protected override Beatmap GetDefaultValue() => new();
 
-    protected override bool TryReadProperties(ref Utf8JsonReader reader, ref Beatmap value, JsonSerializerOptions options)
+    protected override bool TryReadProperties(ref Utf8JsonReader reader, ref Beatmap value,
+        JsonSerializerOptions options)
     {
         if (reader.ValueTextEquals(EditorDataKey))
         {
             reader.Read();
             if (reader.TokenType != JsonTokenType.StartObject)
                 throw new JsonException("Expected StartObject token");
-            
+
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {
                 if (reader.TokenType != JsonTokenType.PropertyName)
@@ -40,7 +44,25 @@ internal sealed class LegacyBeatmapConverter : ReadonlyJsonObjectConverter<Beatm
                 else
                     reader.TrySkip();
             }
-            
+
+            return true;
+        }
+
+        if (reader.ValueTextEquals(PrefabObjectsKey))
+        {
+            reader.Read();
+            var result = JsonSerializer.Deserialize<List<PrefabObject>>(ref reader, options);
+            if (result is not null)
+                value.PrefabObjects = result;
+            return true;
+        }
+
+        if (reader.ValueTextEquals(PrefabsKey))
+        {
+            reader.Read();
+            var result = JsonSerializer.Deserialize<List<Prefab>>(ref reader, options);
+            if (result is not null)
+                value.Prefabs = result;
             return true;
         }
 
@@ -61,7 +83,7 @@ internal sealed class LegacyBeatmapConverter : ReadonlyJsonObjectConverter<Beatm
                 value.Checkpoints = result;
             return true;
         }
-        
+
         if (reader.ValueTextEquals(ObjectsKey))
         {
             reader.Read();
@@ -70,7 +92,9 @@ internal sealed class LegacyBeatmapConverter : ReadonlyJsonObjectConverter<Beatm
                 value.Objects = result;
             return true;
         }
-        
+
+        // TODO: bg objects
+
         if (reader.ValueTextEquals(EventsKey))
         {
             reader.Read();

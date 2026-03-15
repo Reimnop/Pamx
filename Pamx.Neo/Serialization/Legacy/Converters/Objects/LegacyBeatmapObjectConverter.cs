@@ -10,6 +10,8 @@ namespace Pamx.Neo.Serialization.Legacy.Converters.Objects;
 internal sealed class LegacyBeatmapObjectConverter : ReadonlyJsonObjectConverter<BeatmapObject>
 {
     private static ReadOnlySpan<byte> IdKey => "id"u8;
+    private static ReadOnlySpan<byte> PrefabIdKey => "pid"u8;
+    private static ReadOnlySpan<byte> PrefabInstanceIdKey => "piid"u8;
     private static ReadOnlySpan<byte> ParentIdKey => "p"u8;
     private static ReadOnlySpan<byte> NameKey => "name"u8;
     private static ReadOnlySpan<byte> ParentTypeKey => "pt"u8;
@@ -42,6 +44,20 @@ internal sealed class LegacyBeatmapObjectConverter : ReadonlyJsonObjectConverter
         {
             reader.Read();
             value.Id = reader.GetString() ?? string.Empty;
+            return true;
+        }
+        
+        if (reader.ValueTextEquals(PrefabIdKey))
+        {
+            reader.Read();
+            value.PrefabId = reader.GetString() ?? string.Empty;
+            return true;
+        }
+        
+        if (reader.ValueTextEquals(PrefabInstanceIdKey))
+        {
+            reader.Read();
+            value.PrefabInstanceId = reader.GetString() ?? string.Empty;
             return true;
         }
 

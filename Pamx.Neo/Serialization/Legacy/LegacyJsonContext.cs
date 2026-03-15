@@ -8,6 +8,7 @@ using Pamx.Neo.Serialization.Legacy.Converters.Editor;
 using Pamx.Neo.Serialization.Legacy.Converters.Events;
 using Pamx.Neo.Serialization.Legacy.Converters.Keyframes;
 using Pamx.Neo.Serialization.Legacy.Converters.Objects;
+using Pamx.Neo.Serialization.Legacy.Converters.Prefabs;
 using Pamx.Neo.Serialization.Legacy.Converters.Themes;
 
 namespace Pamx.Neo.Serialization.Legacy;
@@ -28,8 +29,10 @@ namespace Pamx.Neo.Serialization.Legacy;
         typeof(LegacyBeatmapConverter),
 
         typeof(LegacyMarkerConverter),
-        typeof(LegacyCheckpointConverter),
+        typeof(LegacyPrefabObjectConverter),
+        typeof(LegacyPrefabConverter),
         typeof(LegacyThemeConverter),
+        typeof(LegacyCheckpointConverter),
 
         typeof(LegacyBeatmapObjectConverter),
         typeof(ParentTypeConverter),
@@ -39,6 +42,8 @@ namespace Pamx.Neo.Serialization.Legacy;
         typeof(LegacyObjectRotationKeyframeConverter),
         typeof(LegacyFixedObjectColorKeyframeConverter),
 
+        // TODO: bg objects
+        
         typeof(LegacyBeatmapEventsConverter),
         typeof(LegacyFixedBloomKeyframeConverter),
         typeof(LegacyFixedBloomKeyframeConverter),
