@@ -20,7 +20,7 @@ namespace Pamx.Neo.Serialization.Legacy;
         typeof(Vector2Converter),
         typeof(ColorConverter),
         typeof(EaseConverter),
-        
+
         typeof(LegacyFixedFloatKeyframeConverter),
         typeof(LegacyFixedStringKeyframeConverter),
         typeof(LegacyFixedVector2KeyframeConverter),
@@ -30,13 +30,14 @@ namespace Pamx.Neo.Serialization.Legacy;
         typeof(LegacyMarkerConverter),
         typeof(LegacyCheckpointConverter),
         typeof(LegacyThemeConverter),
-        
+
         typeof(LegacyBeatmapObjectConverter),
         typeof(ParentTypeConverter),
         typeof(ParentOffsetConverter),
         typeof(LegacyObjectEditorSettingsConverter),
         typeof(LegacyRandomVector2KeyframeConverter),
         typeof(LegacyObjectRotationKeyframeConverter),
+        typeof(LegacyFixedObjectColorKeyframeConverter),
 
         typeof(LegacyBeatmapEventsConverter),
         typeof(LegacyFixedBloomKeyframeConverter),

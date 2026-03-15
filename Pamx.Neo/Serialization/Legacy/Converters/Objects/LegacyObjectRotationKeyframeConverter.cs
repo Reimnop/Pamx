@@ -7,7 +7,7 @@ using Pamx.Neo.Serialization.Extensions;
 
 namespace Pamx.Neo.Serialization.Legacy.Converters.Objects;
 
-internal abstract class LegacyObjectRotationKeyframeConverter : JsonConverter<ObjectRotationKeyframe>
+internal sealed class LegacyObjectRotationKeyframeConverter : JsonConverter<ObjectRotationKeyframe>
 {
     private static ReadOnlySpan<byte> ValueKey => "x"u8;
     private static ReadOnlySpan<byte> RandomIntervalKey => "rz"u8;
