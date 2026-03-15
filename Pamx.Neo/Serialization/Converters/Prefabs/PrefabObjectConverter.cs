@@ -203,19 +203,17 @@ public sealed class PrefabObjectConverter : JsonObjectConverter<PrefabObject>
 
     private static void WriteEvent<T>(Utf8JsonWriter writer, T value)
     {
-        // TODO: optimize
-
         writer.WriteStartObject();
         writer.WritePropertyName(EventValuesKey);
         writer.WriteStartArray();
 
         switch (value)
         {
-            case Vector2 val:
+            case Vector2 val when val != Vector2.Zero:
                 writer.WriteNumberValue(val.X);
                 writer.WriteNumberValue(val.Y);
                 break;
-            case float val:
+            case float val when val != 0.0f:
                 writer.WriteNumberValue(val);
                 break;
         }

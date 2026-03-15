@@ -1,6 +1,8 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Numerics;
+using System.Text.Json.Serialization;
 using Pamx.Neo.Editor;
 using Pamx.Neo.Events;
+using Pamx.Neo.Keyframes;
 using Pamx.Neo.Legacy;
 using Pamx.Neo.Objects;
 using Pamx.Neo.Parallax;
@@ -24,7 +26,7 @@ public sealed class Beatmap
     /// The beatmap's prefab spawn settings.
     /// </summary>
     [JsonPropertyName("editor_prefab_spawn")]
-    public List<EditorPrefabSpawn> PrefabSpawns { get; set; } = [new(), new(), new(), new(), new(), new()];
+    public List<EditorPrefabSpawn> PrefabSpawns { get; set; } = [];
 
     /// <summary>
     /// The beatmap's parallax settings.
@@ -42,11 +44,11 @@ public sealed class Beatmap
     /// The beatmap's checkpoints.
     /// </summary>
     public List<Checkpoint> Checkpoints { get; set; } = [new()];
-    
+
     /// <summary>
     /// The beatmap's objects.
     /// </summary>
-    public List<BeatmapObject> Objects { get; set; } = []; // TODO
+    public List<BeatmapObject> Objects { get; set; } = [];
 
     /// <summary>
     /// The beatmap's prefab instance objects.
@@ -72,4 +74,28 @@ public sealed class Beatmap
     /// The beatmap's event keyframes.
     /// </summary>
     public BeatmapEvents Events { get; set; } = new();
+
+    public static Beatmap CreateDefault() =>
+        new()
+        {
+            PrefabSpawns = Enumerable.Range(0, 5).Select(_ => new EditorPrefabSpawn()).ToList(),
+            Objects = [new BeatmapObject { Name = "Default Object" }],
+            Events =
+            {
+                Move = [new FixedKeyframe<Vector2>(new Vector2(0.0f, 0.0f))],
+                Zoom = [new FixedKeyframe<float>(30.0f)],
+                Rotate = [new FixedKeyframe<float>(0.0f)],
+                Shake = [new FixedKeyframe<float>(0.0f)],
+                Theme = [new FixedKeyframe<string>("0")],
+                Chromatic = [new FixedKeyframe<float>(0.0f)],
+                Bloom = [new FixedKeyframe<BloomValue>(BloomValue.Zero)],
+                Vignette = [new FixedKeyframe<VignetteValue>(VignetteValue.Zero)],
+                LensDistortion = [new FixedKeyframe<LensDistortionValue>(LensDistortionValue.Zero)],
+                Grain = [new FixedKeyframe<GrainValue>(GrainValue.Zero)],
+                Gradient = [new FixedKeyframe<GradientValue>(GradientValue.Zero)],
+                Glitch = [new FixedKeyframe<GlitchValue>(GlitchValue.Zero)],
+                Hue = [new FixedKeyframe<float>(0.0f)],
+                Player = [new FixedKeyframe<Vector2>(Vector2.Zero)]
+            }
+        };
 }

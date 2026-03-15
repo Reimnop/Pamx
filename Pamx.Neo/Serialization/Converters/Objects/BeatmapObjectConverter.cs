@@ -251,11 +251,10 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
     {
         writer.WriteString(IdProperty, value.Id);
         
-        // TODO: write
-        // if (!string.IsNullOrEmpty(value.PrefabId))
-        //     writer.WriteString(PrefabIdProperty, value.PrefabId);
-        // if (!string.IsNullOrEmpty(value.PrefabInstanceId))
-        //     writer.WriteString(PrefabInstanceIdProperty, value.PrefabInstanceId);
+        if (!string.IsNullOrEmpty(value.PrefabId))
+            writer.WriteString(PrefabIdProperty, value.PrefabId);
+        if (!string.IsNullOrEmpty(value.PrefabInstanceId))
+            writer.WriteString(PrefabInstanceIdProperty, value.PrefabInstanceId);
         
         if (!string.IsNullOrEmpty(value.ParentId))
             writer.WriteString(ParentIdProperty, value.ParentId);
