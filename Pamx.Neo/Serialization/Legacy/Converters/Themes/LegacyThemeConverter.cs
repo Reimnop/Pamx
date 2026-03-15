@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 using System.Text.Json;
-using Pamx.Neo.Serialization.Legacy.Extensions;
+using Pamx.Neo.Serialization.Extensions;
 using Pamx.Neo.Themes;
 
 namespace Pamx.Neo.Serialization.Legacy.Converters.Themes;

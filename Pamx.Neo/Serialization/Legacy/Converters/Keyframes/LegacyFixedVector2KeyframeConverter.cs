@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using System.Text.Json;
 using Pamx.Neo.Keyframes;
-using Pamx.Neo.Serialization.Legacy.Extensions;
+using Pamx.Neo.Serialization.Extensions;
 
 namespace Pamx.Neo.Serialization.Legacy.Converters.Keyframes;
 

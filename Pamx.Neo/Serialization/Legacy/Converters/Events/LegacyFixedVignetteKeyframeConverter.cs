@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using Pamx.Neo.Events;
 using Pamx.Neo.Keyframes;
+using Pamx.Neo.Serialization.Extensions;
 using Pamx.Neo.Serialization.Legacy.Converters.Keyframes;
-using Pamx.Neo.Serialization.Legacy.Extensions;
 
 namespace Pamx.Neo.Serialization.Legacy.Converters.Events;
 

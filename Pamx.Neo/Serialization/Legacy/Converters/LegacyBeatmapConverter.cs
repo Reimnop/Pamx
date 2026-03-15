@@ -12,7 +12,7 @@ internal sealed class LegacyBeatmapConverter : ReadonlyJsonObjectConverter<Beatm
     private static ReadOnlySpan<byte> MarkersKey => "markers"u8;
     private static ReadOnlySpan<byte> ThemesKey => "themes"u8;
     private static ReadOnlySpan<byte> CheckpointsKey => "checkpoints"u8;
-    // private static ReadOnlySpan<byte> ObjectsKey => "beatmap_objects"u8;
+    private static ReadOnlySpan<byte> ObjectsKey => "beatmap_objects"u8;
     private static ReadOnlySpan<byte> EventsKey => "events"u8;
     
     protected override Beatmap GetDefaultValue() => new();
@@ -62,14 +62,14 @@ internal sealed class LegacyBeatmapConverter : ReadonlyJsonObjectConverter<Beatm
             return true;
         }
         
-        // if (reader.ValueTextEquals(ObjectsKey))
-        // {
-        //     reader.Read();
-        //     var result = JsonSerializer.Deserialize<List<BeatmapObject>>(ref reader, options);
-        //     if (result is not null)
-        //         value.Objects = result;
-        //     return true;
-        // }
+        if (reader.ValueTextEquals(ObjectsKey))
+        {
+            reader.Read();
+            var result = JsonSerializer.Deserialize<List<BeatmapObject>>(ref reader, options);
+            if (result is not null)
+                value.Objects = result;
+            return true;
+        }
         
         if (reader.ValueTextEquals(EventsKey))
         {

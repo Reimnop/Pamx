@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Text.Json;
+using Pamx.Neo.Serialization.Extensions;
 
 namespace Pamx.Neo.Serialization.Converters.Primitives;
 
@@ -18,14 +19,14 @@ internal sealed class Vector2Converter : JsonObjectConverter<Vector2>
         if (reader.ValueTextEquals(XKey))
         {
             reader.Read();
-            value.X = reader.GetSingle();
+            value.X = reader.GetSingleLike();
             return true;
         }
 
         if (reader.ValueTextEquals(YKey))
         {
             reader.Read();
-            value.Y = reader.GetSingle();
+            value.Y = reader.GetSingleLike();
             return true;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Pamx.Neo.Objects;
+using Pamx.Neo.Serialization.Extensions;
 
 namespace Pamx.Neo.Serialization.Converters.Objects;
 
@@ -19,13 +20,13 @@ internal sealed class ParentOffsetConverter : JsonConverter<ParentOffset>
             switch (i)
             {
                 case 0:
-                    position = reader.GetSingle();
+                    position = reader.GetSingleLike();
                     break;
                 case 1:
-                    scale = reader.GetSingle();
+                    scale = reader.GetSingleLike();
                     break;
                 case 2:
-                    rotation = reader.GetSingle();
+                    rotation = reader.GetSingleLike();
                     break;
                 default:
                     reader.Skip();

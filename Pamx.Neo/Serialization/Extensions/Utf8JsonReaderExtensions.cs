@@ -2,7 +2,7 @@
 using System.Buffers.Text;
 using System.Text.Json;
 
-namespace Pamx.Neo.Serialization.Legacy.Extensions;
+namespace Pamx.Neo.Serialization.Extensions;
 
 public static class Utf8JsonReaderExtensions
 {
@@ -51,13 +51,49 @@ public static class Utf8JsonReaderExtensions
             reader.TokenType switch
             {
                 JsonTokenType.String => reader.GetString(),
-                JsonTokenType.Number => System.Text.Encoding.UTF8.GetString(reader.HasValueSequence 
-                    ? reader.ValueSequence.ToArray() 
+                JsonTokenType.Number => System.Text.Encoding.UTF8.GetString(reader.HasValueSequence
+                    ? reader.ValueSequence.ToArray()
                     : reader.ValueSpan),
                 JsonTokenType.True => "true",
                 JsonTokenType.False => "false",
                 JsonTokenType.Null => null,
                 _ => throw new JsonException($"Cannot read token type {reader.TokenType} as string.")
             };
+
+        public bool GetBooleanLike()
+        {
+            switch (reader.TokenType)
+            {
+                case JsonTokenType.True:
+                    return true;
+                case JsonTokenType.False:
+                    return false;
+                case JsonTokenType.Number:
+                    return reader.GetSingle() != 0f;
+                case JsonTokenType.String when reader.ValueTextEquals("True"u8) || reader.ValueTextEquals("true"u8) ||
+                                               reader.ValueTextEquals("1"u8):
+                    return true;
+                case JsonTokenType.String when reader.ValueTextEquals("False"u8) || reader.ValueTextEquals("false"u8) ||
+                                               reader.ValueTextEquals("0"u8):
+                    return false;
+                case JsonTokenType.String when Utf8Parser.TryParse(reader.ValueSpan, out float result, out _):
+                    return result != 0f;
+                case JsonTokenType.String:
+                {
+                    if (reader.HasValueSequence || reader.ValueIsEscaped)
+                    {
+                        var text = reader.GetString();
+                        if (bool.TryParse(text, out var b))
+                            return b;
+                        if (float.TryParse(text, out var f))
+                            return f != 0f;
+                    }
+
+                    break;
+                }
+            }
+
+            return false;
+        }
     }
 }

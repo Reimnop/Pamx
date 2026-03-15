@@ -1,12 +1,13 @@
 ﻿using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Pamx.Neo.Serialization.Converters.Objects;
 using Pamx.Neo.Serialization.Converters.Primitives;
 using Pamx.Neo.Serialization.Legacy.Converters;
 using Pamx.Neo.Serialization.Legacy.Converters.Editor;
 using Pamx.Neo.Serialization.Legacy.Converters.Events;
 using Pamx.Neo.Serialization.Legacy.Converters.Keyframes;
-using Pamx.Neo.Serialization.Legacy.Converters.Primitives;
+using Pamx.Neo.Serialization.Legacy.Converters.Objects;
 using Pamx.Neo.Serialization.Legacy.Converters.Themes;
 
 namespace Pamx.Neo.Serialization.Legacy;
@@ -16,7 +17,7 @@ namespace Pamx.Neo.Serialization.Legacy;
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
     Converters =
     [
-        typeof(LegacyVector2Converter),
+        typeof(Vector2Converter),
         typeof(ColorConverter),
         typeof(EaseConverter),
         
@@ -29,6 +30,13 @@ namespace Pamx.Neo.Serialization.Legacy;
         typeof(LegacyMarkerConverter),
         typeof(LegacyCheckpointConverter),
         typeof(LegacyThemeConverter),
+        
+        typeof(LegacyBeatmapObjectConverter),
+        typeof(ParentTypeConverter),
+        typeof(ParentOffsetConverter),
+        typeof(LegacyObjectEditorSettingsConverter),
+        typeof(LegacyRandomVector2KeyframeConverter),
+        typeof(LegacyObjectRotationKeyframeConverter),
 
         typeof(LegacyBeatmapEventsConverter),
         typeof(LegacyFixedBloomKeyframeConverter),
