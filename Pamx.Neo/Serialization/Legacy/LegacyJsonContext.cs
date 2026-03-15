@@ -42,8 +42,8 @@ namespace Pamx.Neo.Serialization.Legacy;
         typeof(LegacyObjectRotationKeyframeConverter),
         typeof(LegacyFixedObjectColorKeyframeConverter),
 
-        // TODO: bg objects
-        
+        typeof(LegacyBackgroundObjectConverter),
+
         typeof(LegacyBeatmapEventsConverter),
         typeof(LegacyFixedBloomKeyframeConverter),
         typeof(LegacyFixedBloomKeyframeConverter),
@@ -58,7 +58,6 @@ public partial class LegacyJsonContext : JsonSerializerContext
 
     public static JsonSerializerOptions CustomOptions => _customOptions ??= new JsonSerializerOptions(Default.Options)
     {
-        // TypeInfoResolver = Default.WithAddedModifier(IgnoreEmptyStrings),
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 }

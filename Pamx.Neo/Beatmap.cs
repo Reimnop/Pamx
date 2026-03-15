@@ -32,6 +32,12 @@ public sealed class Beatmap
     public ParallaxSettings Parallax { get; set; } = new();
 
     /// <summary>
+    /// The beatmap's background objects. (Legacy data, not used in modern versions of PA.)
+    /// </summary>
+    [JsonIgnore]
+    public List<BackgroundObject> BackgroundObjects { get; set; } = [];
+
+    /// <summary>
     /// The beatmap's checkpoints.
     /// </summary>
     public List<Checkpoint> Checkpoints { get; set; } = [new()];
