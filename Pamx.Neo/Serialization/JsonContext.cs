@@ -52,8 +52,8 @@ namespace Pamx.Neo.Serialization;
     ]
 )]
 [JsonSerializable(typeof(Beatmap))]
-[JsonSerializable(typeof(Prefab))]
 [JsonSerializable(typeof(ExternalTheme))]
+[JsonSerializable(typeof(Prefab))]
 public partial class JsonContext : JsonSerializerContext
 {
     private static JsonSerializerOptions? _customOptions;

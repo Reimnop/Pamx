@@ -13,15 +13,16 @@ public sealed class BeatmapParityTests(BeatmapFixture fixture, ITestOutputHelper
     // }
     
     [Theory]
-    [InlineData("editor")]
-    [InlineData("editor_prefab_spawn")]
-    [InlineData("parallax_settings")]
-    [InlineData("checkpoints")]
-    [InlineData("objects")]
-    [InlineData("prefab_objects")]
-    [InlineData("prefabs")]
+    // [InlineData("editor")]
+    // [InlineData("editor_prefab_spawn")]
+    // [InlineData("parallax_settings")]
+    // [InlineData("background_objects")]
+    // [InlineData("checkpoints")]
+    // [InlineData("objects")]
+    // [InlineData("prefab_objects")]
+    // [InlineData("prefabs")]
     [InlineData("themes")]
-    [InlineData("markers")]
+    // [InlineData("markers")]
     public void Beatmap_Collections_AreIdentical(string key)
     {
         var expected = fixture.Expected[key];

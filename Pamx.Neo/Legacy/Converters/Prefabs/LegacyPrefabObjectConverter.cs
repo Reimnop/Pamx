@@ -69,14 +69,12 @@ internal sealed class LegacyPrefabObjectConverter : ReadonlyJsonObjectConverter<
                     reader.Read();
                     value.Position = JsonSerializer.Deserialize<Vector2>(ref reader, options);
                 }
-
-                if (reader.ValueTextEquals(ScaleKey))
+                else if (reader.ValueTextEquals(ScaleKey))
                 {
                     reader.Read();
                     value.Scale = JsonSerializer.Deserialize<Vector2>(ref reader, options);
                 }
-
-                if (reader.ValueTextEquals(RotationKey))
+                else if (reader.ValueTextEquals(RotationKey))
                 {
                     reader.Read();
                     if (reader.TokenType != JsonTokenType.StartObject)

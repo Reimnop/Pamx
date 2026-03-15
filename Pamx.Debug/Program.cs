@@ -1,18 +1,21 @@
 ﻿using System.Text.Json;
 using Pamx.Neo;
+using Pamx.Neo.Legacy;
 using Pamx.Neo.Serialization;
 
 // const string readPath = @"E:\Project\Programming\pase\static\magnetar.vgd";
+const string readPath = @"E:\Project\Programming\pase\static\feral.lsb";
 // const string writePath = @"E:\Project\Programming\pase\static\magnetar.pamx.vgd";
-const string readPath = @"C:\Users\enchart\Downloads\pas\levels\pam4.vgd";
-const string writePath = @"C:\Users\enchart\Downloads\pas\levels\pam4.pamx.vgd";
+// const string readPath = @"C:\Users\enchart\Downloads\pas\levels\pam4.vgd";
+// const string writePath = @"C:\Users\enchart\Downloads\pas\levels\pam4.pamx.vgd";
 
 await using var readStream = File.OpenRead(readPath);
-var beatmap = await JsonSerializer.DeserializeAsync<Beatmap>(readStream, JsonContext.CustomOptions);
+var beatmap = JsonSerializer.Deserialize<Beatmap>(readStream, LegacyJsonContext.CustomOptions);
+Console.WriteLine(beatmap);
 
-File.Delete(writePath);
-await using var writeStream = File.OpenWrite(writePath);
-await JsonSerializer.SerializeAsync(writeStream, beatmap, JsonContext.CustomOptions);
+// File.Delete(writePath);
+// await using var writeStream = File.OpenWrite(writePath);
+// await JsonSerializer.SerializeAsync(writeStream, beatmap, JsonContext.CustomOptions);
 
 // using System.Text.Encodings.Web;
 // using System.Text.Json;

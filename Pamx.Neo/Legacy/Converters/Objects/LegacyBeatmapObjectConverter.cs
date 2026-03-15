@@ -200,22 +200,19 @@ internal sealed class LegacyBeatmapObjectConverter : ReadonlyJsonObjectConverter
                     value.PositionEvents =
                         JsonSerializer.Deserialize<List<RandomKeyframe<Vector2>>>(ref reader, options) ?? [];
                 }
-
-                if (reader.ValueTextEquals(ScaleEventsKey))
+                else if (reader.ValueTextEquals(ScaleEventsKey))
                 {
                     reader.Read();
                     value.ScaleEvents =
                         JsonSerializer.Deserialize<List<RandomKeyframe<Vector2>>>(ref reader, options) ?? [];
                 }
-
-                if (reader.ValueTextEquals(RotationEventsKey))
+                else if (reader.ValueTextEquals(RotationEventsKey))
                 {
                     reader.Read();
                     value.RotationEvents =
                         JsonSerializer.Deserialize<List<ObjectRotationKeyframe>>(ref reader, options) ?? [];
                 }
-
-                if (reader.ValueTextEquals(ColorEventsKey))
+                else if (reader.ValueTextEquals(ColorEventsKey))
                 {
                     reader.Read();
                     value.ColorEvents =

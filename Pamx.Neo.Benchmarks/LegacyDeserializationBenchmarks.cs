@@ -2,28 +2,28 @@
 using System.Text.Json.Nodes;
 using BenchmarkDotNet.Attributes;
 using Pamx.Common;
-using Pamx.Neo.Serialization;
-using Pamx.Vg;
+using Pamx.Ls;
+using Pamx.Neo.Legacy;
 
 namespace Pamx.Neo.Benchmark;
 
 [MemoryDiagnoser]
-public class DeserializationBenchmarks
+public class LegacyDeserializationBenchmarks
 {
-    private const string Path = @"C:\Users\enchart\Downloads\pas\levels\pam4.vgd";
+    private const string Path = @"E:\Project\Programming\pase\static\feral.lsb";
 
     [Benchmark(Baseline = true)]
-    public IBeatmap Old()
+    public IBeatmap LegacyOld()
     {
         var text = File.ReadAllText(Path);
         var json = (JsonObject)JsonNode.Parse(text)!;
-        return VgDeserialization.DeserializeBeatmap(json);
+        return LsDeserialization.DeserializeBeatmap(json);
     }
 
     [Benchmark]
-    public Beatmap New()
+    public Beatmap LegacyNew()
     {
         using var stream = File.OpenRead(Path);
-        return JsonSerializer.Deserialize<Beatmap>(stream, JsonContext.CustomOptions)!;
+        return JsonSerializer.Deserialize<Beatmap>(stream, LegacyJsonContext.CustomOptions)!;
     }
 }
