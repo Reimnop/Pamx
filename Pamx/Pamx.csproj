@@ -1,15 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Pamx.Common\Pamx.Common.csproj" />
-    <ProjectReference Include="..\Pamx.Ls\Pamx.Ls.csproj" />
-    <ProjectReference Include="..\Pamx.Vg\Pamx.Vg.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Serialization\Legacy\" />
+    </ItemGroup>
 
 </Project>
