@@ -1,6 +1,8 @@
-﻿using Pamx.Neo.Editor;
+﻿using System.Text.Json.Serialization;
+using Pamx.Neo.Editor;
 using Pamx.Neo.Events;
 using Pamx.Neo.Objects;
+using Pamx.Neo.Parallax;
 using Pamx.Neo.Prefabs;
 using Pamx.Neo.Themes;
 
@@ -12,6 +14,24 @@ namespace Pamx.Neo;
 public sealed class Beatmap
 {
     /// <summary>
+    /// The beatmap's editor settings.
+    /// </summary>
+    [JsonPropertyName("editor")]
+    public EditorSettings EditorSettings { get; set; } = new();
+
+    /// <summary>
+    /// The beatmap's prefab spawn settings.
+    /// </summary>
+    [JsonPropertyName("editor_prefab_spawn")]
+    public List<EditorPrefabSpawn> PrefabSpawns { get; set; } = [new(), new(), new(), new(), new(), new()];
+
+    /// <summary>
+    /// The beatmap's parallax settings.
+    /// </summary>
+    [JsonPropertyName("parallax_settings")]
+    public ParallaxSettings Parallax { get; set; } = new();
+
+    /// <summary>
     /// The beatmap's checkpoints.
     /// </summary>
     public List<Checkpoint> Checkpoints { get; set; } = [new()];
@@ -20,7 +40,7 @@ public sealed class Beatmap
     /// The beatmap's prefab instance objects.
     /// </summary>
     public List<PrefabObject> PrefabObjects { get; set; } = [];
-    
+
     /// <summary>
     /// The beatmap's prefabs.
     /// </summary>

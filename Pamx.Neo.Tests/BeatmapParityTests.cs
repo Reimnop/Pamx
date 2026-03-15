@@ -6,26 +6,29 @@ namespace Pamx.Tests;
 [Collection("Beatmap")]
 public sealed class BeatmapParityTests(BeatmapFixture fixture, ITestOutputHelper output)
 {
-    [Fact]
-    public void Beatmap_IsIdentical()
-    {
-        fixture.Actual.Should().BeIdenticalTo(fixture.Expected);
-    }
-    
-    // [Theory]
-    // // [InlineData("checkpoints")]
-    // [InlineData("objects")]
-    // // [InlineData("prefab_objects")]
-    // // [InlineData("prefabs")]
-    // [InlineData("themes")]
-    // // [InlineData("markers")]
-    // public void Beatmap_Collections_AreIdentical(string key)
+    // [Fact]
+    // public void Beatmap_IsIdentical()
     // {
-    //     var expected = fixture.Expected[key];
-    //     var actual = fixture.Actual[key];
-    //
-    //     actual.Should().BeIdenticalTo(expected);
+    //     fixture.Actual.Should().BeIdenticalTo(fixture.Expected);
     // }
+    
+    [Theory]
+    [InlineData("editor")]
+    [InlineData("editor_prefab_spawn")]
+    [InlineData("parallax_settings")]
+    [InlineData("checkpoints")]
+    [InlineData("objects")]
+    [InlineData("prefab_objects")]
+    [InlineData("prefabs")]
+    [InlineData("themes")]
+    [InlineData("markers")]
+    public void Beatmap_Collections_AreIdentical(string key)
+    {
+        var expected = fixture.Expected[key];
+        var actual = fixture.Actual[key];
+    
+        actual.Should().BeIdenticalTo(expected);
+    }
     
     // [Theory]
     // [InlineData(0, TestDisplayName = "Move")]

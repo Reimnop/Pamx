@@ -6,6 +6,7 @@ using Pamx.Neo.Serialization.Converters.Editor;
 using Pamx.Neo.Serialization.Converters.Events;
 using Pamx.Neo.Serialization.Converters.Keyframes;
 using Pamx.Neo.Serialization.Converters.Objects;
+using Pamx.Neo.Serialization.Converters.Parallax;
 using Pamx.Neo.Serialization.Converters.Prefabs;
 using Pamx.Neo.Serialization.Converters.Primitives;
 using Pamx.Neo.Themes;
@@ -24,6 +25,10 @@ namespace Pamx.Neo.Serialization;
         typeof(FixedFloatKeyframeConverter),
         typeof(FixedStringKeyframeConverter),
         typeof(FixedVector2KeyframeConverter),
+        
+        typeof(BpmSnapTypeConverter),
+        
+        typeof(ParallaxObjectConverter),
         
         typeof(PrefabObjectConverter),
         

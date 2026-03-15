@@ -326,9 +326,9 @@ public static class VgSerialization
         json.AddId("id", parallaxObject, true);
         json.Add("t", new JsonObject
         {
-            ["p"] = SerializeVector2(parallaxObject.Position),
-            ["s"] = SerializeVector2(parallaxObject.Scale),
-            ["r"] = parallaxObject.Rotation,
+            ["p"] = parallaxObject.Position == Vector2.Zero ? null : SerializeVector2(parallaxObject.Position),
+            ["s"] = parallaxObject.Scale == Vector2.Zero ? null : SerializeVector2(parallaxObject.Scale),
+            ["r"] = parallaxObject.Rotation == 0.0f ? null : parallaxObject.Rotation
         });
         var anJson = new JsonObject();
         var animation = parallaxObject.Animation;
@@ -347,8 +347,10 @@ public static class VgSerialization
             anJson.Add("ar", true);
             anJson.Add("r", animation.Rotation.Value);
         }
-        anJson.Add("l", animation.LoopLength);
-        anJson.Add("ld", animation.LoopDelay);
+        if (animation.LoopLength != 0.0f)
+            anJson.Add("l", animation.LoopLength);
+        if (animation.LoopDelay != 0.0f)
+            anJson.Add("ld", animation.LoopDelay);
         json.Add("an", anJson);
 
         var shape = (int) parallaxObject.Shape & 0xffff;
@@ -356,11 +358,12 @@ public static class VgSerialization
         
         json.Add("s", new JsonObject
         {
-            ["s"] = shape,
-            ["so"] = shapeOption,
-            ["t"] = parallaxObject.Text,
-            ["c"] = parallaxObject.Color,
+            ["s"] = shape == 0 ? null : shape,
+            ["so"] = shapeOption == 0 ? null : shapeOption,
+            ["t"] = string.IsNullOrEmpty(parallaxObject.Text) ? null : parallaxObject.Text,
         });
+        
+        json.Add("c", parallaxObject.Color == 0 ? null : parallaxObject.Color);
         return json;
     }
     
@@ -375,8 +378,8 @@ public static class VgSerialization
                     ["checkpoints"] = value.Bpm.Snap.HasFlag(BpmSnap.Checkpoints),
                 },
                 ["bpm_value"] = value.Bpm.Value,
-                ["bpm_offset"] = value.Bpm.Offset,
-                ["BPMValue"] = value.Bpm.Value, // ???
+                ["bpm_offset"] = value.Bpm.Offset != 0.0f ? value.Bpm.Offset : null,
+                // ["BPMValue"] = value.Bpm.Value, // ???
             },
             ["grid"] = new JsonObject
             {

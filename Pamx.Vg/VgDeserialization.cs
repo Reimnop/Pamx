@@ -436,7 +436,7 @@ public static class VgDeserialization
         var shapeEnum = (ObjectShape) ((shape & 0xffff) | shapeOption << 16);
         
         var text = (json["s"]?["t"]).GetOrDefault(string.Empty);
-        var color = (json["s"]?["c"]).GetOrDefault(0);
+        var color = (json["c"]).GetOrDefault(0);
         return new ParallaxObject(id)
         {
             Position = position,

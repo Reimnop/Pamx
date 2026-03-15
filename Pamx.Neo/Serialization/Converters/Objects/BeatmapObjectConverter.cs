@@ -65,7 +65,7 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
         if (reader.ValueTextEquals(IdKey))
         {
             reader.Read();
-            value.Id = reader.GetString() ?? throw new JsonException("Couldn't parse the object's ID");
+            value.Id = reader.GetString() ?? string.Empty;
             return true;
         }
 

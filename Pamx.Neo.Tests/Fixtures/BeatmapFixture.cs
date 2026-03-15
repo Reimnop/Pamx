@@ -13,8 +13,8 @@ public sealed class BeatmapFixture
 
     public BeatmapFixture()
     {
-        // var original = File.ReadAllText(@"E:\Project\Programming\pase\static\magnetar.vgd");
-        var original = File.ReadAllText(@"C:\Users\enchart\Downloads\pas\levels\pam4.vgd");
+        var original = File.ReadAllText(@"E:\Project\Programming\pase\static\magnetar.vgd");
+        // var original = File.ReadAllText(@"C:\Users\enchart\Downloads\pas\levels\pam4.vgd");
 
         var expectedBeatmap = VgDeserialization.DeserializeBeatmap((JsonObject)JsonNode.Parse(original)!);
         Expected = VgSerialization.SerializeBeatmap(expectedBeatmap);
