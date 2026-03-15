@@ -57,7 +57,7 @@ namespace Pamx.Legacy;
 [JsonSerializable(typeof(BeatmapTheme))]
 [JsonSerializable(typeof(Prefab))]
 [JsonSerializable(typeof(List<BackgroundObject>))]
-public partial class LegacyJsonContext : JsonSerializerContext
+internal partial class LegacyJsonContext : JsonSerializerContext
 {
     private static JsonSerializerOptions? _customOptions;
 

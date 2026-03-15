@@ -54,7 +54,7 @@ namespace Pamx.Serialization;
 [JsonSerializable(typeof(Beatmap))]
 [JsonSerializable(typeof(ExternalTheme))]
 [JsonSerializable(typeof(Prefab))]
-public partial class JsonContext : JsonSerializerContext
+internal partial class JsonContext : JsonSerializerContext
 {
     private static JsonSerializerOptions? _customOptions;
 
