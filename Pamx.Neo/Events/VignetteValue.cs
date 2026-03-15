@@ -25,12 +25,12 @@ public record struct VignetteValue()
     public int Color { get; set; } = 9;
 
     /// <summary>
-    /// Whether the vignette should be rounded.
+    /// Whether the vignette should be rounded or not.
     /// </summary>
     public bool IsRounded { get; set; } = false;
 
     /// <summary>
-    /// How much the vignette should be rounded
+    /// How much the vignette should be rounded. (Legacy data, not used in modern versions of PA.)
     /// </summary>
     public float Roundness { get; set; } = 0.0f;
 

@@ -23,7 +23,7 @@ public record struct GrainValue()
     public float Mix { get; set; } = 0.0f;
 
     /// <summary>
-    /// Whether the grain effect should be colored. (legacy option, not used in modern versions of PA)
+    /// Whether the grain effect should be colored. (Legacy data, not used in modern versions of PA.)
     /// </summary>
     public bool IsColored { get; set; } = false;
 }

@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
+using Pamx.Neo.Prefabs;
 using Pamx.Neo.Serialization.Converters.Editor;
 using Pamx.Neo.Serialization.Converters.Events;
 using Pamx.Neo.Serialization.Converters.Keyframes;
@@ -51,6 +52,7 @@ namespace Pamx.Neo.Serialization;
     ]
 )]
 [JsonSerializable(typeof(Beatmap))]
+[JsonSerializable(typeof(Prefab))]
 [JsonSerializable(typeof(ExternalTheme))]
 public partial class JsonContext : JsonSerializerContext
 {

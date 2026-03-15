@@ -8,5 +8,5 @@ public sealed class BeatmapTheme : ExternalTheme, IIdentifiable<string>
     /// <summary>
     /// The theme's ID
     /// </summary>
-    public required string Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 }
