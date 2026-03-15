@@ -3,7 +3,7 @@
 /// <summary>
 /// The value of the grain event keyframe.
 /// </summary>
-public struct GrainValue()
+public record struct GrainValue()
 {
     public static readonly GrainValue Zero = new();
 
@@ -23,7 +23,7 @@ public struct GrainValue()
     public float Mix { get; set; } = 0.0f;
 
     /// <summary>
-    /// Whether the grain effect should be colored.
+    /// Whether the grain effect should be colored. (legacy option, not used in modern versions of PA)
     /// </summary>
     public bool IsColored { get; set; } = false;
 }

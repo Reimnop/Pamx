@@ -35,6 +35,11 @@ public sealed class Beatmap
     /// The beatmap's checkpoints.
     /// </summary>
     public List<Checkpoint> Checkpoints { get; set; } = [new()];
+    
+    /// <summary>
+    /// The beatmap's objects.
+    /// </summary>
+    public List<BeatmapObject> Objects { get; set; } = []; // TODO
 
     /// <summary>
     /// The beatmap's prefab instance objects.
@@ -55,11 +60,6 @@ public sealed class Beatmap
     /// The beatmap's timeline markers.
     /// </summary>
     public List<Marker> Markers { get; set; } = [];
-
-    /// <summary>
-    /// The beatmap's objects.
-    /// </summary>
-    public List<BeatmapObject> Objects { get; set; } = []; // TODO
 
     /// <summary>
     /// The beatmap's event keyframes.
