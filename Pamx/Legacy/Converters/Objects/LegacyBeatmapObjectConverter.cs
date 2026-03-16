@@ -31,8 +31,8 @@ internal sealed class LegacyBeatmapObjectConverter : ReadonlyJsonObjectConverter
     private static ReadOnlySpan<byte> EditorSettingsKey => "ed"u8;
     private static ReadOnlySpan<byte> EventsKey => "events"u8;
     private static ReadOnlySpan<byte> PositionEventsKey => "pos"u8;
-    private static ReadOnlySpan<byte> RotationEventsKey => "sca"u8;
-    private static ReadOnlySpan<byte> ScaleEventsKey => "rot"u8;
+    private static ReadOnlySpan<byte> ScaleEventsKey => "sca"u8;
+    private static ReadOnlySpan<byte> RotationEventsKey => "rot"u8;
     private static ReadOnlySpan<byte> ColorEventsKey => "col"u8;
 
     protected override BeatmapObject GetDefaultValue() => new() { RenderDepth = 15.0f };
