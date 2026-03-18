@@ -17,5 +17,5 @@ public record struct LensDistortionValue()
     /// <summary>
     /// The center of the lens distortion effect.
     /// </summary>
-    public Vector2 Center { get; set; } = new(0.5f, 0.5f);
+    public Vector2 Center { get; set; } = Vector2.Zero;
 }
