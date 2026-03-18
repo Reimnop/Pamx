@@ -11,22 +11,22 @@ public enum GradientType
     None = 0,
     
     /// <summary>
-    /// Left to right gradient render type.
-    /// </summary>
-    LeftToRightGradient = 1,
-    
-    /// <summary>
     /// Right to left gradient render type.
     /// </summary>
-    RightToLeftGradient = 2,
+    RightToLeftGradient = 1,
     
     /// <summary>
-    /// Inwards radial gradient render type.
+    /// Left to right gradient render type.
     /// </summary>
-    InwardsGradient = 3,
+    LeftToRightGradient = 2,
     
     /// <summary>
     /// Outwards radial gradient render type.
     /// </summary>
-    OutwardsGradient = 4
+    OutwardsGradient = 3,
+    
+    /// <summary>
+    /// Inwards radial gradient render type.
+    /// </summary>
+    InwardsGradient = 4
 }
