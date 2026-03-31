@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Serialization;
-using Pamx.Converters;
+using Pamx.Serialization.Converters.Editor;
 
 namespace Pamx.Editor;
 
@@ -29,6 +29,6 @@ public sealed class EditorPrefabSpawn
     /// <summary>
     /// The keycodes to be used to spawn the prefab
     /// </summary>
-    [JsonConverter(typeof(EPSKeycodeListConverter))]
+    [JsonConverter(typeof(KeycodeListConverter))]
     public List<string> Keycodes { get; set; } = [];
 }
