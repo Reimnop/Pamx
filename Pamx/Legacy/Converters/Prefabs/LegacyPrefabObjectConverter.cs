@@ -97,6 +97,8 @@ internal sealed class LegacyPrefabObjectConverter : ReadonlyJsonObjectConverter<
                 else
                     reader.TrySkip();
             }
+
+            return true;
         }
 
         return false;

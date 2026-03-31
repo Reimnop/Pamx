@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Text.Json;
 using Pamx.Serialization.Extensions;
 using Pamx.Themes;
@@ -23,7 +24,9 @@ internal sealed class LegacyThemeConverter : ReadonlyJsonObjectConverter<Beatmap
         if (reader.ValueTextEquals(IdKey))
         {
             reader.Read();
-            value.Id = reader.GetRawString() ?? string.Empty;
+            var id = reader.GetRawString() ?? string.Empty;
+            id = id.TrimStart('0');
+            value.Id = id;
             return true;
         }
 

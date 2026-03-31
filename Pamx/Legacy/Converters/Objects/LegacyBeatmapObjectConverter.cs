@@ -108,6 +108,7 @@ internal sealed class LegacyBeatmapObjectConverter : ReadonlyJsonObjectConverter
             reader.Read();
             if (reader.GetBooleanLike())
                 value.Type = ObjectType.LegacyHelper;
+            return true;
         }
 
         if (reader.ValueTextEquals(IsEmptyKey))
@@ -115,6 +116,7 @@ internal sealed class LegacyBeatmapObjectConverter : ReadonlyJsonObjectConverter
             reader.Read();
             if (reader.GetBooleanLike())
                 value.Type = ObjectType.LegacyEmpty;
+            return true;
         }
 
         if (reader.ValueTextEquals(ShapeKey))
@@ -221,6 +223,8 @@ internal sealed class LegacyBeatmapObjectConverter : ReadonlyJsonObjectConverter
                 else
                     reader.TrySkip();
             }
+
+            return true;
         }
 
         return false;
