@@ -29,10 +29,10 @@ internal sealed class RandomVector2KeyframeConverter : KeyframeConverter<RandomK
                 switch (i)
                 {
                     case 0:
-                        x = reader.GetSingle();
+                        x = reader.TokenType == JsonTokenType.String ? float.Parse(reader.GetString()!) : reader.GetSingle();
                         break;
                     case 1:
-                        y = reader.GetSingle();
+                        y = reader.TokenType == JsonTokenType.String ? float.Parse(reader.GetString()!) : reader.GetSingle();
                         break;
                     default:
                         reader.Skip();
