@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Globalization;
+using System.Numerics;
 using System.Text.Json;
 using Pamx.Keyframes;
 using Pamx.Serialization.Converters.Keyframes;
@@ -29,10 +30,10 @@ internal sealed class RandomVector2KeyframeConverter : KeyframeConverter<RandomK
                 switch (i)
                 {
                     case 0:
-                        x = reader.TokenType == JsonTokenType.String ? float.Parse(reader.GetString()!) : reader.GetSingle();
+                        x = reader.TokenType == JsonTokenType.String ? float.Parse(reader.GetString()!, CultureInfo.InvariantCulture) : reader.GetSingle();
                         break;
                     case 1:
-                        y = reader.TokenType == JsonTokenType.String ? float.Parse(reader.GetString()!) : reader.GetSingle();
+                        y = reader.TokenType == JsonTokenType.String ? float.Parse(reader.GetString()!, CultureInfo.InvariantCulture) : reader.GetSingle();
                         break;
                     default:
                         reader.Skip();
