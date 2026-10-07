@@ -56,13 +56,13 @@ internal sealed class RandomVector2KeyframeConverter : KeyframeConverter<RandomK
                         units = reader.GetSingle();
                         break;
                     case 6:
-                        world = reader.GetInt32() == 1;
+                        world = reader.GetSingle() >= 0.5f;
                         break;
                     case 7:
-                        despawn = reader.GetInt32() == 1;
+                        despawn = reader.GetSingle() >= 0.5f;
                         break;
                     case 8:
-                        radial = reader.GetInt32() == 1;
+                        radial = reader.GetSingle() >= 0.5f;
                         break;
                     case 9:
                         arc = reader.GetSingle();
@@ -74,7 +74,7 @@ internal sealed class RandomVector2KeyframeConverter : KeyframeConverter<RandomK
                         speed = reader.GetSingle();
                         break;
                     case 12:
-                        hashi = reader.GetInt32() == 1;
+                        hashi = reader.GetSingle() >= 0.5f;
                         break;
                     default:
                         reader.Skip();
