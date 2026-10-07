@@ -39,4 +39,9 @@ public enum ObjectType
     /// An object that is invisible and doesn't hit the player.
     /// </summary>
     Empty,
+    
+    /// <summary>
+    /// An object that emits particles, and doesn't hit the player.
+    /// </summary>
+    Particles,
 }

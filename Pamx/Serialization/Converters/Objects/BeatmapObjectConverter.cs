@@ -12,6 +12,7 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
     private static readonly JsonEncodedText PrefabIdProperty = JsonEncodedText.Encode("pre_id");
     private static readonly JsonEncodedText PrefabInstanceIdProperty = JsonEncodedText.Encode("pre_iid");
     private static readonly JsonEncodedText ParentIdProperty = JsonEncodedText.Encode("p_id");
+    private static readonly JsonEncodedText RenderLayerProperty = JsonEncodedText.Encode("rl");
     private static readonly JsonEncodedText AutoKillTypeProperty = JsonEncodedText.Encode("ak_t");
     private static readonly JsonEncodedText AutoKillOffsetProperty = JsonEncodedText.Encode("ak_o");
     private static readonly JsonEncodedText ObjectTypeProperty = JsonEncodedText.Encode("ot");
@@ -36,6 +37,7 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
     private static ReadOnlySpan<byte> PrefabIdKey => "pre_id"u8;
     private static ReadOnlySpan<byte> PrefabInstanceIdKey => "pre_iid"u8;
     private static ReadOnlySpan<byte> ParentIdKey => "p_id"u8;
+    private static ReadOnlySpan<byte> RenderLayerKey => "rl"u8;
     private static ReadOnlySpan<byte> AutoKillTypeKey => "ak_t"u8;
     private static ReadOnlySpan<byte> AutoKillOffsetKey => "ak_o"u8;
     private static ReadOnlySpan<byte> ObjectTypeKey => "ot"u8;
@@ -90,6 +92,13 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
             return true;
         }
 
+        if (reader.ValueTextEquals(RenderLayerKey))
+        {
+            reader.Read();
+            value.RenderLayer = (RenderLayerType)reader.GetInt32();
+            return true;
+        }
+        
         if (reader.ValueTextEquals(AutoKillTypeKey))
         {
             reader.Read();
@@ -225,6 +234,10 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
                 {
                     case 0:
                         value.PositionEvents = ReadEvents<RandomKeyframe<Vector2>>(ref reader, options);
+                        if (value.PositionEvents.Count > 0)
+                        {
+                            value.ParticleParams = value.PositionEvents[0].ParticlesParams;
+                        }
                         break;
                     case 1:
                         value.ScaleEvents = ReadEvents<RandomKeyframe<Vector2>>(ref reader, options);
@@ -259,6 +272,8 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
         if (!string.IsNullOrEmpty(value.ParentId))
             writer.WriteString(ParentIdProperty, value.ParentId);
 
+        if (value.RenderLayer != RenderLayerType.Normal)
+            writer.WriteNumber(RenderLayerProperty, (int)value.RenderLayer);
         if (value.AutoKillType != AutoKillType.NoAutoKill)
             writer.WriteNumber(AutoKillTypeProperty, (int)value.AutoKillType);
         if (value.AutoKillOffset != 0.0f)
