@@ -40,7 +40,7 @@ public sealed class BeatmapObject : IIdentifiable<string>
     public float StartTime { get; set; } = 0.0f;
 
     /// <summary>
-    /// The time at which the object is spawned.
+    /// The layer which is rendered.
     /// </summary>
     public RenderLayerType RenderLayer { get; set; } = RenderLayerType.Normal;
 
@@ -75,7 +75,7 @@ public sealed class BeatmapObject : IIdentifiable<string>
     public CustomShapeParams? CustomShapeParams { get; set; }
 
     /// <summary>
-    /// The custom shape parameters of the object.
+    /// The particle parameters of the object.
     /// </summary>
     public ParticlesParams? ParticleParams { get; set; }
 

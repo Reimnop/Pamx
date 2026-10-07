@@ -19,7 +19,10 @@ public class RandomKeyframe<T>(T value, float time = 0.0f, Ease ease = Ease.Line
     /// The keyframe's random value.
     /// </summary>
     public T? RandomValue { get; set; }
-
+    
+    /// <summary>
+    /// The keyframe's particle values.
+    /// </summary>
     public ParticlesParams? ParticlesParams { get; set; }
     /// <summary>
     /// The keyframe's random interval.
