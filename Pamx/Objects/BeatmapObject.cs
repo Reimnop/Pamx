@@ -40,7 +40,7 @@ public sealed class BeatmapObject : IIdentifiable<string>
     public float StartTime { get; set; } = 0.0f;
 
     /// <summary>
-    /// The layer which is rendered.
+    /// The layer which the object is rendered.
     /// </summary>
     public RenderLayerType RenderLayer { get; set; } = RenderLayerType.Normal;
 
