@@ -33,6 +33,9 @@ internal sealed class ObjectRotationKeyframeConverter : KeyframeConverter<Object
                     case 1:
                         value.IsAbsolute = reader.GetSingle() != 0.0f;
                         break;
+                    case 2:
+                        value.ParticleValue = reader.GetSingle();
+                        break;
                     default:
                         reader.Skip();
                         break;
@@ -92,6 +95,10 @@ internal sealed class ObjectRotationKeyframeConverter : KeyframeConverter<Object
         writer.WriteStartArray();
         writer.WriteNumberValue(value.Value);
         writer.WriteNumberValue(value.IsAbsolute ? 1.0f : 0.0f);
+        if (value.ParticleValue != 0)
+        {
+            writer.WriteNumberValue(value.ParticleValue );
+        }
         writer.WriteEndArray();
 
         if (value.RandomMode != RandomMode.None)

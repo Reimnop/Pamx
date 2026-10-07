@@ -13,6 +13,11 @@ public class FixedKeyframe<T>() : Keyframe
     /// </summary>
     public required T Value { get; set; }
 
+    /// <summary>
+    /// The keyframe's particle value.
+    /// </summary>
+    public T? ParticleValue { get; set; }
+
     [SetsRequiredMembers]
     public FixedKeyframe(T value, float time = 0.0f, Ease ease = Ease.Linear) : this()
     {

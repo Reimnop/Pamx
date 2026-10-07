@@ -40,6 +40,11 @@ public sealed class BeatmapObject : IIdentifiable<string>
     public float StartTime { get; set; } = 0.0f;
 
     /// <summary>
+    /// The time at which the object is spawned.
+    /// </summary>
+    public RenderLayerType RenderLayer { get; set; } = RenderLayerType.Normal;
+
+    /// <summary>
     /// The type of the time at which the object is killed.
     /// </summary>
     public AutoKillType AutoKillType { get; set; } = AutoKillType.NoAutoKill;
@@ -68,6 +73,11 @@ public sealed class BeatmapObject : IIdentifiable<string>
     /// The custom shape parameters of the object.
     /// </summary>
     public CustomShapeParams? CustomShapeParams { get; set; }
+
+    /// <summary>
+    /// The custom shape parameters of the object.
+    /// </summary>
+    public ParticlesParams? ParticleParams { get; set; }
 
     /// <summary>
     /// The object's text value. Only has an effect when <see cref="Shape"/> is set to <see cref="ObjectShape.Text"/>
