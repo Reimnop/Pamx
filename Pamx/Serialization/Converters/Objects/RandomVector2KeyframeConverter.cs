@@ -26,9 +26,10 @@ internal sealed class RandomVector2KeyframeConverter : KeyframeConverter<RandomK
             float x = 0.0f, y = 0.0f;
             float? px = null, py = null;
 
+            // The game writes a particle setting once it is changed, and treats the ones that are missing as their defaults.
             bool hasParticles = false;
-            bool world = false, despawn = false, radial = false, hashi = false;
-            float seconds = 0f, units = 0f, arc = 0f, radius = 0f, speed = 0f;
+            bool world = true, despawn = false, radial = false, hashi = false;
+            float seconds = 0f, units = 0f, arc = 360f, radius = 1f, speed = 1f;
             
             var i = 0;
 

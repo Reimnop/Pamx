@@ -36,7 +36,8 @@ public sealed class ParticlesParams
     public float RadialCircleArc { get; set; }
 
     /// <summary>
-    /// Value between 0-1 that defines how far from the center particles spawn. 0 means the entire emitter, 1 means only at the very center.
+    /// Value between 0-1 that defines how much of the radius particles spawn in, counted from the edge inwards.
+    /// 1 means the entire emitter, 0 means only at the very edge.
     /// </summary>
     public float RadialCircleRadius { get; set; }
 
