@@ -24,11 +24,11 @@ public sealed class ParallaxSettings
     /// The value of depth of field effect.
     /// </summary>
     [JsonPropertyName("dof_value")]
-    public int DepthOfField { get; set; } = 40;
+    public float DepthOfField { get; set; } = 40.0f;
 
     /// <summary>
     /// Whether the depth of field effect is enabled or not.
     /// </summary>
     [JsonPropertyName("dof_active")]
-    public bool IsDepthOfFieldEnabled { get; set; } = false;
+    public bool IsDepthOfFieldEnabled { get; set; } = true;
 }

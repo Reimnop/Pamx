@@ -48,7 +48,8 @@ namespace Pamx.Serialization;
         typeof(FixedLensDistortionKeyframeConverter),
         typeof(FixedGrainKeyframeConverter),
         typeof(FixedGradientKeyframeConverter),
-        typeof(FixedGlitchKeyframeConverter)
+        typeof(FixedGlitchKeyframeConverter),
+        typeof(FixedPlayerKeyframeConverter)
     ]
 )]
 [JsonSerializable(typeof(Beatmap))]

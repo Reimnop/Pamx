@@ -76,5 +76,5 @@ public sealed class BeatmapEvents
     /// <summary>
     /// Player force event keyframes.
     /// </summary>
-    public List<FixedKeyframe<Vector2>> Player { get; set; } = [];
+    public List<FixedKeyframe<PlayerValue>> Player { get; set; } = [];
 }

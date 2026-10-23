@@ -97,7 +97,7 @@ public sealed class Beatmap
                 Gradient = [new FixedKeyframe<GradientValue>(GradientValue.Zero)],
                 Glitch = [new FixedKeyframe<GlitchValue>(GlitchValue.Zero)],
                 Hue = [new FixedKeyframe<float>(0.0f)],
-                Player = [new FixedKeyframe<Vector2>(Vector2.Zero)]
+                Player = [new FixedKeyframe<PlayerValue>(PlayerValue.Zero)]
             }
         };
 }
