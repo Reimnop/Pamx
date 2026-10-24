@@ -20,8 +20,8 @@ public record struct PlayerValue()
     public PlayerDepthOfFieldMode DepthOfFieldMode { get; set; } = PlayerDepthOfFieldMode.Level;
 
     /// <summary>
-    /// Where the depth of field is focused, if the keyframe turns it on. Null when the keyframe does not say,
-    /// which is the beatmap's parallax settings' value.
+    /// Where the depth of field is focused, if the keyframe turns it on. NaN when the keyframe does not say,
+    /// which is the beatmap's parallax settings' value. (Not a nullable, so that the value is a flat struct.)
     /// </summary>
-    public float? DepthOfFieldFocus { get; set; } = null;
+    public float DepthOfFieldFocus { get; set; } = float.NaN;
 }

@@ -36,7 +36,7 @@ internal sealed class FixedPlayerKeyframeConverter : FixedKeyframeConverter<Play
         writer.WriteNumberValue(value.Force.X);
         writer.WriteNumberValue(value.Force.Y);
         writer.WriteNumberValue((int) value.DepthOfFieldMode);
-        if (value.DepthOfFieldFocus is { } focus)
-            writer.WriteNumberValue(focus);
+        if (!float.IsNaN(value.DepthOfFieldFocus))
+            writer.WriteNumberValue(value.DepthOfFieldFocus);
     }
 }
