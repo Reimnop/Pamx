@@ -277,7 +277,7 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
         if (value.AutoKillType != AutoKillType.NoAutoKill)
             writer.WriteNumber(AutoKillTypeProperty, (int)value.AutoKillType);
         if (value.AutoKillOffset != 0.0f)
-            writer.WriteNumber(AutoKillOffsetProperty, value.AutoKillOffset);
+            writer.WriteFloat(AutoKillOffsetProperty, value.AutoKillOffset);
         if (value.Type != ObjectType.LegacyNormal)
             writer.WriteNumber(ObjectTypeProperty, (int)value.Type);
 
@@ -304,7 +304,7 @@ internal sealed class BeatmapObjectConverter : JsonObjectConverter<BeatmapObject
 
         if (value.Gradient.Type != GradientType.None)
             writer.WriteNumber(GradientTypeProperty, (int)value.Gradient.Type);
-        writer.WriteNumber(GradientRotationProperty, value.Gradient.Rotation);
+        writer.WriteFloat(GradientRotationProperty, value.Gradient.Rotation);
         writer.WriteNumber(GradientScaleProperty, value.Gradient.Scale);
 
         if (value.ParentType is not (ParentType.Position | ParentType.Rotation))

@@ -158,26 +158,26 @@ internal sealed class RandomVector2KeyframeConverter : KeyframeConverter<RandomK
 
         writer.WritePropertyName(KeyframeConverterConstants.ValuesKey);
         writer.WriteStartArray();
-        writer.WriteNumberValue(value.Value.X);
-        writer.WriteNumberValue(value.Value.Y);
+        writer.WriteFloat(value.Value.X);
+        writer.WriteFloat(value.Value.Y);
 
         if (value.ParticleValue != Vector2.Zero || value.ParticlesParams != null) 
         {
-            writer.WriteNumberValue(value.ParticleValue.X);
-            writer.WriteNumberValue(value.ParticleValue.Y);
+            writer.WriteFloat(value.ParticleValue.X);
+            writer.WriteFloat(value.ParticleValue.Y);
         }
         
         if (value.ParticlesParams != null)
         {
-            writer.WriteNumberValue(value.ParticlesParams.ParticlesPerSecond);
-            writer.WriteNumberValue(value.ParticlesParams.ParticlesPerUnit);
-            writer.WriteNumberValue(value.ParticlesParams.World ? 1 : 0);
-            writer.WriteNumberValue(value.ParticlesParams.DespawnOnEnd ? 1 : 0);
-            writer.WriteNumberValue(value.ParticlesParams.Radial ? 1 : 0);
-            writer.WriteNumberValue(value.ParticlesParams.RadialCircleArc);
-            writer.WriteNumberValue(value.ParticlesParams.RadialCircleRadius);
-            writer.WriteNumberValue(value.ParticlesParams.RadialStartSpeed);
-            writer.WriteNumberValue(value.ParticlesParams.Hashi ? 1 : 0);
+            writer.WriteFloat(value.ParticlesParams.ParticlesPerSecond);
+            writer.WriteFloat(value.ParticlesParams.ParticlesPerUnit);
+            writer.WriteFloat(value.ParticlesParams.World ? 1 : 0);
+            writer.WriteFloat(value.ParticlesParams.DespawnOnEnd ? 1 : 0);
+            writer.WriteFloat(value.ParticlesParams.Radial ? 1 : 0);
+            writer.WriteFloat(value.ParticlesParams.RadialCircleArc);
+            writer.WriteFloat(value.ParticlesParams.RadialCircleRadius);
+            writer.WriteFloat(value.ParticlesParams.RadialStartSpeed);
+            writer.WriteFloat(value.ParticlesParams.Hashi ? 1 : 0);
         }
         writer.WriteEndArray();
 
@@ -188,9 +188,9 @@ internal sealed class RandomVector2KeyframeConverter : KeyframeConverter<RandomK
 
         writer.WritePropertyName(KeyframeConverterConstants.RandomValuesProperty);
         writer.WriteStartArray();
-        writer.WriteNumberValue(value.RandomValue.X);
-        writer.WriteNumberValue(value.RandomValue.Y);
-        writer.WriteNumberValue(value.RandomInterval);
+        writer.WriteFloat(value.RandomValue.X);
+        writer.WriteFloat(value.RandomValue.Y);
+        writer.WriteFloat(value.RandomInterval);
         writer.WriteEndArray();
     }
 }

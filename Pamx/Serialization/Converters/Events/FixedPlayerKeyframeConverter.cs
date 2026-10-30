@@ -33,10 +33,10 @@ internal sealed class FixedPlayerKeyframeConverter : FixedKeyframeConverter<Play
 
     protected override void WriteKeyframeValues(Utf8JsonWriter writer, PlayerValue value, JsonSerializerOptions options)
     {
-        writer.WriteNumberValue(value.Force.X);
-        writer.WriteNumberValue(value.Force.Y);
-        writer.WriteNumberValue((int) value.DepthOfFieldMode);
+        writer.WriteFloat(value.Force.X);
+        writer.WriteFloat(value.Force.Y);
+        writer.WriteFloat((int) value.DepthOfFieldMode);
         if (!float.IsNaN(value.DepthOfFieldFocus))
-            writer.WriteNumberValue(value.DepthOfFieldFocus);
+            writer.WriteFloat(value.DepthOfFieldFocus);
     }
 }

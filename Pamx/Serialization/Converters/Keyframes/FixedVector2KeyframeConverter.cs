@@ -26,7 +26,7 @@ internal sealed class FixedVector2KeyframeConverter : FixedKeyframeConverter<Vec
 
     protected override void WriteKeyframeValues(Utf8JsonWriter writer, Vector2 value, JsonSerializerOptions options)
     {
-        writer.WriteNumberValue(value.X);
-        writer.WriteNumberValue(value.Y);
+        writer.WriteFloat(value.X);
+        writer.WriteFloat(value.Y);
     }
 }

@@ -210,11 +210,11 @@ public sealed class PrefabObjectConverter : JsonObjectConverter<PrefabObject>
         switch (value)
         {
             case Vector2 val when val != Vector2.Zero:
-                writer.WriteNumberValue(val.X);
-                writer.WriteNumberValue(val.Y);
+                writer.WriteFloat(val.X);
+                writer.WriteFloat(val.Y);
                 break;
             case float val when val != 0.0f:
-                writer.WriteNumberValue(val);
+                writer.WriteFloat(val);
                 break;
         }
 

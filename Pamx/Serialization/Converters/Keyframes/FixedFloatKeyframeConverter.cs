@@ -17,6 +17,6 @@ internal sealed class FixedFloatKeyframeConverter : FixedKeyframeConverter<float
 
     protected override void WriteKeyframeValues(Utf8JsonWriter writer, float value, JsonSerializerOptions options)
     {
-        writer.WriteNumberValue(value);
+        writer.WriteFloat(value);
     }
 }

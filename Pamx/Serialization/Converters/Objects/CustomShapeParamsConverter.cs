@@ -51,11 +51,11 @@ internal sealed class CustomShapeParamsConverter : JsonConverter<CustomShapePara
     public override void Write(Utf8JsonWriter writer, CustomShapeParams value, JsonSerializerOptions options)
     {
         writer.WriteStartArray();
-        writer.WriteNumberValue((float)value.Sides);
-        writer.WriteNumberValue(value.Roundness);
-        writer.WriteNumberValue(value.Thickness);
-        writer.WriteNumberValue((float)value.Slices);
-        writer.WriteNumberValue(0.0f);
+        writer.WriteFloat((float)value.Sides);
+        writer.WriteFloat(value.Roundness);
+        writer.WriteFloat(value.Thickness);
+        writer.WriteFloat((float)value.Slices);
+        writer.WriteFloat(0.0f);
         writer.WriteEndArray();
     }
 }

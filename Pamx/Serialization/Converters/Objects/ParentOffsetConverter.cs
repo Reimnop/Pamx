@@ -42,9 +42,9 @@ internal sealed class ParentOffsetConverter : JsonConverter<ParentOffset>
     public override void Write(Utf8JsonWriter writer, ParentOffset value, JsonSerializerOptions options)
     {
         writer.WriteStartArray();
-        writer.WriteNumberValue(value.Position);
-        writer.WriteNumberValue(value.Scale);
-        writer.WriteNumberValue(value.Rotation);
+        writer.WriteFloat(value.Position);
+        writer.WriteFloat(value.Scale);
+        writer.WriteFloat(value.Rotation);
         writer.WriteEndArray();
     }
 }

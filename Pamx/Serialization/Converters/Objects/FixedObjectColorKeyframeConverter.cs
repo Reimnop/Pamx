@@ -31,8 +31,8 @@ internal sealed class FixedObjectColorKeyframeConverter : FixedKeyframeConverter
     protected override void WriteKeyframeValues(Utf8JsonWriter writer, ObjectColorValue value,
         JsonSerializerOptions options)
     {
-        writer.WriteNumberValue((float)value.Index);
-        writer.WriteNumberValue(value.Opacity * 100.0f);
-        writer.WriteNumberValue((float)value.EndIndex);
+        writer.WriteFloat((float)value.Index);
+        writer.WriteFloat(value.Opacity * 100.0f);
+        writer.WriteFloat((float)value.EndIndex);
     }
 }

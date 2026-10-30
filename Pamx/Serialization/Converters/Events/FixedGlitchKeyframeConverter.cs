@@ -30,8 +30,8 @@ internal sealed class FixedGlitchKeyframeConverter : FixedKeyframeConverter<Glit
 
     protected override void WriteKeyframeValues(Utf8JsonWriter writer, GlitchValue value, JsonSerializerOptions options)
     {
-        writer.WriteNumberValue(value.Intensity);
-        writer.WriteNumberValue(value.Width);
-        writer.WriteNumberValue(value.Speed);
+        writer.WriteFloat(value.Intensity);
+        writer.WriteFloat(value.Width);
+        writer.WriteFloat(value.Speed);
     }
 }

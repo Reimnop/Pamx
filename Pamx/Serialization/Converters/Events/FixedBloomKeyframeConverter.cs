@@ -30,8 +30,8 @@ internal sealed class FixedBloomKeyframeConverter : FixedKeyframeConverter<Bloom
 
     protected override void WriteKeyframeValues(Utf8JsonWriter writer, BloomValue value, JsonSerializerOptions options)
     {
-        writer.WriteNumberValue(value.Intensity);
-        writer.WriteNumberValue(value.Diffusion);
-        writer.WriteNumberValue((float)value.Color);
+        writer.WriteFloat(value.Intensity);
+        writer.WriteFloat(value.Diffusion);
+        writer.WriteFloat((float)value.Color);
     }
 }

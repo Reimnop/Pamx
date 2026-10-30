@@ -93,11 +93,11 @@ internal sealed class ObjectRotationKeyframeConverter : KeyframeConverter<Object
 
         writer.WritePropertyName(KeyframeConverterConstants.ValuesKey);
         writer.WriteStartArray();
-        writer.WriteNumberValue(value.Value);
-        writer.WriteNumberValue(value.IsAbsolute ? 1.0f : 0.0f);
+        writer.WriteFloat(value.Value);
+        writer.WriteFloat(value.IsAbsolute ? 1.0f : 0.0f);
         if (value.ParticleValue != 0)
         {
-            writer.WriteNumberValue(value.ParticleValue );
+            writer.WriteFloat(value.ParticleValue );
         }
         writer.WriteEndArray();
 
@@ -106,9 +106,9 @@ internal sealed class ObjectRotationKeyframeConverter : KeyframeConverter<Object
 
         writer.WritePropertyName(KeyframeConverterConstants.RandomValuesProperty);
         writer.WriteStartArray();
-        writer.WriteNumberValue(value.RandomValue);
-        writer.WriteNumberValue(0.0f);
-        writer.WriteNumberValue(value.RandomInterval);
+        writer.WriteFloat(value.RandomValue);
+        writer.WriteFloat(0.0f);
+        writer.WriteFloat(value.RandomInterval);
         writer.WriteEndArray();
     }
 }

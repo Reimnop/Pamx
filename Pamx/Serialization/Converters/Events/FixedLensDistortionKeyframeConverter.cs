@@ -31,8 +31,8 @@ internal sealed class FixedLensDistortionKeyframeConverter : FixedKeyframeConver
     protected override void WriteKeyframeValues(Utf8JsonWriter writer, LensDistortionValue value,
         JsonSerializerOptions options)
     {
-        writer.WriteNumberValue(value.Intensity);
-        writer.WriteNumberValue(value.Center.X);
-        writer.WriteNumberValue(value.Center.Y);
+        writer.WriteFloat(value.Intensity);
+        writer.WriteFloat(value.Center.X);
+        writer.WriteFloat(value.Center.Y);
     }
 }

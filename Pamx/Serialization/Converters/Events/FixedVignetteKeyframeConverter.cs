@@ -40,12 +40,12 @@ internal sealed class FixedVignetteKeyframeConverter : FixedKeyframeConverter<Vi
     protected override void WriteKeyframeValues(Utf8JsonWriter writer, VignetteValue value,
         JsonSerializerOptions options)
     {
-        writer.WriteNumberValue(value.Intensity);
-        writer.WriteNumberValue(value.Smoothness);
-        writer.WriteNumberValue(value.IsRounded ? 1.0f : 0.0f);
-        writer.WriteNumberValue(0.0f);
-        writer.WriteNumberValue(value.Center.X);
-        writer.WriteNumberValue(value.Center.Y);
-        writer.WriteNumberValue((float)value.Color);
+        writer.WriteFloat(value.Intensity);
+        writer.WriteFloat(value.Smoothness);
+        writer.WriteFloat(value.IsRounded ? 1.0f : 0.0f);
+        writer.WriteFloat(0.0f);
+        writer.WriteFloat(value.Center.X);
+        writer.WriteFloat(value.Center.Y);
+        writer.WriteFloat((float)value.Color);
     }
 }

@@ -27,7 +27,7 @@ internal abstract class KeyframeConverter<T> : JsonObjectConverter<T> where T : 
     protected override void WriteProperties(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
     {
         if (value.Time != 0.0f)
-            writer.WriteNumber(KeyframeConverterConstants.TimeProperty, value.Time);
+            writer.WriteFloat(KeyframeConverterConstants.TimeProperty, value.Time);
         if (value.Ease == Ease.Linear)
             return;
 

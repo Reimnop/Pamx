@@ -30,8 +30,8 @@ internal sealed class FixedGrainKeyframeConverter : FixedKeyframeConverter<Grain
 
     protected override void WriteKeyframeValues(Utf8JsonWriter writer, GrainValue value, JsonSerializerOptions options)
     {
-        writer.WriteNumberValue(value.Intensity);
-        writer.WriteNumberValue(value.Size);
-        writer.WriteNumberValue(value.Mix);
+        writer.WriteFloat(value.Intensity);
+        writer.WriteFloat(value.Size);
+        writer.WriteFloat(value.Mix);
     }
 }

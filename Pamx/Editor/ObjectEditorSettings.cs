@@ -22,7 +22,7 @@ public class ObjectEditorSettings
     /// <summary>
     /// The object's bin.
     /// </summary>
-    [JsonPropertyName("bin")]
+    [JsonPropertyName("b")]
     public int Bin { get; set; }
 
     /// <summary>

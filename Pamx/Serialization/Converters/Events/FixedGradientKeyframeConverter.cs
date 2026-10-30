@@ -37,10 +37,10 @@ internal sealed class FixedGradientKeyframeConverter : FixedKeyframeConverter<Gr
     protected override void WriteKeyframeValues(Utf8JsonWriter writer, GradientValue value,
         JsonSerializerOptions options)
     {
-        writer.WriteNumberValue(value.Intensity);
-        writer.WriteNumberValue(value.Rotation);
-        writer.WriteNumberValue((float)value.StartColor);
-        writer.WriteNumberValue((float)value.EndColor);
-        writer.WriteNumberValue((float)value.Mode);
+        writer.WriteFloat(value.Intensity);
+        writer.WriteFloat(value.Rotation);
+        writer.WriteFloat((float)value.StartColor);
+        writer.WriteFloat((float)value.EndColor);
+        writer.WriteFloat((float)value.Mode);
     }
 }
